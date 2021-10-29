@@ -15,9 +15,9 @@ From initial Prompt type the following commands:
 
 ```
 pacman -Sy git
-git clone https://github.com/kolombet/ArchTitus
-cd ArchTitus
-./archtitus.sh
+git clone https://github.com/kolombet/kolos
+cd kolos
+./install.sh
 ```
 
 ### System Description
