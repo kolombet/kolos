@@ -81,7 +81,6 @@ PKGS=(
 'breeze-gtk'
 'bridge-utils'
 'btrfs-progs'
-'celluloid' # video players
 'cmatrix'
 'code' # Visual Studio code
 'cronie'
@@ -99,7 +98,6 @@ PKGS=(
 'fuseiso'
 'gamemode'
 'gcc'
-'gimp' # Photo editing
 'git'
 'gparted' # partition management
 'gptfdisk'
@@ -111,12 +109,8 @@ PKGS=(
 'haveged'
 'htop'
 'iptables-nft'
-'jdk-openjdk' # Java 17
-'kate'
 'kvantum-qt5'
 'kde-gtk-config'
-'kitty'
-'konsole'
 'layer-shell-qt'
 'libnewt'
 'libtool'
@@ -124,17 +118,14 @@ PKGS=(
 'linux-firmware'
 'linux-headers'
 'lsof'
-'lutris'
 'lzop'
 'm4'
 'make'
 'milou'
-'nano'
 'neofetch'
 'networkmanager'
 'ntfs-3g'
 'ntp'
-'okular'
 'openbsd-netcat'
 'openssh'
 'os-prober'
@@ -150,13 +141,11 @@ PKGS=(
 'pulseaudio-alsa'
 'pulseaudio-bluetooth'
 'python-pip'
-'qemu'
 'rsync'
 'sddm'
 'sddm-kcm'
 'snapper'
 'spectacle'
-'steam'
 'sudo'
 'swtpm'
 'synergy'
@@ -168,13 +157,8 @@ PKGS=(
 'unzip'
 'usbutils'
 'vim'
-'virt-manager'
-'virt-viewer'
 'wget'
 'which'
-'wine-gecko'
-'wine-mono'
-'winetricks'
 'xdg-desktop-portal-kde'
 'xdg-user-dirs'
 'zeroconf-ioslave'
@@ -182,11 +166,13 @@ PKGS=(
 'zsh'
 'zsh-syntax-highlighting'
 'zsh-autosuggestions'
+'libgee'
+'vala'
 )
 
 for PKG in "${PKGS[@]}"; do
     echo "INSTALLING: ${PKG}"
-    sudo pacman -S "$PKG" --noconfirm --needed
+    sudo pacman -Sy "$PKG" --noconfirm --needed
 done
 
 #
