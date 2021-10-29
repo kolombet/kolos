@@ -32,6 +32,7 @@ PKGS=(
 'papirus-icon-theme'
 'plasma-pa'
 'ocs-url' # install packages from websites
+'sddm-nordic-theme-git'
 'snapper-gui-git'
 'ttf-droid'
 'ttf-hack'
