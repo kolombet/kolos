@@ -24,7 +24,7 @@ echo "==> Installing packages"
 PKGS=(
     # Wayland / Hyprland
     hyprland
-    hyprpaper
+    swaybg
     waybar
     # Terminals
     foot
