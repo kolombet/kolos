@@ -105,7 +105,31 @@ tooltip label{
 }
 
 #cpu, #disk, #memory {
-	padding:3px;
+	padding: 3px;
+}
+
+#battinfo {
+	margin: 0 8px;
+}
+#sysinfo {
+	padding: 0;
+	min-height: 44px;
+}
+
+#battery {
+	padding: 0;
+	margin: 0;
+	min-height: 0px;
+	font-size: 0px;
+	color: transparent;
+	background: transparent;
+	border-bottom: 2px solid @content_main;
+}
+#battery.warning {
+	border-bottom-color: #ffcc67;
+}
+#battery.critical {
+	border-bottom-color: #ff6961;
 }
 
 #window {

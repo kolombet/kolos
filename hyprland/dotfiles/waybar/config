@@ -11,10 +11,18 @@
     "modules-center": [],
     "modules-right": [
         "tray",
+        "group/battinfo",
         "pulseaudio",
-        "hyprland/language",
         "clock",
     ],
+    "group/battinfo": {
+        "orientation": "vertical",
+        "modules": ["group/sysinfo", "battery"]
+    },
+    "group/sysinfo": {
+        "orientation": "horizontal",
+        "modules": ["cpu", "memory", "hyprland/language"]
+    },
     "hyprland/language": {
         "format": "{}",
         "format-en": "ENG",
@@ -69,17 +77,33 @@
             "on-scroll-down": "shift_down"
         }
     },
+    "cpu": {
+        "format": " {usage:02}%",
+        "interval": 2
+    },
+    "memory": {
+        "format": " {used}/{total}GiB",
+        "interval": 2
+    },
+    "battery": {
+        "format": " ",
+        "format-charging": " ",
+        "states": {
+            "warning": 25,
+            "critical": 10
+        }
+    },
     "pulseaudio": {
         "max-volume": 151,
         "scroll-step": 11,
         "format": "{icon}",
         "tooltip-format": "{volume}%",
         "format-icons": {
-            "format-muted": " ",
+            "format-muted": "",
             "default": [
-                " ",
-                " ",
-                " "
+                "",
+                "",
+                ""
             ]
         },
         "on-click": "pwvucontrol"
