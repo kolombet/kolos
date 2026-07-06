@@ -18,6 +18,7 @@ PKGS=(
     kitty
     fuzzel
     pcmanfm
+    yazi
     pipewire
     pipewire-audio
     pipewire-pulse

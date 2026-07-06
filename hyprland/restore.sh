@@ -34,6 +34,7 @@ PKGS=(
     # Launchers / file manager
     fuzzel
     pcmanfm
+    yazi
 
     # Audio (PipeWire stack)
     pipewire
