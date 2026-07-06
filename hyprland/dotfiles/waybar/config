@@ -21,7 +21,7 @@
     },
     "group/sysinfo": {
         "orientation": "horizontal",
-        "modules": ["cpu", "memory", "hyprland/language"]
+        "modules": ["cpu", "temperature", "memory", "hyprland/language"]
     },
     "hyprland/language": {
         "format": "{}",
@@ -80,6 +80,12 @@
     "cpu": {
         "format": " {usage:02}%",
         "interval": 2
+    },
+    "temperature": {
+        "format": " {temperatureC}°C",
+        "interval": 2,
+        "critical-threshold": 80,
+        "format-critical": " {temperatureC}°C"
     },
     "memory": {
         "format": " {used}/{total}GiB",
