@@ -1,39 +1,96 @@
-# KolOS Installer Script
+# kolos
 
-This README contains the steps I do to install and configure a fully-functional Arch Linux installation containing a desktop environment, all the support packages (network, bluetooth, audio, printers, etc.), along with all my preferred applications and utilities. The shell scripts in this repo allow the entire process to be automated.)
+Personal Arch Linux system configuration. Two independent pieces live here:
+
+1. **Automated installer** (repo root) — partitions a disk, installs Arch + KDE Plasma, and applies a rice via `konsave`. Based on ArchTitus/ArchMatic.
+2. **Hyprland dotfiles** (`hyprland/`) — a separate, lighter Wayland setup (Hyprland + waybar) that can be laid on top of any existing Arch install. This is what's actually running day-to-day on this machine.
+
+Config files are plain copies deployed into `~/.config` — there's no symlink manager. Changes are made in this repo and then copied over by hand (or via the `restore*.sh` scripts for a first-time deploy).
 
 ---
-## Create Arch ISO or Use Image
 
-Download ArchISO from <https://archlinux.org/download/> and put on a USB drive with Ventoy or Etcher
-
-If you don't want to build using this script I did create an image @ <https://www.christitus.com/arch-titus>
-
-## Boot Arch ISO
-
-From initial Prompt type the following commands:
+## Repo layout
 
 ```
+0-preinstall.sh       # disk partitioning (btrfs), base pacstrap, systemd-boot
+1-setup.sh            # base packages, KDE Plasma + SDDM, locale/mirrors
+2-user.sh             # yay, zsh + powerlevel10k, deploys dotfiles/, restores KDE rice
+3-post-setup.sh       # enables services (sddm, cups, ntpd, bluetooth, NetworkManager)
+install.sh            # orchestrates the four scripts above via arch-chroot
+install.example.conf  # hostname/username/password template consumed mid-install
+setconsole.sh         # sets TTY keymap/font (KEYMAP=us, FONT=ter-v16b)
+
+kderice-backup.sh      # snapshot the current KDE rice + kitty config with konsave
+kderice-restore.sh     # reapply dotfiles/ and the saved kde.knsv rice
+kde.knsv                # konsave profile export for the KDE rice
+desktop-configs.tar.gz  # archived KDE desktop config backup
+
+dotfiles/              # editor/terminal configs, deployed to ~/.config by 2-user.sh
+  foot/                # foot terminal (theme include + keybindings)
+  helix/                # Helix editor config
+  kitty/                # kitty terminal config + themes
+  nvim/                 # LazyVim-based Neovim config
+  zed/                  # Zed editor settings
+
+hyprland/               # standalone Hyprland desktop setup (see below)
+  restore.sh            # fresh-install path: installs packages, deploys dotfiles, sets up zsh/autologin
+  restore-safe.sh       # same, but backs up any existing ~/.config first instead of overwriting
+  dotfiles/hypr/        # hyprland.conf, window-mode scripts, wallpapers
+  dotfiles/waybar/      # waybar config + style.css
+  dotfiles/kickoff/     # kickoff (app launcher) config
+  shell/                # zprofile (autostarts Hyprland on tty1), zshenv
+  system/               # getty-autologin.conf drop-in for tty1 autologin
+```
+
+---
+
+## Path 1: Automated Arch + KDE install
+
+Boots a bare Arch ISO all the way to a themed KDE Plasma desktop.
+
+Download an Arch ISO from <https://archlinux.org/download/> and write it to a USB drive (Ventoy, Etcher, etc.). Boot it, then:
+
+```bash
 pacman -Sy git
 git clone https://github.com/kolombet/kolos
 cd kolos
 ./install.sh
 ```
 
-### System Description
-This is completely automated arch install of the KDE desktop environment on arch using all the packages I use on a daily basis. 
+This runs, in order: `0-preinstall.sh` (partition + pacstrap + bootloader) → `1-setup.sh` (packages, KDE Plasma, SDDM) → `2-user.sh` (AUR helper, zsh, dotfiles, KDE rice via konsave) → `3-post-setup.sh` (enable services, SDDM theme, sudoers cleanup).
+
+No Wi-Fi during install? `sudo wifi-menu`.
+
+To snapshot or reapply the KDE rice later, use `kderice-backup.sh` / `kderice-restore.sh`.
+
+## Path 2: Hyprland desktop (this machine)
+
+A minimal Wayland setup: Hyprland + waybar + swaybg, laid on top of an already-installed Arch system.
+
+```bash
+cd hyprland
+./restore.sh        # fresh machine — overwrites ~/.config/{hypr,waybar,kickoff}
+# or
+./restore-safe.sh   # backs up any existing configs to ~/.config-backup-<timestamp> first
+```
+
+Either script installs the required packages (`hyprland`, `waybar`, `swaybg`, `foot`, `kickoff`, PipeWire audio stack, fonts, `seatd`), copies `dotfiles/{hypr,waybar,kickoff}` into `~/.config`, installs the `zprofile`/`zshenv` shell files, sets `zsh` as the login shell, and optionally wires up tty1 autologin. After that, logging into tty1 starts Hyprland automatically via `zprofile`.
+
+**Notable behavior:**
+- `Super+F` / `Super+T` run `float.sh` / `tile.sh` to float or tile all windows on the current workspace; `Super+V` toggles floating on the active window. New windows float by default (see the `windowrule` block in `hyprland.conf`).
+- `Super+R` enters a resize submap (`H`/`J`/`K`/`L` to resize, `Return`/`Escape` to exit).
+- On login, `randomwallpaper.sh` picks a random image from `hypr/wallpapers/` per monitor and sets it with `swaybg`.
+- waybar shows CPU/temperature/memory/battery/clock and an EN/RU keyboard-layout indicator, styled with a Nerd Font.
+
+Applying a config change from this repo to a running system is currently manual — edit the file under `hyprland/dotfiles/` or `dotfiles/`, copy it to the matching path under `~/.config`, then `hyprctl reload` (for Hyprland) or restart the relevant process (e.g. `killall waybar && waybar &`, or re-run `randomwallpaper.sh` for swaybg).
+
+---
 
 ## Troubleshooting
 
 __[Arch Linux Installation Guide](https://github.com/rickellis/Arch-Linux-Install-Guide)__
 
-### No Wifi
-
-```bash
-sudo wifi-menu
-```
-
 ## Credits
 
-- Original packages script was a post install cleanup script called ArchMatic located here: https://github.com/rickellis/ArchMatic
-- Thank you to all the folks that helped during the creation from YouTube Chat! Here are all those Livestreams showing the creation: <https://www.youtube.com/watch?v=IkMCtkDIhe8&list=PLc7fktTRMBowNaBTsDHlL6X3P3ViX3tYg>
+- Original packages script was a post-install cleanup script called ArchMatic: <https://github.com/rickellis/ArchMatic>
+- Base installer structure adapted from ArchTitus (<https://www.christitus.com/arch-titus>) and its livestream series: <https://www.youtube.com/watch?v=IkMCtkDIhe8&list=PLc7fktTRMBowNaBTsDHlL6X3P3ViX3tYg>
