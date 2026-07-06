@@ -31,8 +31,8 @@ PKGS=(
 )
 $PRIV pacman -Syu --noconfirm --needed "${PKGS[@]}"
 
-echo "==> Installing kickoff from AUR"
-yay -S --noconfirm --needed kickoff
+echo "==> Installing kickoff and zen-browser from AUR"
+yay -S --noconfirm --needed kickoff zen-browser-bin
 
 echo "==> Backing up existing configs to $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"

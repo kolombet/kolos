@@ -60,8 +60,8 @@ $PRIV pacman -Syu --noconfirm --needed "${PKGS[@]}"
 echo "==> Enabling seatd"
 $PRIV systemctl enable --now seatd.service
 
-# AUR helper check (kickoff is AUR-only)
-AUR_PKGS=(kickoff)
+# AUR helper check (kickoff, zen-browser are AUR-only)
+AUR_PKGS=(kickoff zen-browser-bin)
 if command -v yay &>/dev/null; then
     yay -S --noconfirm --needed "${AUR_PKGS[@]}"
 elif command -v paru &>/dev/null; then
@@ -69,6 +69,7 @@ elif command -v paru &>/dev/null; then
 else
     echo "Warning: no AUR helper (yay/paru) found."
     echo "Install kickoff manually: https://github.com/j0ru/kickoff"
+    echo "Install zen-browser manually: https://aur.archlinux.org/packages/zen-browser-bin"
 fi
 
 echo "==> Deploying dotfiles to $USER_HOME/.config"
