@@ -1,23 +1,17 @@
 #!/bin/bash
 WALLDIR="$HOME/.config/hypr/wallpapers"
-CONF="$HOME/.config/hypr/hyprpaper.conf"
 
 mapfile -t walls < <(find "$WALLDIR" -type f \( -name '*.jpg' -o -name '*.png' -o -name '*.jpeg' -o -name '*.jxl' -o -name '*.webp' \) | shuf)
 
-monitors=($(hyprctl monitors -j | python3 -c "import sys,json; [print(m['name']) for m in json.load(sys.stdin)]"))
+mapfile -t monitors < <(hyprctl monitors -j | python3 -c "import sys,json; [print(m['name']) for m in json.load(sys.stdin)]")
 
-echo "splash = false" > "$CONF"
+killall swaybg 2>/dev/null
+sleep 0.3
+
+args=()
 for i in "${!monitors[@]}"; do
     wp="${walls[$((i % ${#walls[@]}))]}"
-    cat >> "$CONF" <<EOF
-wallpaper {
-    monitor = ${monitors[$i]}
-    path = $wp
-}
-
-EOF
+    args+=(-o "${monitors[$i]}" -i "$wp" -m fill)
 done
 
-killall hyprpaper 2>/dev/null
-sleep 0.3
-hyprpaper &disown
+swaybg "${args[@]}" &disown
