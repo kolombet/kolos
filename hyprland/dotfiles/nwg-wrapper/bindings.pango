@@ -1,0 +1,31 @@
+<span font="Segoe UI 10" foreground="#ffffff">
+<span foreground="#888888">Mod = Win / Cmd</span>
+
+<span font="Segoe UI 12" foreground="#aaaaaa">apps</span>
+<span foreground="#aaaaaa">terminal   </span>Mod+Enter
+<span foreground="#aaaaaa">browser    </span>Mod+B
+<span foreground="#aaaaaa">subl       </span>Mod+E
+<span foreground="#aaaaaa">zed        </span>Mod+Z
+<span foreground="#aaaaaa">nvim       </span>Mod+N
+<span foreground="#aaaaaa">files      </span>Mod+F
+<span foreground="#aaaaaa">yazi       </span>Mod+Y
+<span foreground="#aaaaaa">launcher   </span>Mod+A
+<span foreground="#aaaaaa">menu       </span>Mod+D
+
+<span font="Segoe UI 12" foreground="#aaaaaa">windows</span>
+<span foreground="#aaaaaa">kill       </span>Mod+Q
+<span foreground="#aaaaaa">float      </span>Mod+V
+<span foreground="#aaaaaa">float all  </span>Mod+F
+<span foreground="#aaaaaa">tile all   </span>Mod+T
+<span foreground="#aaaaaa">resize     </span>Mod+R  then  Mod+H/J/K/L
+<span foreground="#aaaaaa">split      </span>Mod+W
+<span foreground="#aaaaaa">cycle      </span>Mod+Tab
+
+<span font="Segoe UI 12" foreground="#aaaaaa">workspaces</span>
+<span foreground="#aaaaaa">switch     </span>Mod+1..0
+<span foreground="#aaaaaa">move win   </span>Mod+Shift+1..0
+<span foreground="#aaaaaa">scratch    </span>Mod+S
+
+<span font="Segoe UI 12" foreground="#aaaaaa">focus</span>
+<span foreground="#aaaaaa">move       </span>Mod+H / Mod+J / Mod+K / Mod+L
+</span>
