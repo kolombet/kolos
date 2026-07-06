@@ -104,6 +104,9 @@ tooltip label{
 	color: @content_main;
 }
 
+#cpu, #disk, #memory, #language {
+	font-family: "JetBrainsMono Nerd Font Mono";
+}
 #cpu, #disk, #memory {
 	padding: 3px;
 }
@@ -181,6 +184,7 @@ tooltip label{
 #clock {
   padding-right: 5px;
   padding-left: 5px;
+	font-family: "JetBrainsMono Nerd Font Mono";
 	transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 #clock:hover {

@@ -26,6 +26,7 @@
     "hyprland/language": {
         "format": "{}",
         "format-en": "ENG",
+        "format-ru": "RUS",
         "format-tr": "TR"
     },
 
@@ -53,7 +54,8 @@
         "spacing": 4
     },
     "clock": {
-        "format": "      {:%R\n %d.%m.%Y}",
+        "format": "{:%R\n%d.%m.%Y}",
+        "justify": "center",
         "tooltip-format": "<tt><small>{calendar}</small></tt>",
         "calendar": {
             "mode": "year",
@@ -88,7 +90,7 @@
         "format-critical": " {temperatureC}°C"
     },
     "memory": {
-        "format": " {used}/{total}GiB",
+        "format": " {used:4.2f}/{total:4.2f}",
         "interval": 2
     },
     "battery": {
