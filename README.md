@@ -2,8 +2,8 @@
 
 Personal Arch Linux system configuration. Two independent pieces live here:
 
-1. **Automated installer** (repo root) — partitions a disk, installs Arch + KDE Plasma, and applies a rice via `konsave`. Based on ArchTitus/ArchMatic.
-2. **Hyprland dotfiles** (`hyprland/`) — a separate, lighter Wayland setup (Hyprland + waybar) that can be laid on top of any existing Arch install. This is what's actually running day-to-day on this machine.
+1. **Automated installer** (repo root) — partitions a disk, installs Arch + Hyprland. Based on ArchTitus/ArchMatic.
+2. **Hyprland dotfiles** (`hyprland/`) — a Wayland setup (Hyprland + waybar) that is installed automatically or can be laid on top of an existing Arch install.
 
 Config files are plain copies deployed into `~/.config` — there's no symlink manager. Changes are made in this repo and then copied over by hand (or via the `restore*.sh` scripts for a first-time deploy).
 
@@ -13,17 +13,12 @@ Config files are plain copies deployed into `~/.config` — there's no symlink m
 
 ```
 0-preinstall.sh       # disk partitioning (btrfs), base pacstrap, systemd-boot
-1-setup.sh            # base packages, KDE Plasma + SDDM, locale/mirrors
-2-user.sh             # yay, zsh + powerlevel10k, deploys dotfiles/, restores KDE rice
-3-post-setup.sh       # enables services (sddm, cups, ntpd, bluetooth, NetworkManager)
-install.sh            # orchestrates the four scripts above via arch-chroot
+1-setup.sh            # base packages, locale/mirrors
+2-user.sh             # yay, zsh + powerlevel10k, deploys dotfiles/
+3-post-setup.sh       # enables services (cups, ntpd, bluetooth, NetworkManager)
+install.sh            # orchestrates the three scripts above via arch-chroot
 install.example.conf  # hostname/username/password template consumed mid-install
 setconsole.sh         # sets TTY keymap/font (KEYMAP=us, FONT=ter-v16b)
-
-kderice-backup.sh      # snapshot the current KDE rice + kitty config with konsave
-kderice-restore.sh     # reapply dotfiles/ and the saved kde.knsv rice
-kde.knsv                # konsave profile export for the KDE rice
-desktop-configs.tar.gz  # archived KDE desktop config backup
 
 dotfiles/              # editor/terminal configs, deployed to ~/.config by 2-user.sh
   foot/                # foot terminal (theme include + keybindings)
@@ -44,9 +39,9 @@ hyprland/               # standalone Hyprland desktop setup (see below)
 
 ---
 
-## Path 1: Automated Arch + KDE install
+## Path 1: Automated Arch + Hyprland install
 
-Boots a bare Arch ISO all the way to a themed KDE Plasma desktop.
+Boots a bare Arch ISO all the way to a themed Hyprland desktop.
 
 Download an Arch ISO from <https://archlinux.org/download/> and write it to a USB drive (Ventoy, Etcher, etc.). Boot it, then:
 
@@ -57,11 +52,9 @@ cd kolos
 ./install.sh
 ```
 
-This runs, in order: `0-preinstall.sh` (partition + pacstrap + bootloader) → `1-setup.sh` (packages, KDE Plasma, SDDM) → `2-user.sh` (AUR helper, zsh, dotfiles, KDE rice via konsave) → `3-post-setup.sh` (enable services, SDDM theme, sudoers cleanup).
+This runs, in order: `0-preinstall.sh` (partition + pacstrap + bootloader) → `1-setup.sh` (packages) → `2-user.sh` (AUR helper, zsh, dotfiles) → `3-post-setup.sh` (enable services, sudoers cleanup).
 
 No Wi-Fi during install? `sudo wifi-menu`.
-
-To snapshot or reapply the KDE rice later, use `kderice-backup.sh` / `kderice-restore.sh`.
 
 ## Path 2: Hyprland desktop (this machine)
 

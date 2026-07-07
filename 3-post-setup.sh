@@ -12,17 +12,6 @@ echo -e "\nFINAL SETUP AND CONFIGURATION"
 
 # ------------------------------------------------------------------------
 
-echo -e "\nEnabling Login Display Manager"
-
-sudo systemctl enable sddm.service
-
-echo -e "\nSetup SDDM Theme"
-
-sudo cat <<EOF > /etc/sddm.conf
-[Theme]
-Current=Nordic
-EOF
-
 # ------------------------------------------------------------------------
 
 echo -e "\nEnabling essential services"
@@ -34,6 +23,23 @@ sudo systemctl disable dhcpcd.service
 sudo systemctl stop dhcpcd.service
 sudo systemctl enable NetworkManager.service
 sudo systemctl enable bluetooth
+
+source install.conf
+
+echo -e "\nSetup Autologin for $username on tty1"
+mkdir -p /etc/systemd/system/getty@tty1.service.d
+cat <<EOF > /etc/systemd/system/getty@tty1.service.d/override.conf
+[Service]
+ExecStart=
+ExecStart=-/usr/bin/agetty --autologin $username --noclear %I \$TERM
+EOF
+
+echo -e "\nSetting zsh as default shell for $username"
+chsh -s /usr/bin/zsh $username
+
+echo -e "\nEnabling seatd"
+systemctl enable seatd.service
+
 echo "
 ###############################################################################
 # Cleaning

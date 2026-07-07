@@ -29,14 +29,14 @@ PKGS=(
 'lightly-git'
 'nerd-fonts-fira-code'
 'papirus-icon-theme'
-'plasma-pa'
 'ocs-url' # install packages from websites
-'sddm-nordic-theme-git'
 'ttf-droid'
 'ttf-hack'
 'ttf-meslo' # Nerdfont package
 'ttf-roboto'
 'snap-pac'
+'kickoff'
+'zen-browser-bin'
 )
 
 for PKG in "${PKGS[@]}"; do
@@ -45,10 +45,9 @@ done
 
 export PATH=$PATH:~/.local/bin
 cp -r $HOME/$SCRIPTHOME/dotfiles/* $HOME/.config/
-pip install konsave
-konsave -i $HOME/$SCRIPTHOME/kde.knsv
-sleep 1
-konsave -a kde
+cp -r $HOME/$SCRIPTHOME/hyprland/dotfiles/* $HOME/.config/
+cp $HOME/$SCRIPTHOME/hyprland/shell/zshenv $HOME/.zshenv
+cp $HOME/$SCRIPTHOME/hyprland/shell/zprofile $HOME/.zprofile
 
 echo -e "\nDone!\n"
 exit
