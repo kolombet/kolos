@@ -54,14 +54,7 @@ pacman -Sy --noconfirm
 echo -e "\nInstalling Base System\n"
 
 PKGS=(
-'mesa' # Essential Xorg First
-'xorg'
-'xorg-server'
-'xorg-apps'
-'xorg-drivers'
-'xorg-xkill'
-'xorg-xinit'
-'xterm'
+'mesa' # Essential
 'alsa-plugins' # audio plugins
 'alsa-utils' # audio utils
 'ark' # compression
@@ -96,8 +89,6 @@ PKGS=(
 'git'
 'gparted' # partition management
 'gptfdisk'
-'grub'
-'grub-customizer'
 'gst-libav'
 'gst-plugins-good'
 'gst-plugins-ugly'
@@ -121,15 +112,10 @@ PKGS=(
 'ntp'
 'openbsd-netcat'
 'openssh'
-'os-prober'
 'pacman-contrib'
 'patch'
-'picom'
 'pkgconf'
 'powerline-fonts'
-'pulseaudio'
-'pulseaudio-alsa'
-'pulseaudio-bluetooth'
 'python-pip'
 'qemu'
 'rsync'
@@ -169,10 +155,7 @@ PKGS=(
 'seatd'
 )
 
-for PKG in "${PKGS[@]}"; do
-    echo "INSTALLING: ${PKG}"
-    sudo pacman -Sy "$PKG" --noconfirm --needed
-done
+sudo pacman -Syu "${PKGS[@]}" --noconfirm --needed
 
 #
 # determine processor type and install microcode
@@ -180,14 +163,14 @@ done
 proc_type=$(lscpu | awk '/Vendor ID:/ {print $3}')
 case "$proc_type" in
 	GenuineIntel)
-		print "Installing Intel microcode"
+		echo "Installing Intel microcode"
 		pacman -S --noconfirm intel-ucode
-		proc_ucode=intel-ucode.img
+		sed -i 's/initrd  \/initramfs-linux.img/initrd  \/intel-ucode.img\ninitrd  \/initramfs-linux.img/' /boot/loader/entries/arch.conf
 		;;
 	AuthenticAMD)
-		print "Installing AMD microcode"
+		echo "Installing AMD microcode"
 		pacman -S --noconfirm amd-ucode
-		proc_ucode=amd-ucode.img
+		sed -i 's/initrd  \/initramfs-linux.img/initrd  \/amd-ucode.img\ninitrd  \/initramfs-linux.img/' /boot/loader/entries/arch.conf
 		;;
 esac	
 

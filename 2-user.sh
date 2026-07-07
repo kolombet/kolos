@@ -39,9 +39,7 @@ PKGS=(
 'zen-browser-bin'
 )
 
-for PKG in "${PKGS[@]}"; do
-    yay -Sy --noconfirm $PKG
-done
+yay -Syu --noconfirm --needed "${PKGS[@]}"
 
 export PATH=$PATH:~/.local/bin
 cp -r $HOME/$SCRIPTHOME/dotfiles/* $HOME/.config/
