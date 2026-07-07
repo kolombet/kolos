@@ -56,6 +56,22 @@ This runs, in order: `0-preinstall.sh` (partition + pacstrap + bootloader) → `
 
 No Wi-Fi during install? `sudo wifi-menu`.
 
+### Testing in a Virtual Machine
+
+Because the automated installer partitions and formats the disk, the safest way to test it without altering your host machine is inside a Virtual Machine.
+
+1. **Get the Software:**
+   - **macOS:** Download **[UTM](https://mac.getutm.app/)** (free) or VMware Fusion. *(Note for Apple Silicon users: You must emulate an x86_64 architecture in UTM to test this exact configuration, as it uses standard x86_64 Arch repos and microcode).*
+   - **Windows/Linux:** Use VirtualBox or VMware Workstation.
+   - Download the official [Arch Linux x86_64 ISO](https://archlinux.org/download/).
+2. **Configure the VM:** 
+   - Assign at least **4GB of RAM** and **2 CPU cores**.
+   - Create a blank virtual drive (e.g., **30GB+**).
+   - Ensure **UEFI boot** is enabled (required for `bootctl`).
+3. **Boot & Run:** 
+   - Mount the Arch ISO and boot the VM.
+   - Follow the `pacman -Sy git` and `git clone` steps from above. 
+   - When the script prompts for a disk to format, type the name of your VM's virtual drive (e.g., `/dev/vda` for UTM/QEMU or `/dev/sda` for VirtualBox). You can look at the output of the `lsblk` command that the script prints to verify the exact name.
 ## Path 2: Hyprland desktop (this machine)
 
 A minimal Wayland setup: Hyprland + waybar + swaybg, laid on top of an already-installed Arch system.
