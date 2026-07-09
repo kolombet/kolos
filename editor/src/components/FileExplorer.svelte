@@ -101,7 +101,7 @@
     <!-- Header -->
     <div class="h-10 shrink-0 px-4 flex items-center justify-between border-b border-[var(--border)] bg-[var(--bg-titlebar)]">
         <div class="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)] no-select">
-            <span class="material-symbols-outlined text-[16px]!">folder_open</span>
+            <span class="material-symbols-outlined text-[19px]!">folder_open</span>
             <span class="truncate max-w-[180px]">{directoryName}</span>
         </div>
         <div class="flex items-center gap-1">
@@ -111,14 +111,14 @@
                 title="Refresh"
                 class="btn-press flex items-center justify-center w-7 h-7 rounded-lg hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             >
-                <span class="material-symbols-outlined text-[16px]!">refresh</span>
+                <span class="material-symbols-outlined text-[19px]!">refresh</span>
             </button>
             <button
                 onclick={onClose}
                 aria-label="Close file explorer"
                 class="btn-press flex items-center justify-center w-7 h-7 rounded-lg hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             >
-                <span class="material-symbols-outlined text-[16px]!">close</span>
+                <span class="material-symbols-outlined text-[19px]!">close</span>
             </button>
         </div>
     </div>
@@ -153,7 +153,7 @@
                                 : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
                             }`}
                         >
-                            <span class="material-symbols-outlined text-[15px]!">description</span>
+                            <span class="material-symbols-outlined text-[18px]!">description</span>
                             <span class="truncate">{file.name}</span>
                         </button>
                     </li>

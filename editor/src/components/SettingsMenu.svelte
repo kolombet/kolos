@@ -58,7 +58,7 @@
         class="btn-press flex items-center justify-center w-[26px] h-[22px] rounded-[3px] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
         title="Settings"
     >
-        <span class="material-symbols-outlined text-[11px]!">settings</span>
+        <span class="material-symbols-outlined text-[13px]!">settings</span>
     </button>
 
     <!-- Dropdown Menu -->
@@ -138,7 +138,7 @@
                     onclick={() => { isOpen = false; window.dispatchEvent(new CustomEvent("paperling:open-settings")); }}
                     class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
                 >
-                    <span class="material-symbols-outlined text-[16px]!">tune</span>
+                    <span class="material-symbols-outlined text-[19px]!">tune</span>
                     More settings…
                 </button>
             </div>

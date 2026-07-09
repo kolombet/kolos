@@ -125,7 +125,7 @@
             {#if isActive}
                 <span class="absolute left-0 top-0 h-[2px] w-full bg-[var(--accent)]" aria-hidden="true"></span>
             {/if}
-            <span class="material-symbols-outlined text-[11px]! shrink-0 opacity-70">description</span>
+            <span class="material-symbols-outlined text-[13px]! shrink-0 opacity-70">description</span>
             <span class="truncate text-[10px] font-mono">{tab.label}</span>
             <button
                 onmousedown={(e) => e.stopPropagation()}
@@ -138,7 +138,7 @@
                 {#if tab.dirty}
                     <span class="w-[4px] h-[4px] rounded-full bg-[var(--status-unsaved)] group-hover/tab:hidden" aria-hidden="true"></span>
                 {/if}
-                <span class={`material-symbols-outlined text-[11px]! leading-none ${tab.dirty ? "hidden group-hover/tab:inline" : "opacity-0 group-hover/tab:opacity-100"}`} aria-hidden="true">close</span>
+                <span class={`material-symbols-outlined text-[13px]! leading-none ${tab.dirty ? "hidden group-hover/tab:inline" : "opacity-0 group-hover/tab:opacity-100"}`} aria-hidden="true">close</span>
             </button>
         </div>
     {/each}
@@ -148,6 +148,6 @@
         title="New tab (Ctrl+N)"
         class="shrink-0 flex items-center justify-center w-[24px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
     >
-        <span class="material-symbols-outlined text-[12px]!">add</span>
+        <span class="material-symbols-outlined text-[14px]!">add</span>
     </button>
 </div>

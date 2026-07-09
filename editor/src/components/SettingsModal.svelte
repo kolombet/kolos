@@ -98,7 +98,7 @@
                                 : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
                             }`}
                         >
-                            <span class="material-symbols-outlined text-[16px]!">{s.icon}</span>
+                            <span class="material-symbols-outlined text-[19px]!">{s.icon}</span>
                             {s.label}
                         </button>
                     {/each}
@@ -112,7 +112,7 @@
                         {sections.find((s) => s.id === section)?.label ?? "Settings"}
                     </h2>
                     <button onclick={onClose} aria-label="Close settings" class="w-7 h-7 rounded-[var(--radius-sm)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition-colors">
-                        <span class="material-symbols-outlined text-[16px]!">close</span>
+                        <span class="material-symbols-outlined text-[19px]!">close</span>
                     </button>
                 </header>
 
@@ -161,7 +161,7 @@
                                                 <span class="block text-[10px] text-[var(--text-muted)] mt-0.5">{f.kind}</span>
                                             </span>
                                             {#if active}
-                                                <span class="material-symbols-outlined text-[16px]! text-[var(--accent)] shrink-0">check</span>
+                                                <span class="material-symbols-outlined text-[19px]! text-[var(--accent)] shrink-0">check</span>
                                             {/if}
                                         </button>
                                     {/each}
@@ -300,7 +300,7 @@
                                     <span class="text-sm font-medium text-[var(--text-primary)]">Replay the welcome tour</span>
                                     <span class="text-[11px] text-[var(--text-muted)] mt-0.5">A 30-second walkthrough of the editor, views, and shortcuts</span>
                                 </span>
-                                <span class="material-symbols-outlined ml-auto text-[16px]! text-[var(--text-muted)]">arrow_forward</span>
+                                <span class="material-symbols-outlined ml-auto text-[19px]! text-[var(--text-muted)]">arrow_forward</span>
                             </button>
                         </div>
                     {/if}

@@ -190,7 +190,7 @@
             {/if}
         {:else}
             <div class="w-full h-full flex flex-col items-center justify-center text-[var(--text-muted)] text-sm">
-                <span class="material-symbols-outlined text-5xl! opacity-20 mb-4">description</span>
+                <span class="material-symbols-outlined text-6xl! opacity-20 mb-4">description</span>
                 <p>Press <kbd class="font-mono bg-[var(--bg-hover)] px-1 rounded">Ctrl+N</kbd> or <kbd class="font-mono bg-[var(--bg-hover)] px-1 rounded">⌘+N</kbd> to open a new tab.</p>
                 <button 
                     class="mt-4 px-4 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded hover:opacity-90"
