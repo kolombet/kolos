@@ -88,7 +88,7 @@
         aria-label="Export document"
         aria-expanded={isOpen}
         aria-haspopup="true"
-        class={`btn-press flex items-center gap-1 px-2 py-1 rounded-[var(--radius-md)] hover:bg-[var(--bg-hover)] transition-colors text-xs ${
+        class={`btn-press flex items-center gap-[4px] px-[6px] h-[20px] rounded-[3px] hover:bg-[var(--bg-hover)] transition-colors text-[10px] font-mono ${
             disabled
                 ? 'cursor-not-allowed text-[var(--text-muted)]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -96,10 +96,10 @@
         title="Export document"
     >
         {#if isExporting}
-            <span class="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
+            <span class="material-symbols-outlined text-[12px] animate-spin">progress_activity</span>
             <span class="hidden sm:inline">Exporting...</span>
         {:else}
-            <span class="material-symbols-outlined text-[16px]">ios_share</span>
+            <span class="material-symbols-outlined text-[12px]">ios_share</span>
             <span class="hidden sm:inline">Export</span>
         {/if}
     </button>

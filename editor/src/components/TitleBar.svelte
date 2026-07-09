@@ -128,7 +128,7 @@
                     class="flex items-center justify-center w-[22px] h-[20px] rounded-[3px] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                     title="New File (Ctrl+N)"
                 >
-                    <span class="material-symbols-outlined text-[14px]">edit_note</span>
+                    <span class="material-symbols-outlined text-[12px]">edit_note</span>
                 </button>
             {/if}
             <button
@@ -137,7 +137,7 @@
                 class="flex items-center justify-center w-[22px] h-[20px] rounded-[3px] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                 title="Open File (Ctrl+O)"
             >
-                <span class="material-symbols-outlined text-[14px]">folder_open</span>
+                <span class="material-symbols-outlined text-[12px]">folder_open</span>
             </button>
             <ExportMenu {fileName} {getExportHtml} onSuccess={onExportSuccess} onError={onExportError} />
         {/if}

@@ -55,10 +55,10 @@
         aria-expanded={isOpen}
         aria-haspopup="true"
         data-tour="settings"
-        class="btn-press flex items-center justify-center w-8 h-8 rounded-lg hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+        class="btn-press flex items-center justify-center w-[26px] h-[22px] rounded-[3px] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
         title="Settings"
     >
-        <span class="material-symbols-outlined text-[18px]">settings</span>
+        <span class="material-symbols-outlined text-[12px]">settings</span>
     </button>
 
     <!-- Dropdown Menu -->
