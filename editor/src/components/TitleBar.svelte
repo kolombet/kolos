@@ -146,24 +146,18 @@
         <button
             onclick={handleMinimize}
             aria-label="Minimize"
-            class="flex items-center justify-center w-[26px] h-[22px] rounded-[3px] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-        >
-            <span class="text-[12px] leading-none">—</span>
-        </button>
+            class="w-[26px] h-[22px] bg-transparent border-none text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border)] text-[12px] leading-none cursor-pointer rounded-[3px]"
+        >—</button>
         <button
             onclick={handleMaximize}
             aria-label={isFullscreen ? "Exit fullscreen" : "Maximize"}
             title={isFullscreen ? "Exit fullscreen (F11)" : "Maximize"}
-            class="flex items-center justify-center w-[26px] h-[22px] rounded-[3px] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-        >
-            <span class="text-[12px] leading-none">▢</span>
-        </button>
+            class="w-[26px] h-[22px] bg-transparent border-none text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border)] text-[12px] leading-none cursor-pointer rounded-[3px]"
+        >▢</button>
         <button
             onclick={handleCloseClick}
             aria-label="Close"
-            class="flex items-center justify-center w-[26px] h-[22px] rounded-[3px] hover:bg-[var(--danger)] hover:text-white text-[var(--text-secondary)] transition-colors"
-        >
-            <span class="text-[12px] leading-none">✕</span>
-        </button>
+            class="w-[26px] h-[22px] bg-transparent border-none text-[var(--text-secondary)] hover:text-white hover:bg-[var(--danger)] text-[12px] leading-none cursor-pointer rounded-[3px]"
+        >✕</button>
     </div>
 </header>
