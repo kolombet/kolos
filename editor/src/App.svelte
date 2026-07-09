@@ -147,18 +147,18 @@
         {getExportHtml}
         onExportSuccess={handleExportSuccess}
         onExportError={handleExportError}
-    />
-
-    {#if tabsState.tabs.length > 0}
-        <TabBar
-            tabs={tabItems}
-            activeId={tabsState.activeTabId}
-            onSelect={(id) => tabsState.setActiveTab(id)}
-            onClose={(id) => tabsState.closeTab(id)}
-            onNewTab={handleNewFile}
-            onReorder={(from, to) => tabsState.reorderTabs(from, to)}
-        />
-    {/if}
+    >
+        {#if tabsState.tabs.length > 0}
+            <TabBar
+                tabs={tabItems}
+                activeId={tabsState.activeTabId}
+                onSelect={(id) => tabsState.setActiveTab(id)}
+                onClose={(id) => tabsState.closeTab(id)}
+                onNewTab={handleNewFile}
+                onReorder={(from, to) => tabsState.reorderTabs(from, to)}
+            />
+        {/if}
+    </TitleBar>
 
     <main class="flex-1 relative min-h-0 flex flex-row">
         <FileExplorer 

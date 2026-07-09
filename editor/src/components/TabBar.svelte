@@ -77,7 +77,7 @@
     role="tablist"
     aria-label="Open files"
     onwheel={onWheel}
-    class="h-9 shrink-0 flex items-stretch overflow-x-auto bg-[var(--bg-titlebar)] border-b border-[var(--border)] no-select"
+    class="h-full shrink-0 flex items-stretch overflow-x-auto no-select w-full"
 >
     {#each tabs as tab, index (tab.id)}
         {@const isActive = tab.id === activeId}
@@ -120,25 +120,25 @@
                 e.preventDefault();
                 onContextMenu(tab.id, e.clientX, e.clientY);
             }}
-            class={`group/tab relative flex items-center gap-2 pl-3 pr-2 shrink-0 min-w-[110px] max-w-[200px] cursor-pointer border-r border-[var(--border)] transition-colors outline-none ${isActive ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"} ${isDropTarget ? "ring-1 ring-inset ring-[var(--accent)]" : ""}`}
+            class={`group/tab relative flex items-center gap-[4px] pl-[8px] pr-[4px] shrink-0 min-w-[80px] max-w-[150px] cursor-pointer border-r border-[var(--border)] transition-colors outline-none ${isActive ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"} ${isDropTarget ? "ring-1 ring-inset ring-[var(--accent)]" : ""}`}
         >
             {#if isActive}
                 <span class="absolute left-0 top-0 h-[2px] w-full bg-[var(--accent)]" aria-hidden="true"></span>
             {/if}
-            <span class="material-symbols-outlined text-[14px] shrink-0 opacity-70">description</span>
-            <span class="truncate text-xs">{tab.label}</span>
+            <span class="material-symbols-outlined text-[12px] shrink-0 opacity-70">description</span>
+            <span class="truncate text-[10px] font-mono">{tab.label}</span>
             <button
                 onmousedown={(e) => e.stopPropagation()}
                 onclick={(e) => { e.stopPropagation(); onClose(tab.id); }}
                 tabindex="-1"
                 aria-label={`Close ${tab.name}`}
                 title={tab.dirty ? "Unsaved changes — click to close" : "Close"}
-                class="shrink-0 w-4 h-4 flex items-center justify-center rounded hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] ml-auto"
+                class="shrink-0 w-[14px] h-[14px] flex items-center justify-center rounded-[2px] hover:bg-[var(--danger)] text-[var(--text-muted)] hover:text-white ml-auto transition-colors"
             >
                 {#if tab.dirty}
-                    <span class="w-1.5 h-1.5 rounded-full bg-[var(--status-unsaved)] group-hover/tab:hidden" aria-hidden="true"></span>
+                    <span class="w-[4px] h-[4px] rounded-full bg-[var(--status-unsaved)] group-hover/tab:hidden" aria-hidden="true"></span>
                 {/if}
-                <span class={`material-symbols-outlined text-[16px] leading-none ${tab.dirty ? "hidden group-hover/tab:inline" : "opacity-0 group-hover/tab:opacity-100"}`} aria-hidden="true">close</span>
+                <span class={`material-symbols-outlined text-[12px] leading-none ${tab.dirty ? "hidden group-hover/tab:inline" : "opacity-0 group-hover/tab:opacity-100"}`} aria-hidden="true">close</span>
             </button>
         </div>
     {/each}
@@ -146,8 +146,8 @@
         onclick={onNewTab}
         aria-label="New tab"
         title="New tab (Ctrl+N)"
-        class="shrink-0 flex items-center justify-center w-9 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+        class="shrink-0 flex items-center justify-center w-[24px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
     >
-        <span class="material-symbols-outlined text-[18px]">add</span>
+        <span class="material-symbols-outlined text-[14px]">add</span>
     </button>
 </div>

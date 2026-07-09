@@ -14,6 +14,7 @@
         onExportError?: (format: string) => void;
         isFullscreen?: boolean;
         onToggleFullscreen?: () => void;
+        children?: import('svelte').Snippet;
     }
 
     let {
@@ -26,7 +27,8 @@
         onExportSuccess,
         onExportError,
         isFullscreen = false,
-        onToggleFullscreen
+        onToggleFullscreen,
+        children
     }: Props = $props();
 
     async function handleMinimize() {
@@ -98,29 +100,15 @@
     onmousedown={handleTitleBarMouseDown}
     class="h-[24px] shrink-0 flex items-center justify-between pl-[6px] pr-[2px] bg-[var(--bg-titlebar)] border-b border-[var(--border)] no-select drag-region transition-colors"
 >
-    <!-- Left: Icon & Title -->
-    <div class="flex items-center gap-[4px] no-drag h-full">
+    <!-- Left: Icon & Actions -->
+    <div class="flex items-center gap-[4px] no-drag h-full shrink-0">
         <div class="flex items-center justify-center w-[14px] h-[14px] ml-[2px]">
             <img src="/icon.svg" alt="Paperling" class="w-full h-full opacity-80" />
         </div>
-        <div class="flex items-center gap-2 text-[10px] text-[var(--text-secondary)] min-w-0 font-mono ml-1">
-            {#if parentFolder}
-                <span class="opacity-60 hidden md:inline">{parentFolder} /</span>
-            {/if}
-            <span class="text-[var(--text-primary)] truncate max-w-[28vw]">
-                {fileName || "Paperling"}
-            </span>
-            {#if !fileName}
-                <span class="text-[var(--text-muted)] hidden sm:inline">— drop a .md file or Ctrl+O</span>
-            {/if}
-            {#if isDirty}
-                <span class="text-[var(--status-unsaved)] ml-1 text-[10px]">●</span>
-            {/if}
-        </div>
 
         <!-- Open File / New Button -->
-        {#if hasFile && onOpenFile}
-            <div class="w-[1px] h-[14px] bg-[var(--border)] ml-1"></div>
+        {#if onOpenFile}
+            <div class="w-[1px] h-[14px] bg-[var(--border)] ml-1 mr-1"></div>
             {#if onNewFile}
                 <button
                     onclick={onNewFile}
@@ -139,8 +127,16 @@
             >
                 <span class="material-symbols-outlined text-[12px]">folder_open</span>
             </button>
-            <ExportMenu {fileName} {getExportHtml} onSuccess={onExportSuccess} onError={onExportError} />
+            {#if hasFile}
+                <ExportMenu {fileName} {getExportHtml} onSuccess={onExportSuccess} onError={onExportError} />
+            {/if}
         {/if}
+    </div>
+
+    <!-- Center: Tabs -->
+    <div class="flex-1 overflow-hidden h-full flex items-end ml-[6px] no-drag relative">
+        <div class="absolute inset-0 drag-region" style="z-index: -1;"></div>
+        {@render children?.()}
     </div>
 
     <!-- Right: Settings & Window Controls -->
