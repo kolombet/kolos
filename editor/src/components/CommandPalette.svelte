@@ -231,7 +231,7 @@
                                         onclick={() => { onClose(); cmd.run(); }}
                                         class={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${active ? "bg-[var(--bg-hover)]" : ""}`}
                                     >
-                                        <span class={`material-symbols-outlined text-[12px] shrink-0 ${active ? "text-[var(--accent)]" : "text-[var(--text-secondary)]"}`}>
+                                        <span class={`material-symbols-outlined text-[16px]! shrink-0 ${active ? "text-[var(--accent)]" : "text-[var(--text-secondary)]"}`}>
                                             {cmd.icon ?? "chevron_right"}
                                         </span>
                                         <span class="flex-1 min-w-0 text-sm text-[var(--text-primary)] truncate">

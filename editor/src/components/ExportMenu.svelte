@@ -96,10 +96,10 @@
         title="Export document"
     >
         {#if isExporting}
-            <span class="material-symbols-outlined text-[8px] animate-spin">progress_activity</span>
+            <span class="material-symbols-outlined text-[11px]! animate-spin">progress_activity</span>
             <span class="hidden sm:inline">Exporting...</span>
         {:else}
-            <span class="material-symbols-outlined text-[8px]">ios_share</span>
+            <span class="material-symbols-outlined text-[11px]!">ios_share</span>
             <span class="hidden sm:inline">Export</span>
         {/if}
     </button>
@@ -128,7 +128,7 @@
                 onclick={() => handleExport('docx')}
                 class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-[var(--bg-hover)] transition-colors"
             >
-                <span class="material-symbols-outlined text-[15px] w-6 text-center text-[var(--accent)]" aria-hidden="true">description</span>
+                <span class="material-symbols-outlined text-[21px]! w-6 text-center text-[var(--accent)]" aria-hidden="true">description</span>
                 <span>Word (.docx)</span>
             </button>
         </div>

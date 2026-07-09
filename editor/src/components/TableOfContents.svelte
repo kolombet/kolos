@@ -112,7 +112,7 @@
     <!-- Header -->
     <div class="h-10 shrink-0 px-4 flex items-center justify-between border-b border-[var(--border)] bg-[var(--bg-titlebar)]">
         <div class="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)] no-select">
-            <span class="material-symbols-outlined text-[12px]">format_list_bulleted</span>
+            <span class="material-symbols-outlined text-[16px]!">format_list_bulleted</span>
             <span>Outline</span>
         </div>
         <button
@@ -120,7 +120,7 @@
             aria-label="Close outline"
             class="btn-press flex items-center justify-center w-7 h-7 rounded-[var(--radius-sm)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
         >
-            <span class="material-symbols-outlined text-[12px]">close</span>
+            <span class="material-symbols-outlined text-[16px]!">close</span>
         </button>
     </div>
 
@@ -164,7 +164,7 @@
                                 : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
                             }`}
                         >
-                            <span class={`material-symbols-outlined text-[9px] ${heading.level === 1 ? "text-[var(--text-primary)]" : "opacity-60"}`}>
+                            <span class={`material-symbols-outlined text-[12px]! ${heading.level === 1 ? "text-[var(--text-primary)]" : "opacity-60"}`}>
                                 {getIcon(heading.level)}
                             </span>
                             <span class={`truncate ${heading.level === 1 ? "font-semibold" : heading.level === 2 ? "font-medium" : ""}`}>

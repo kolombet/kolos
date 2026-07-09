@@ -159,7 +159,7 @@
                     aria-label="Close cheatsheet"
                     class="w-7 h-7 rounded-[var(--radius-sm)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition-colors"
                 >
-                    <span class="material-symbols-outlined text-[12px]">close</span>
+                    <span class="material-symbols-outlined text-[16px]!">close</span>
                 </button>
             </div>
 
