@@ -55,7 +55,7 @@
             aria-pressed={showFileExplorer}
             class={`btn-press flex items-center justify-center w-8 h-6 rounded transition-colors ${showFileExplorer ? "bg-[var(--accent)] text-[var(--accent-text)]" : "hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"}`}
         >
-            <span class="material-symbols-outlined text-[14px]">folder_open</span>
+            <span class="material-symbols-outlined text-[9px]">folder_open</span>
         </button>
 
         <button
@@ -66,7 +66,7 @@
             aria-pressed={showTOC}
             class={`btn-press flex items-center justify-center w-8 h-6 rounded transition-colors ${showTOC ? "bg-[var(--accent)] text-[var(--accent-text)]" : "hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"}`}
         >
-            <span class="material-symbols-outlined text-[14px]">format_list_bulleted</span>
+            <span class="material-symbols-outlined text-[9px]">format_list_bulleted</span>
         </button>
     </div>
     <div class="flex items-center gap-4">
@@ -86,7 +86,7 @@
                 class={`flex items-center gap-1 cursor-default transition-colors ${hasSelection ? "text-[var(--accent)]" : "hover:text-[var(--text-primary)]"}`}
                 title={hasSelection ? `Selection: ${selectionWordCount.toLocaleString()} words, ${selectionLength.toLocaleString()} characters` : (charCount !== undefined ? `${charCount.toLocaleString()} characters` : undefined)}
             >
-                <span class="material-symbols-outlined text-[14px] opacity-70">text_fields</span>
+                <span class="material-symbols-outlined text-[9px] opacity-70">text_fields</span>
                 {#if hasSelection}
                     {selectionWordCount.toLocaleString()} / {wordCount.toLocaleString()} words
                 {:else}
@@ -99,7 +99,7 @@
                 class="flex items-center gap-1 hover:text-[var(--text-primary)] cursor-default transition-colors"
                 title="Estimated reading time at 200 wpm"
             >
-                <span class="material-symbols-outlined text-[14px] opacity-70">schedule</span>
+                <span class="material-symbols-outlined text-[9px] opacity-70">schedule</span>
                 {formatReadingTime(readingTimeMin)}
             </div>
         {/if}

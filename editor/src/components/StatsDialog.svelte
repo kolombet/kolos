@@ -75,7 +75,7 @@
                     aria-label="Close statistics"
                     class="w-7 h-7 rounded-[var(--radius-sm)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition-colors"
                 >
-                    <span class="material-symbols-outlined text-[18px]">close</span>
+                    <span class="material-symbols-outlined text-[12px]">close</span>
                 </button>
             </header>
             <dl class="px-5 py-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
