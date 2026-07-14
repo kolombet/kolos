@@ -139,6 +139,8 @@ PKGS=(
 'libgee'
 'vala'
 'hyprland'
+'hypridle'
+'hyprsunset'
 'swaybg'
 'waybar'
 'foot'
