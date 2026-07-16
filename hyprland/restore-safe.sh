@@ -14,8 +14,6 @@ PKGS=(
     swaybg
     waybar
     foot
-    alacritty
-    kitty
     fuzzel
     pcmanfm
     yazi
@@ -38,6 +36,7 @@ echo "==> Backing up existing configs to $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"
 [[ -d "$USER_HOME/.config/waybar" ]]  && cp -r "$USER_HOME/.config/waybar"  "$BACKUP_DIR/"
 [[ -f "$USER_HOME/.zshenv" ]]         && cp    "$USER_HOME/.zshenv"          "$BACKUP_DIR/"
+[[ -f "$USER_HOME/.zshrc" ]]          && cp    "$USER_HOME/.zshrc"           "$BACKUP_DIR/"
 
 echo "==> Deploying dotfiles"
 mkdir -p "$USER_HOME/.config"
@@ -48,6 +47,7 @@ cp -r "$SCRIPT_DIR/dotfiles/kickoff" "$USER_HOME/.config/"
 echo "==> Shell configs"
 cp "$SCRIPT_DIR/shell/zshenv"   "$USER_HOME/.zshenv"
 cp "$SCRIPT_DIR/shell/zprofile" "$USER_HOME/.zprofile"
+cp "$SCRIPT_DIR/shell/zshrc"    "$USER_HOME/.zshrc"
 
 echo "==> Setting zsh as default shell"
 $PRIV chsh -s /usr/bin/zsh "$(whoami)"

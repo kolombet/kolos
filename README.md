@@ -21,9 +21,8 @@ install.example.conf  # hostname/username/password template consumed mid-install
 setconsole.sh         # sets TTY keymap/font (KEYMAP=us, FONT=ter-v16b)
 
 dotfiles/              # editor/terminal configs, deployed to ~/.config by 2-user.sh
-  foot/                # foot terminal (theme include + keybindings)
+  foot/                # foot terminal (the only terminal — theme include + keybindings)
   helix/                # Helix editor config
-  kitty/                # kitty terminal config + themes
   nvim/                 # LazyVim-based Neovim config
   zed/                  # Zed editor settings
 
@@ -33,7 +32,7 @@ hyprland/               # standalone Hyprland desktop setup (see below)
   dotfiles/hypr/        # hyprland.conf, window-mode scripts, wallpapers
   dotfiles/waybar/      # waybar config + style.css
   dotfiles/kickoff/     # kickoff (app launcher) config
-  shell/                # zprofile (autostarts Hyprland on tty1), zshenv
+  shell/                # zprofile (autostarts Hyprland on tty1), zshenv, zshrc (prompt)
   system/               # getty-autologin.conf drop-in for tty1 autologin
 ```
 
@@ -83,7 +82,7 @@ cd hyprland
 ./restore-safe.sh   # backs up any existing configs to ~/.config-backup-<timestamp> first
 ```
 
-Either script installs the required packages (`hyprland`, `waybar`, `swaybg`, `foot`, `kickoff`, PipeWire audio stack, fonts, `seatd`), copies `dotfiles/{hypr,waybar,kickoff}` into `~/.config`, installs the `zprofile`/`zshenv` shell files, sets `zsh` as the login shell, and optionally wires up tty1 autologin. After that, logging into tty1 starts Hyprland automatically via `zprofile`.
+Either script installs the required packages (`hyprland`, `waybar`, `swaybg`, `foot`, `kickoff`, PipeWire audio stack, fonts, `seatd`), copies `dotfiles/{hypr,waybar,kickoff}` into `~/.config`, installs the `zprofile`/`zshenv`/`zshrc` shell files, sets `zsh` as the login shell, and optionally wires up tty1 autologin. After that, logging into tty1 starts Hyprland automatically via `zprofile`. `zshrc` sets a macOS Terminal.app-style prompt (`hostname:path %`) — no external prompt framework (e.g. powerlevel10k) required.
 
 **Notable behavior:**
 - `Super+F` / `Super+T` run `float.sh` / `tile.sh` to float or tile all windows on the current workspace; `Super+V` toggles floating on the active window. New windows float by default (see the `windowrule` block in `hyprland.conf`).

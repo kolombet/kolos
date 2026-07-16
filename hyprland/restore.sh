@@ -26,10 +26,8 @@ PKGS=(
     hyprland
     swaybg
     waybar
-    # Terminals
+    # Terminal
     foot
-    alacritty
-    kitty
 
     # Launchers / file manager
     fuzzel
@@ -82,6 +80,7 @@ cp -r "$SCRIPT_DIR/dotfiles/kickoff" "$USER_HOME/.config/"
 echo "==> Shell configs"
 cp "$SCRIPT_DIR/shell/zshenv"   "$USER_HOME/.zshenv"
 cp "$SCRIPT_DIR/shell/zprofile" "$USER_HOME/.zprofile"
+cp "$SCRIPT_DIR/shell/zshrc"    "$USER_HOME/.zshrc"
 
 echo "==> Setting zsh as default shell for $(whoami)"
 $PRIV chsh -s /usr/bin/zsh "$(whoami)"

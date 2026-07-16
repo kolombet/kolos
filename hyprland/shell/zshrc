@@ -1,0 +1,8 @@
+# Interactive-only config (prompt, aliases, etc).
+# PATH lives in ~/.zshenv; Hyprland autostart lives in ~/.zprofile.
+
+setopt PROMPT_SUBST
+autoload -Uz colors && colors
+
+# macOS Terminal.app default-style prompt: hostname:path user$
+PS1='%F{cyan}%m%f:%F{blue}%~%f %B%(!.%F{red}%#.%#)%f%b '
