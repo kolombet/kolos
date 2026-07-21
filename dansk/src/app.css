@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
-:root {
+/* ===== Theme Definitions ===== */
+
+/* Dark Theme (Default) */
+:root,
+[data-theme="dark"] {
   --bg-primary: #0f0f12;
   --bg-secondary: #16161a;
   --bg-hover: #27272a;
@@ -19,6 +23,13 @@
 
   --danger: #ff5c5c;
 
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: #27272a;
+  --scrollbar-hover: #3f3f46;
+
+  --selection-bg: #27272a;
+  --selection-text: #e4e4e7;
+
   --badge-new-bg: #27272a;
   --badge-new-text: #a1a1aa;
   --badge-learning-bg: #3a2e14;
@@ -27,35 +38,120 @@
   --badge-review-text: #10ff9e;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg-primary: #ffffff;
-    --bg-secondary: #faf9f7;
-    --bg-hover: #efece8;
-    --bg-input: #ffffff;
+/* Light Theme */
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #faf9f7;
+  --bg-hover: #efece8;
+  --bg-input: #ffffff;
 
-    --text-primary: #171717;
-    --text-secondary: #525252;
-    --text-muted: #a3a3a3;
+  --text-primary: #171717;
+  --text-secondary: #525252;
+  --text-muted: #a3a3a3;
 
-    --accent: #171717;
-    --accent-hover: rgba(23, 23, 23, 0.9);
-    --accent-text: #ffffff;
+  --accent: #171717;
+  --accent-hover: rgba(23, 23, 23, 0.9);
+  --accent-text: #ffffff;
 
-    --border: #e8e4de;
-    --border-subtle: #efece8;
+  --border: #e8e4de;
+  --border-subtle: #efece8;
 
-    --danger: #dc2626;
+  --danger: #dc2626;
 
-    --badge-new-bg: #efece8;
-    --badge-new-text: #525252;
-    --badge-learning-bg: #fef3c7;
-    --badge-learning-text: #b45309;
-    --badge-review-bg: #dcfce7;
-    --badge-review-text: #15803d;
-  }
+  --scrollbar-track: #fafafa;
+  --scrollbar-thumb: #d4d4d4;
+  --scrollbar-hover: #a3a3a3;
+
+  --selection-bg: #171717;
+  --selection-text: #ffffff;
+
+  --badge-new-bg: #efece8;
+  --badge-new-text: #525252;
+  --badge-learning-bg: #fef3c7;
+  --badge-learning-text: #b45309;
+  --badge-review-bg: #dcfce7;
+  --badge-review-text: #15803d;
 }
 
+/* Paper Theme */
+[data-theme="paper"] {
+  --bg-primary: #f5f0e6;
+  --bg-secondary: #ebe5d8;
+  --bg-hover: #ddd6c6;
+  --bg-input: #ebe5d8;
+
+  --text-primary: #3d3d3d;
+  --text-secondary: #5a5340;
+  --text-muted: #7a7160;
+
+  --accent: #5c4033;
+  --accent-hover: rgba(92, 64, 51, 0.9);
+  --accent-text: #faf8f3;
+
+  --border: #d4cfc2;
+  --border-subtle: #e0d9cc;
+
+  --danger: #cd5c5c;
+
+  --scrollbar-track: #ebe5d8;
+  --scrollbar-thumb: #c9c0ae;
+  --scrollbar-hover: #a69d8d;
+
+  --selection-bg: #5c4033;
+  --selection-text: #faf8f3;
+
+  --badge-new-bg: #ebe5d8;
+  --badge-new-text: #5a5340;
+  --badge-learning-bg: #f0dfc0;
+  --badge-learning-text: #8b5a2b;
+  --badge-review-bg: #dde8d0;
+  --badge-review-text: #4c6b3c;
+}
+
+/* Dracula Theme */
+[data-theme="dracula"] {
+  --bg-primary: #282a36;
+  --bg-secondary: #343746;
+  --bg-hover: #44475a;
+  --bg-input: #343746;
+
+  --text-primary: #f8f8f2;
+  --text-secondary: #d6d6d6;
+  --text-muted: #6272a4;
+
+  --accent: #bd93f9;
+  --accent-hover: #a679f7;
+  --accent-text: #f8f8f2;
+
+  --border: #44475a;
+  --border-subtle: #3a3d4d;
+
+  --danger: #ff5555;
+
+  --scrollbar-track: #21222c;
+  --scrollbar-thumb: #44475a;
+  --scrollbar-hover: #6272a4;
+
+  --selection-bg: #44475a;
+  --selection-text: #f8f8f2;
+
+  --badge-new-bg: #44475a;
+  --badge-new-text: #d6d6d6;
+  --badge-learning-bg: #4a3f2a;
+  --badge-learning-text: #ffb86c;
+  --badge-review-bg: #2a4a3a;
+  --badge-review-text: #50fa7b;
+}
+
+/* ===== Design Tokens ===== */
+:root {
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-pill: 9999px;
+}
+
+/* ===== Base Styles ===== */
 html,
 body {
   height: 100%;
@@ -68,13 +164,83 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ===== Accessibility ===== */
+*:focus {
+  outline: none;
 }
 
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
+[role="button"]:focus-visible,
+[role="menuitem"]:focus-visible,
 [tabindex]:not([tabindex="-1"]):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
+  border: 2px solid var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover);
+}
+
+/* ===== Selection ===== */
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-text);
+}
+
+/* ===== Micro-Animations ===== */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.2s ease-out forwards;
+}
+
+.btn-press {
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+}
+
+.btn-press:active {
+  transform: scale(0.95);
 }

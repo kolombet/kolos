@@ -15,7 +15,6 @@ export interface Word {
   english: string;
   exampleDa: string | null;
   exampleEn: string | null;
-  notes: string | null;
   createdAt: string;
 }
 
@@ -56,5 +55,11 @@ export interface WordInput {
   english: string;
   exampleDa?: string | null;
   exampleEn?: string | null;
-  notes?: string | null;
+}
+
+export interface AiFillResult {
+  danish: string;
+  english: string;
+  exampleDa: string;
+  exampleEn: string;
 }

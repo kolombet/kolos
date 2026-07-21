@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import Library from "$lib/components/Library.svelte";
   import Review from "$lib/components/Review.svelte";
+  import SettingsMenu from "$lib/components/SettingsMenu.svelte";
   import { statsState } from "$lib/state/stats.svelte";
 
   let tab = $state<"review" | "library">("review");
@@ -36,11 +37,14 @@
         Library
       </button>
     </div>
-    {#if statsState.stats}
-      <div class="text-sm text-[var(--text-muted)]">
-        {statsState.stats.dueToday} due · {statsState.stats.newToday} new · {statsState.stats.totalWords} words
-      </div>
-    {/if}
+    <div class="flex items-center gap-3">
+      {#if statsState.stats}
+        <div class="text-sm text-[var(--text-muted)]">
+          {statsState.stats.dueToday} due · {statsState.stats.newToday} new · {statsState.stats.totalWords} words
+        </div>
+      {/if}
+      <SettingsMenu />
+    </div>
   </header>
 
   <main class="flex-1 overflow-y-auto">

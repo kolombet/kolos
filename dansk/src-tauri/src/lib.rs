@@ -1,9 +1,13 @@
+mod ai;
 mod commands;
 mod db;
 mod fsrs_engine;
 mod types;
 
-use commands::{add_word, delete_word, get_due_queue, get_stats, list_words, preview_review, submit_review, update_word};
+use commands::{
+    add_word, ai_fill_word, delete_word, get_due_queue, get_stats, list_words, preview_review, submit_review,
+    update_word,
+};
 use db::Db;
 use fsrs_engine::Engine;
 use tauri::Manager;
@@ -38,6 +42,7 @@ pub fn run() {
             preview_review,
             submit_review,
             get_stats,
+            ai_fill_word,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,8 +1,9 @@
 use chrono::Utc;
 use tauri::State;
 
+use crate::ai;
 use crate::fsrs_engine::rating_from_u8;
-use crate::types::{IntervalPreview, ReviewCard, Stats, Word, WordWithCard};
+use crate::types::{AiFillResult, IntervalPreview, ReviewCard, Stats, Word, WordWithCard};
 use crate::AppState;
 
 #[tauri::command]
@@ -12,11 +13,10 @@ pub fn add_word(
     english: String,
     example_da: Option<String>,
     example_en: Option<String>,
-    notes: Option<String>,
 ) -> Result<Word, String> {
     state
         .db
-        .add_word(&danish, &english, example_da.as_deref(), example_en.as_deref(), notes.as_deref())
+        .add_word(&danish, &english, example_da.as_deref(), example_en.as_deref())
         .map_err(|e| e.to_string())
 }
 
@@ -28,11 +28,10 @@ pub fn update_word(
     english: String,
     example_da: Option<String>,
     example_en: Option<String>,
-    notes: Option<String>,
 ) -> Result<Word, String> {
     state
         .db
-        .update_word(id, &danish, &english, example_da.as_deref(), example_en.as_deref(), notes.as_deref())
+        .update_word(id, &danish, &english, example_da.as_deref(), example_en.as_deref())
         .map_err(|e| e.to_string())
 }
 
@@ -107,4 +106,18 @@ pub fn submit_review(state: State<'_, AppState>, word_id: i64, rating: u8) -> Re
 #[tauri::command]
 pub fn get_stats(state: State<'_, AppState>) -> Result<Stats, String> {
     state.db.get_stats().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn ai_fill_word(
+    danish: Option<String>,
+    english: Option<String>,
+    example_da: Option<String>,
+    example_en: Option<String>,
+) -> Result<AiFillResult, String> {
+    // `{e:#}` walks the full anyhow context chain — `{e}` alone only prints the
+    // outermost `.context()` message and swallows the actual underlying cause.
+    ai::fill_word(danish.as_deref(), english.as_deref(), example_da.as_deref(), example_en.as_deref())
+        .await
+        .map_err(|e| format!("{e:#}"))
 }

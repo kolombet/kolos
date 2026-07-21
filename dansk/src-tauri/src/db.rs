@@ -17,7 +17,6 @@ CREATE TABLE IF NOT EXISTS words (
   english       TEXT NOT NULL,
   example_da    TEXT,
   example_en    TEXT,
-  notes         TEXT,
   created_at    TEXT NOT NULL
 );
 
@@ -80,14 +79,13 @@ impl Db {
         english: &str,
         example_da: Option<&str>,
         example_en: Option<&str>,
-        notes: Option<&str>,
     ) -> Result<Word> {
         let conn = self.conn.lock();
         let now = Utc::now();
         conn.execute(
-            "INSERT INTO words (danish, english, example_da, example_en, notes, created_at)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-            params![danish, english, example_da, example_en, notes, now.to_rfc3339()],
+            "INSERT INTO words (danish, english, example_da, example_en, created_at)
+             VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![danish, english, example_da, example_en, now.to_rfc3339()],
         )
         .context("insert word")?;
         let id = conn.last_insert_rowid();
@@ -118,7 +116,6 @@ impl Db {
             english: english.to_string(),
             example_da: example_da.map(str::to_string),
             example_en: example_en.map(str::to_string),
-            notes: notes.map(str::to_string),
             created_at: now,
         })
     }
@@ -130,17 +127,16 @@ impl Db {
         english: &str,
         example_da: Option<&str>,
         example_en: Option<&str>,
-        notes: Option<&str>,
     ) -> Result<Word> {
         let conn = self.conn.lock();
         conn.execute(
-            "UPDATE words SET danish = ?1, english = ?2, example_da = ?3, example_en = ?4, notes = ?5
-             WHERE id = ?6",
-            params![danish, english, example_da, example_en, notes, id],
+            "UPDATE words SET danish = ?1, english = ?2, example_da = ?3, example_en = ?4
+             WHERE id = ?5",
+            params![danish, english, example_da, example_en, id],
         )
         .context("update word")?;
         conn.query_row(
-            "SELECT id, danish, english, example_da, example_en, notes, created_at
+            "SELECT id, danish, english, example_da, example_en, created_at
              FROM words WHERE id = ?1",
             params![id],
             word_from_row,
@@ -158,7 +154,7 @@ impl Db {
     pub fn get_word(&self, id: i64) -> Result<Option<Word>> {
         let conn = self.conn.lock();
         conn.query_row(
-            "SELECT id, danish, english, example_da, example_en, notes, created_at
+            "SELECT id, danish, english, example_da, example_en, created_at
              FROM words WHERE id = ?1",
             params![id],
             word_from_row,
@@ -170,7 +166,7 @@ impl Db {
     pub fn list_words(&self) -> Result<Vec<WordWithCard>> {
         let conn = self.conn.lock();
         let mut stmt = conn.prepare(
-            "SELECT w.id, w.danish, w.english, w.example_da, w.example_en, w.notes, w.created_at,
+            "SELECT w.id, w.danish, w.english, w.example_da, w.example_en, w.created_at,
                     c.due, c.state, c.stability
              FROM words w JOIN cards c ON c.word_id = w.id
              ORDER BY w.created_at DESC",
@@ -178,9 +174,9 @@ impl Db {
         let rows = stmt.query_map([], |row| {
             Ok(WordWithCard {
                 word: word_from_row(row)?,
-                due: parse_dt(row.get(7)?),
-                state: CardState::from_i64(row.get(8)?),
-                stability: row.get(9)?,
+                due: parse_dt(row.get(6)?),
+                state: CardState::from_i64(row.get(7)?),
+                stability: row.get(8)?,
             })
         })?;
         rows.collect::<rusqlite::Result<Vec<_>>>()
@@ -249,7 +245,7 @@ impl Db {
         let due_now = now.to_rfc3339();
 
         let mut stmt = conn.prepare(
-            "SELECT w.id, w.danish, w.english, w.example_da, w.example_en, w.notes, w.created_at,
+            "SELECT w.id, w.danish, w.english, w.example_da, w.example_en, w.created_at,
                     c.due, c.stability, c.difficulty, c.elapsed_days, c.scheduled_days, c.reps, c.lapses,
                     c.state, c.last_review
              FROM words w JOIN cards c ON c.word_id = w.id
@@ -262,7 +258,7 @@ impl Db {
             .context("due cards")?;
 
         let mut stmt_new = conn.prepare(
-            "SELECT w.id, w.danish, w.english, w.example_da, w.example_en, w.notes, w.created_at,
+            "SELECT w.id, w.danish, w.english, w.example_da, w.example_en, w.created_at,
                     c.due, c.stability, c.difficulty, c.elapsed_days, c.scheduled_days, c.reps, c.lapses,
                     c.state, c.last_review
              FROM words w JOIN cards c ON c.word_id = w.id
@@ -321,8 +317,7 @@ fn word_from_row(row: &Row) -> rusqlite::Result<Word> {
         english: row.get(2)?,
         example_da: row.get(3)?,
         example_en: row.get(4)?,
-        notes: row.get(5)?,
-        created_at: parse_dt(row.get(6)?),
+        created_at: parse_dt(row.get(5)?),
     })
 }
 
@@ -343,15 +338,15 @@ fn card_from_row(row: &Row) -> rusqlite::Result<FsrsCard> {
 fn review_card_from_row(row: &Row) -> rusqlite::Result<ReviewCard> {
     Ok(ReviewCard {
         word: word_from_row(row)?,
-        due: parse_dt(row.get(7)?),
-        stability: row.get(8)?,
-        difficulty: row.get(9)?,
-        elapsed_days: row.get(10)?,
-        scheduled_days: row.get(11)?,
-        reps: row.get(12)?,
-        lapses: row.get(13)?,
-        state: CardState::from_i64(row.get(14)?),
-        last_review: parse_dt(row.get(15)?),
+        due: parse_dt(row.get(6)?),
+        stability: row.get(7)?,
+        difficulty: row.get(8)?,
+        elapsed_days: row.get(9)?,
+        scheduled_days: row.get(10)?,
+        reps: row.get(11)?,
+        lapses: row.get(12)?,
+        state: CardState::from_i64(row.get(13)?),
+        last_review: parse_dt(row.get(14)?),
     })
 }
 
@@ -365,7 +360,7 @@ mod tests {
     fn word_lifecycle_and_scheduling() {
         let db = Db::open_in_memory().unwrap();
         let word = db
-            .add_word("hus", "house", Some("Jeg bor i et hus."), Some("I live in a house."), None)
+            .add_word("hus", "house", Some("Jeg bor i et hus."), Some("I live in a house."))
             .unwrap();
 
         let words = db.list_words().unwrap();

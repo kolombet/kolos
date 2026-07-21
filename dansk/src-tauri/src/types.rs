@@ -61,7 +61,6 @@ pub struct Word {
     pub english: String,
     pub example_da: Option<String>,
     pub example_en: Option<String>,
-    pub notes: Option<String>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -109,4 +108,15 @@ pub struct Stats {
     pub new_today: i64,
     pub reviewed_today: i64,
     pub total_words: i64,
+}
+
+/// Result of an AI-fill request: the model echoes back the complete word so the
+/// frontend can just overwrite all four fields with a consistent set.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AiFillResult {
+    pub danish: String,
+    pub english: String,
+    pub example_da: String,
+    pub example_en: String,
 }

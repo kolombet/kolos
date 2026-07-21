@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { invoke } from "@tauri-apps/api/core";
   import { wordsState } from "../state/words.svelte";
-  import type { WordInput, WordWithCard } from "../types";
+  import type { AiFillResult, WordInput, WordWithCard } from "../types";
 
   onMount(() => {
     wordsState.refresh();
@@ -12,8 +13,21 @@
   let english = $state("");
   let exampleDa = $state("");
   let exampleEn = $state("");
-  let notes = $state("");
   let error = $state("");
+  let aiLoading = $state(false);
+  let aiError = $state("");
+
+  // Delete is a two-click "arm" pattern instead of a confirm() dialog — Tauri's
+  // webview doesn't reliably show window.confirm(), so the click-to-arm button below
+  // ("Delete" -> red "SLET" -> click again) is the confirmation UI.
+  let confirmDeleteId = $state<number | null>(null);
+  let confirmDeleteTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  function disarmDelete() {
+    if (confirmDeleteTimeout) clearTimeout(confirmDeleteTimeout);
+    confirmDeleteTimeout = null;
+    confirmDeleteId = null;
+  }
 
   function resetForm() {
     editingId = null;
@@ -21,8 +35,9 @@
     english = "";
     exampleDa = "";
     exampleEn = "";
-    notes = "";
     error = "";
+    aiError = "";
+    disarmDelete();
   }
 
   function startEdit(word: WordWithCard) {
@@ -31,8 +46,9 @@
     english = word.english;
     exampleDa = word.exampleDa ?? "";
     exampleEn = word.exampleEn ?? "";
-    notes = word.notes ?? "";
     error = "";
+    aiError = "";
+    disarmDelete();
   }
 
   async function submit(event: Event) {
@@ -46,7 +62,6 @@
       english: english.trim(),
       exampleDa: exampleDa.trim() || null,
       exampleEn: exampleEn.trim() || null,
-      notes: notes.trim() || null,
     };
     if (editingId !== null) {
       await wordsState.update(editingId, input);
@@ -56,10 +71,44 @@
     resetForm();
   }
 
-  async function remove(id: number) {
-    if (confirm("Delete this word? This also removes its review history.")) {
-      await wordsState.remove(id);
-      if (editingId === id) resetForm();
+  async function handleDeleteClick(id: number) {
+    if (confirmDeleteId !== id) {
+      confirmDeleteId = id;
+      if (confirmDeleteTimeout) clearTimeout(confirmDeleteTimeout);
+      confirmDeleteTimeout = setTimeout(disarmDelete, 3000);
+      return;
+    }
+    disarmDelete();
+    await wordsState.remove(id);
+    if (editingId === id) resetForm();
+  }
+
+  async function aiFill() {
+    if (!danish.trim() && !english.trim() && !exampleDa.trim() && !exampleEn.trim()) return;
+    aiLoading = true;
+    aiError = "";
+    // Only fields that were empty before the call get overwritten — whatever the user
+    // already typed is used as context but never replaced, even if the model echoes
+    // something different back.
+    const hadDanish = !!danish.trim();
+    const hadEnglish = !!english.trim();
+    const hadExampleDa = !!exampleDa.trim();
+    const hadExampleEn = !!exampleEn.trim();
+    try {
+      const result = await invoke<AiFillResult>("ai_fill_word", {
+        danish: danish.trim() || null,
+        english: english.trim() || null,
+        exampleDa: exampleDa.trim() || null,
+        exampleEn: exampleEn.trim() || null,
+      });
+      if (!hadDanish) danish = result.danish;
+      if (!hadEnglish) english = result.english;
+      if (!hadExampleDa) exampleDa = result.exampleDa;
+      if (!hadExampleEn) exampleEn = result.exampleEn;
+    } catch (e) {
+      aiError = String(e);
+    } finally {
+      aiLoading = false;
     }
   }
 
@@ -105,6 +154,7 @@
         />
       </label>
     </div>
+
     <div class="grid grid-cols-2 gap-3">
       <label class="flex flex-col gap-1 text-sm text-[var(--text-secondary)]">
         Example sentence (Danish)
@@ -123,14 +173,23 @@
         />
       </label>
     </div>
-    <label class="flex flex-col gap-1 text-sm text-[var(--text-secondary)]">
-      Notes
-      <input
-        class="rounded-md border border-[var(--border)] bg-[var(--bg-input)] px-2 py-1.5 text-[var(--text-primary)]"
-        bind:value={notes}
-        placeholder="optional"
-      />
-    </label>
+
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        onclick={aiFill}
+        disabled={aiLoading || (!danish.trim() && !english.trim() && !exampleDa.trim() && !exampleEn.trim())}
+        class="rounded-md border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {aiLoading ? "Filling…" : "AI fill"}
+      </button>
+      <span class="text-xs text-[var(--text-muted)]">
+        Fill in any field above, then let AI fill the rest — it won't touch what you've already typed.
+      </span>
+    </div>
+    {#if aiError}
+      <p class="text-sm text-[var(--danger)]">{aiError}</p>
+    {/if}
     {#if error}
       <p class="text-sm text-[var(--danger)]">{error}</p>
     {/if}
@@ -175,10 +234,12 @@
             Edit
           </button>
           <button
-            onclick={() => remove(word.id)}
-            class="rounded-md px-2 py-1 text-sm text-[var(--danger)] hover:bg-[var(--bg-hover)]"
+            onclick={() => handleDeleteClick(word.id)}
+            class="rounded-md px-2 py-1 text-sm hover:bg-[var(--bg-hover)] {confirmDeleteId === word.id
+              ? 'font-bold uppercase text-[var(--danger)]'
+              : 'text-[var(--text-secondary)]'}"
           >
-            Delete
+            {confirmDeleteId === word.id ? "Slet" : "Delete"}
           </button>
         </div>
       {/each}

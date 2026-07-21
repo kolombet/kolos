@@ -10,31 +10,52 @@ use crate::types::AiFillResult;
 const CLI_TIMEOUT: Duration = Duration::from_secs(60);
 
 /// Fills in whichever of {danish, english, example sentence in each language} the
-/// user left blank, given at least one of `danish` / `english`. Shells out to the
-/// `claude` CLI (`claude -p`) instead of calling the Anthropic API directly, so this
-/// reuses the user's existing Claude Code login — no API key to manage in-app.
-pub async fn fill_word(danish: Option<&str>, english: Option<&str>) -> Result<AiFillResult> {
-    if danish.is_none() && english.is_none() {
-        bail!("provide at least one of danish or english");
+/// user left blank, using whatever fields they already filled in as context. Fields
+/// the user already provided are never sent to be overwritten by the model — the
+/// prompt instructs the model to echo them back unchanged, and the caller (see
+/// `commands::ai_fill_word` / the frontend) additionally never applies the response
+/// over a field that was already non-empty. Shells out to the `claude` CLI
+/// (`claude -p`) instead of calling the Anthropic API directly, so this reuses the
+/// user's existing Claude Code login — no API key to manage in-app.
+pub async fn fill_word(
+    danish: Option<&str>,
+    english: Option<&str>,
+    example_da: Option<&str>,
+    example_en: Option<&str>,
+) -> Result<AiFillResult> {
+    if danish.is_none() && english.is_none() && example_da.is_none() && example_en.is_none() {
+        bail!("provide at least one field to generate from");
     }
 
-    let known = match (danish, english) {
-        (Some(d), Some(e)) => format!("Danish word: \"{d}\"\nEnglish translation: \"{e}\""),
-        (Some(d), None) => format!("Danish word: \"{d}\"\nEnglish translation: (fill this in)"),
-        (None, Some(e)) => format!("English word: \"{e}\"\nDanish translation: (fill this in)"),
-        (None, None) => unreachable!(),
+    let field = |label: &str, value: Option<&str>| match value {
+        Some(v) => format!("{label}: \"{v}\""),
+        None => format!("{label}: (blank — fill this in)"),
     };
 
+    let known = [
+        field("Danish word", danish),
+        field("English translation", english),
+        field("Example sentence (Danish)", example_da),
+        field("Example sentence (English translation)", example_en),
+    ]
+    .join("\n");
+
     let prompt = format!(
-        "You are helping build a Danish vocabulary flashcard. Given the following, \
-         return the complete word pair plus one natural, simple example sentence \
-         demonstrating the word in context.\n\n{known}\n\n\
+        "You are helping complete a Danish vocabulary flashcard. Some fields below are \
+         already filled in by the user; others are blank. Fill in ONLY the blank fields.\n\n\
+         {known}\n\n\
          Rules:\n\
-         - Danish nouns must include their grammatical gender article (en/et) if applicable, \
-           written as part of the danish field (e.g. \"et hus\", \"en bil\").\n\
-         - The example sentence must actually use the word.\n\
-         - Keep the example sentence short (under 12 words) and at a beginner level.\n\
-         - exampleEn is a natural translation of exampleDa, not a literal word-for-word gloss.\n\n\
+         - Any field already given above must be returned completely unchanged, character \
+           for character — never correct, rephrase, or add to it.\n\
+         - When you fill in the Danish word yourself, include its grammatical gender article \
+           (en/et) if applicable, as part of the danish field (e.g. \"et hus\", \"en bil\"). \
+           Never add an article to a Danish word field the user already gave.\n\
+         - If the example sentence (Danish) is blank, write one short (under 12 words), \
+           natural, beginner-level sentence that actually uses the Danish word.\n\
+         - If the example sentence (Danish) is given but its translation is blank, translate \
+           that exact given sentence naturally — not word-for-word.\n\
+         - If the Danish word is blank but an example sentence is given, infer the word from \
+           that sentence.\n\n\
          Respond with ONLY a single JSON object, no markdown code fences, no explanation, in \
          exactly this shape: {{\"danish\": \"...\", \"english\": \"...\", \"exampleDa\": \"...\", \"exampleEn\": \"...\"}}"
     );
