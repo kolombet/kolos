@@ -1,0 +1,187 @@
+<script lang="ts">
+  import { onMount } from "svelte";
+  import { wordsState } from "../state/words.svelte";
+  import type { WordInput, WordWithCard } from "../types";
+
+  onMount(() => {
+    wordsState.refresh();
+  });
+
+  let editingId = $state<number | null>(null);
+  let danish = $state("");
+  let english = $state("");
+  let exampleDa = $state("");
+  let exampleEn = $state("");
+  let notes = $state("");
+  let error = $state("");
+
+  function resetForm() {
+    editingId = null;
+    danish = "";
+    english = "";
+    exampleDa = "";
+    exampleEn = "";
+    notes = "";
+    error = "";
+  }
+
+  function startEdit(word: WordWithCard) {
+    editingId = word.id;
+    danish = word.danish;
+    english = word.english;
+    exampleDa = word.exampleDa ?? "";
+    exampleEn = word.exampleEn ?? "";
+    notes = word.notes ?? "";
+    error = "";
+  }
+
+  async function submit(event: Event) {
+    event.preventDefault();
+    if (!danish.trim() || !english.trim()) {
+      error = "Danish and English are required.";
+      return;
+    }
+    const input: WordInput = {
+      danish: danish.trim(),
+      english: english.trim(),
+      exampleDa: exampleDa.trim() || null,
+      exampleEn: exampleEn.trim() || null,
+      notes: notes.trim() || null,
+    };
+    if (editingId !== null) {
+      await wordsState.update(editingId, input);
+    } else {
+      await wordsState.add(input);
+    }
+    resetForm();
+  }
+
+  async function remove(id: number) {
+    if (confirm("Delete this word? This also removes its review history.")) {
+      await wordsState.remove(id);
+      if (editingId === id) resetForm();
+    }
+  }
+
+  function stateBadgeClass(state: WordWithCard["state"]) {
+    switch (state) {
+      case "new":
+        return "bg-[var(--badge-new-bg)] text-[var(--badge-new-text)]";
+      case "learning":
+      case "relearning":
+        return "bg-[var(--badge-learning-bg)] text-[var(--badge-learning-text)]";
+      default:
+        return "bg-[var(--badge-review-bg)] text-[var(--badge-review-text)]";
+    }
+  }
+
+  function dueLabel(word: WordWithCard): string {
+    if (word.state === "new") return "new";
+    const due = new Date(word.due).getTime();
+    const diffDays = Math.ceil((due - Date.now()) / 86_400_000);
+    if (diffDays <= 0) return "due now";
+    if (diffDays === 1) return "due in 1 day";
+    return `due in ${diffDays} days`;
+  }
+</script>
+
+<div class="mx-auto flex max-w-2xl flex-col gap-6 p-6">
+  <form onsubmit={submit} class="flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] p-4">
+    <div class="grid grid-cols-2 gap-3">
+      <label class="flex flex-col gap-1 text-sm text-[var(--text-secondary)]">
+        Danish
+        <input
+          class="rounded-md border border-[var(--border)] bg-[var(--bg-input)] px-2 py-1.5 text-[var(--text-primary)]"
+          bind:value={danish}
+          placeholder="hus"
+        />
+      </label>
+      <label class="flex flex-col gap-1 text-sm text-[var(--text-secondary)]">
+        English
+        <input
+          class="rounded-md border border-[var(--border)] bg-[var(--bg-input)] px-2 py-1.5 text-[var(--text-primary)]"
+          bind:value={english}
+          placeholder="house"
+        />
+      </label>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <label class="flex flex-col gap-1 text-sm text-[var(--text-secondary)]">
+        Example sentence (Danish)
+        <input
+          class="rounded-md border border-[var(--border)] bg-[var(--bg-input)] px-2 py-1.5 text-[var(--text-primary)]"
+          bind:value={exampleDa}
+          placeholder="Jeg bor i et hus."
+        />
+      </label>
+      <label class="flex flex-col gap-1 text-sm text-[var(--text-secondary)]">
+        Example translation
+        <input
+          class="rounded-md border border-[var(--border)] bg-[var(--bg-input)] px-2 py-1.5 text-[var(--text-primary)]"
+          bind:value={exampleEn}
+          placeholder="I live in a house."
+        />
+      </label>
+    </div>
+    <label class="flex flex-col gap-1 text-sm text-[var(--text-secondary)]">
+      Notes
+      <input
+        class="rounded-md border border-[var(--border)] bg-[var(--bg-input)] px-2 py-1.5 text-[var(--text-primary)]"
+        bind:value={notes}
+        placeholder="optional"
+      />
+    </label>
+    {#if error}
+      <p class="text-sm text-[var(--danger)]">{error}</p>
+    {/if}
+    <div class="flex gap-2">
+      <button
+        type="submit"
+        class="rounded-md bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-[var(--accent-text)]"
+      >
+        {editingId !== null ? "Save changes" : "Add word"}
+      </button>
+      {#if editingId !== null}
+        <button
+          type="button"
+          onclick={resetForm}
+          class="rounded-md border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--text-secondary)]"
+        >
+          Cancel
+        </button>
+      {/if}
+    </div>
+  </form>
+
+  <div class="flex flex-col gap-1">
+    {#if wordsState.loading && wordsState.words.length === 0}
+      <p class="text-sm text-[var(--text-muted)]">Loading…</p>
+    {:else if wordsState.words.length === 0}
+      <p class="text-sm text-[var(--text-muted)]">No words yet — add your first one above.</p>
+    {:else}
+      {#each wordsState.words as word (word.id)}
+        <div class="flex items-center gap-3 rounded-md border border-[var(--border-subtle)] px-3 py-2">
+          <div class="flex-1">
+            <div class="font-medium text-[var(--text-primary)]">{word.danish}</div>
+            <div class="text-sm text-[var(--text-secondary)]">{word.english}</div>
+          </div>
+          <span class="rounded-full px-2 py-0.5 text-xs {stateBadgeClass(word.state)}">
+            {dueLabel(word)}
+          </span>
+          <button
+            onclick={() => startEdit(word)}
+            class="rounded-md px-2 py-1 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
+          >
+            Edit
+          </button>
+          <button
+            onclick={() => remove(word.id)}
+            class="rounded-md px-2 py-1 text-sm text-[var(--danger)] hover:bg-[var(--bg-hover)]"
+          >
+            Delete
+          </button>
+        </div>
+      {/each}
+    {/if}
+  </div>
+</div>

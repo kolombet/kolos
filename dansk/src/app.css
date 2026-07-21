@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0f0f12;
+  --bg-secondary: #16161a;
+  --bg-hover: #27272a;
+  --bg-input: #1c1c21;
+
+  --text-primary: #e4e4e7;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  --accent: #10ff9e;
+  --accent-hover: rgba(16, 255, 158, 0.9);
+  --accent-text: #0f0f12;
+
+  --border: #27272a;
+  --border-subtle: #2a2a30;
+
+  --danger: #ff5c5c;
+
+  --badge-new-bg: #27272a;
+  --badge-new-text: #a1a1aa;
+  --badge-learning-bg: #3a2e14;
+  --badge-learning-text: #ffb020;
+  --badge-review-bg: #123524;
+  --badge-review-text: #10ff9e;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #faf9f7;
+    --bg-hover: #efece8;
+    --bg-input: #ffffff;
+
+    --text-primary: #171717;
+    --text-secondary: #525252;
+    --text-muted: #a3a3a3;
+
+    --accent: #171717;
+    --accent-hover: rgba(23, 23, 23, 0.9);
+    --accent-text: #ffffff;
+
+    --border: #e8e4de;
+    --border-subtle: #efece8;
+
+    --danger: #dc2626;
+
+    --badge-new-bg: #efece8;
+    --badge-new-text: #525252;
+    --badge-learning-bg: #fef3c7;
+    --badge-learning-text: #b45309;
+    --badge-review-bg: #dcfce7;
+    --badge-review-text: #15803d;
+  }
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

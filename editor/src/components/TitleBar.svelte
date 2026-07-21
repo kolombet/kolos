@@ -146,18 +146,18 @@
         <button
             onclick={handleMinimize}
             aria-label="Minimize"
-            class="w-[26px] h-[22px] bg-transparent border-none text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border)] text-[12px] leading-none cursor-pointer rounded-[3px]"
-        >—</button>
+            class="w-[26px] h-[22px] bg-transparent border-none text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border)] cursor-pointer rounded-[3px] flex items-center justify-center"
+        ><span class="material-symbols-outlined text-[14px]!">remove</span></button>
         <button
             onclick={handleMaximize}
             aria-label={isFullscreen ? "Exit fullscreen" : "Maximize"}
             title={isFullscreen ? "Exit fullscreen (F11)" : "Maximize"}
-            class="w-[26px] h-[22px] bg-transparent border-none text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border)] text-[12px] leading-none cursor-pointer rounded-[3px]"
-        >▢</button>
+            class="w-[26px] h-[22px] bg-transparent border-none text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border)] cursor-pointer rounded-[3px] flex items-center justify-center"
+        ><span class="material-symbols-outlined text-[14px]!">crop_square</span></button>
         <button
             onclick={handleCloseClick}
             aria-label="Close"
-            class="w-[26px] h-[22px] bg-transparent border-none text-[var(--text-secondary)] hover:text-white hover:bg-[var(--danger)] text-[12px] leading-none cursor-pointer rounded-[3px]"
-        >✕</button>
+            class="w-[26px] h-[22px] bg-transparent border-none text-[var(--text-secondary)] hover:text-white hover:bg-[var(--danger)] cursor-pointer rounded-[3px] flex items-center justify-center"
+        ><span class="material-symbols-outlined text-[14px]!">close</span></button>
     </div>
 </header>
