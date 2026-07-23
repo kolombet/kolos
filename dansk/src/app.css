@@ -244,3 +244,19 @@ input:focus-visible,
 .btn-press:active {
   transform: scale(0.95);
 }
+
+/* ===== Desktop App Styles ===== */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.drag-region {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}

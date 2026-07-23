@@ -132,6 +132,20 @@
     if (diffDays === 1) return "due in 1 day";
     return `due in ${diffDays} days`;
   }
+
+  let search = $state("");
+
+  let filteredWords = $derived.by(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return wordsState.words;
+    return wordsState.words.filter(
+      (word) =>
+        word.danish.toLowerCase().includes(query) ||
+        word.english.toLowerCase().includes(query) ||
+        (word.exampleDa?.toLowerCase().includes(query) ?? false) ||
+        (word.exampleEn?.toLowerCase().includes(query) ?? false),
+    );
+  });
 </script>
 
 <div class="mx-auto flex max-w-2xl flex-col gap-6 p-6">
@@ -212,13 +226,25 @@
     </div>
   </form>
 
-  <div class="flex flex-col gap-1">
+  <div class="flex flex-col gap-3">
+    {#if wordsState.words.length > 0}
+      <input
+        type="search"
+        bind:value={search}
+        placeholder="Search words…"
+        aria-label="Search words"
+        class="rounded-md border border-[var(--border)] bg-[var(--bg-input)] px-2 py-1.5 text-sm text-[var(--text-primary)]"
+      />
+    {/if}
+
     {#if wordsState.loading && wordsState.words.length === 0}
       <p class="text-sm text-[var(--text-muted)]">Loading…</p>
     {:else if wordsState.words.length === 0}
       <p class="text-sm text-[var(--text-muted)]">No words yet — add your first one above.</p>
+    {:else if filteredWords.length === 0}
+      <p class="text-sm text-[var(--text-muted)]">No words match "{search}".</p>
     {:else}
-      {#each wordsState.words as word (word.id)}
+      {#each filteredWords as word (word.id)}
         <div class="flex items-center gap-3 rounded-md border border-[var(--border-subtle)] px-3 py-2">
           <div class="flex-1">
             <div class="font-medium text-[var(--text-primary)]">{word.danish}</div>
