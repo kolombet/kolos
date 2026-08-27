@@ -1,5 +1,1 @@
 export PATH="$HOME/.local/bin:$PATH"
-
-# GUI password prompt for sudo when there's no controlling TTY (e.g.
-# keybind-launched commands, or tools invoking sudo non-interactively).
-export SUDO_ASKPASS=/usr/bin/lxqt-openssh-askpass

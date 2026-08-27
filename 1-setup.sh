@@ -154,7 +154,6 @@ PKGS=(
 'noto-fonts'
 'ttf-jetbrains-mono-nerd'
 'seatd'
-'lxqt-openssh-askpass'
 )
 
 sudo pacman -Syu "${PKGS[@]}" --noconfirm --needed

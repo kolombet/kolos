@@ -1,0 +1,13 @@
+[package]
+name = "kolos-askpass"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bytemuck = "1.25.2"
+env_logger = "0.11.11"
+fontconfig = "0.11.0"
+fontdue = "0.9.4"
+log = "0.4.34"
+smithay-client-toolkit = { version = "0.21", features = ["calloop", "calloop-wayland-source", "xkbcommon"] }
+wayland-client = "0.31"

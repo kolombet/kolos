@@ -26,7 +26,9 @@ PKGS=(
     zsh
     git
     base-devel
-    lxqt-openssh-askpass
+
+    # Build toolchain for askpass/ (kolos-askpass GUI sudo password prompt)
+    rust
 )
 $PRIV pacman -Syu --noconfirm --needed "${PKGS[@]}"
 
@@ -52,6 +54,15 @@ cp "$SCRIPT_DIR/shell/zshrc"    "$USER_HOME/.zshrc"
 
 echo "==> Setting zsh as default shell"
 $PRIV chsh -s /usr/bin/zsh "$(whoami)"
+
+echo "==> Building askpass/ (kolos-askpass GUI sudo password prompt)"
+cargo build --release --manifest-path "$SCRIPT_DIR/../askpass/Cargo.toml"
+$PRIV install -Dm755 "$SCRIPT_DIR/../askpass/target/release/kolos-askpass" /usr/local/bin/kolos-askpass
+if grep -q "^Path askpass" /etc/sudo.conf 2>/dev/null; then
+    $PRIV sed -i 's|^Path askpass .*|Path askpass /usr/local/bin/kolos-askpass|' /etc/sudo.conf
+else
+    echo "Path askpass /usr/local/bin/kolos-askpass" | $PRIV tee -a /etc/sudo.conf >/dev/null
+fi
 
 echo "==> Pacman: enabling parallel downloads"
 if ! grep -q "^ParallelDownloads" /etc/pacman.conf; then

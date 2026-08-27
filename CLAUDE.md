@@ -44,6 +44,57 @@ copied, not symlinked. Since `monitors.conf` is gitignored, a fresh clone
 won't have one; it must be created manually from the `.example` file after
 running setup.
 
+## GUI sudo password prompt
+
+Some commands need `sudo` but have no controlling TTY — a Hyprland keybind
+launching a command directly, or a tool (e.g. an agent's shell tool)
+invoking `sudo` non-interactively. Without an askpass helper, sudo just
+fails with "a password is required" instead of prompting.
+
+Three approaches were tried, in order:
+
+- **`SUDO_ASKPASS` env var in `~/.zshenv`**, pointing at
+  `lxqt-openssh-askpass`. Rejected — it only applies to processes that
+  inherit that shell's environment, so it doesn't cover the motivating case
+  (a keybind launching a program directly, with no zsh login shell in its
+  ancestry). It also isn't the same mechanism sudo falls back to when
+  nothing is set (see below), so having both configured at once invites
+  confusion about which one actually fires.
+- **System-wide `/etc/sudo.conf`** with `Path askpass
+  /usr/local/bin/gui-askpass`, a script wrapping `zenity --password`. This
+  applies to *any* process invoking `sudo` without a TTY regardless of
+  shell or ancestry, which is the part that actually matters — but in
+  practice it printed GTK theme-parser errors and a failed
+  Vulkan-device-detection warning to stderr every time it fired, and pulls
+  in a full toolkit (GTK3) for one modal.
+- **`askpass/` (`kolos-askpass`) — the option actually used.** A small
+  standalone Rust binary that draws its own Wayland layer-shell surface
+  (via `smithay-client-toolkit` + `fontdue`, no GTK/Qt at all) instead of
+  shelling out to anything. It's deliberately not a fork of `kickoff`
+  (this repo's actual launcher) — kickoff's fuzzy search, clipboard,
+  history, and config-file system are all dead weight for a password
+  box — but it reuses kickoff's proven techniques for the parts that
+  matter: `Anchor::all()` + `set_exclusive_zone(-1)` on an `Overlay`-layer
+  surface (draws a small box manually centered within a full-output
+  canvas, rather than hoping an unanchored surface centers itself),
+  `get_keyboard_with_repeat` for key-repeat, and reading typed text via
+  `KeyEvent.utf8` rather than hand-rolling keysym-to-Unicode translation.
+  `argv[1]` is the prompt (sudo passes its own prompt text there); Enter
+  prints the buffer to stdout and exits 0, Escape exits nonzero with no
+  output.
+
+Deployed by `restore.sh`/`restore-safe.sh`: install the `rust` package
+(for `cargo`/`rustc`, build-time only), run `cargo build --release
+--manifest-path askpass/Cargo.toml` as the invoking user (not `$PRIV` —
+don't build as root), `install -Dm755` the resulting binary to
+`/usr/local/bin/kolos-askpass`, then point `/etc/sudo.conf`'s `Path
+askpass` at it — replacing an existing `Path askpass` line in place via
+`sed` if one is already there (e.g. from the earlier zenity setup),
+appending one otherwise. `1-setup.sh` (the separate x86_64
+full-disk-installer path, out of scope otherwise — see "Deployment" above)
+needs none of this, since it sets `%wheel ALL=(ALL) NOPASSWD: ALL` and
+never prompts wheel members for a password at all.
+
 ## Hyprland config layout
 
 `hyprland.conf` is just `source =` lines — edit the sub-files, not it:

@@ -2,3 +2,4 @@ install.conf
 installlog.txt
 editor/node_modules/
 hyprland/dotfiles/hypr/monitors.conf
+askpass/target/
