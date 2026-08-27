@@ -47,6 +47,9 @@ PKGS=(
     # Seat management (required for Hyprland as root or non-root)
     seatd
 
+    # GUI sudo password prompt (SUDO_ASKPASS, set in ~/.zshenv)
+    lxqt-openssh-askpass
+
     # Shell and essentials
     zsh
     git

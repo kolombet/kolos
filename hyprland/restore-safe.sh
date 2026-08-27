@@ -26,6 +26,7 @@ PKGS=(
     zsh
     git
     base-devel
+    lxqt-openssh-askpass
 )
 $PRIV pacman -Syu --noconfirm --needed "${PKGS[@]}"
 
