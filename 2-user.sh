@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #-------------------------------------------------------------------------
-#   █████╗ ██████╗  ██████╗██╗  ██╗████████╗██╗████████╗██╗   ██╗███████╗
-#  ██╔══██╗██╔══██╗██╔════╝██║  ██║╚══██╔══╝██║╚══██╔══╝██║   ██║██╔════╝
-#  ███████║██████╔╝██║     ███████║   ██║   ██║   ██║   ██║   ██║███████╗
-#  ██╔══██║██╔══██╗██║     ██╔══██║   ██║   ██║   ██║   ██║   ██║╚════██║
-#  ██║  ██║██║  ██║╚██████╗██║  ██║   ██║   ██║   ██║   ╚██████╔╝███████║
-#  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝   ╚═╝   ╚═╝   ╚═╝    ╚═════╝ ╚══════╝
+#  ██╗  ██╗ ██████╗ ██╗      ██████╗ ███████╗
+#  ██║ ██╔╝██╔═══██╗██║     ██╔═══██╗██╔════╝
+#  █████╔╝ ██║   ██║██║     ██║   ██║███████╗
+#  ██╔═██╗ ██║   ██║██║     ██║   ██║╚════██║
+#  ██║  ██╗╚██████╔╝███████╗╚██████╔╝███████║
+#  ╚═╝  ╚═╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝
 #-------------------------------------------------------------------------
 
 echo -e "\nINSTALLING AUR SOFTWARE\n"
@@ -17,10 +17,6 @@ git clone "https://aur.archlinux.org/yay.git"
 cd ${HOME}/yay
 makepkg -si --noconfirm
 cd ~
-touch "$HOME/.cache/zshhistory"
-git clone "https://github.com/ChrisTitusTech/zsh"
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $HOME/powerlevel10k
-ln -s "$HOME/zsh/.zshrc" $HOME/.zshrc
 
 PKGS=(
 'autojump'
@@ -46,6 +42,7 @@ cp -r $HOME/$SCRIPTHOME/dotfiles/* $HOME/.config/
 cp -r $HOME/$SCRIPTHOME/hyprland/dotfiles/* $HOME/.config/
 cp $HOME/$SCRIPTHOME/hyprland/shell/zshenv $HOME/.zshenv
 cp $HOME/$SCRIPTHOME/hyprland/shell/zprofile $HOME/.zprofile
+cp $HOME/$SCRIPTHOME/hyprland/shell/zshrc $HOME/.zshrc
 
 echo -e "\nDone!\n"
 exit

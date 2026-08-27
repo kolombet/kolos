@@ -1,0 +1,48 @@
+This repository (kolos) builds on work from two upstream projects. This file
+preserves their license terms / attribution as required or advisable when
+reusing their material. See also the "Credits" section in README.md.
+
+---
+
+## ArchTitus
+
+The disk-partitioning installer flow (`0-preinstall.sh`, `1-setup.sh`,
+`2-user.sh`, `3-post-setup.sh`, `install.sh`) is adapted from ArchTitus
+(<https://github.com/ChrisTitusTech/ArchTitus>, also documented at
+<https://www.christitus.com/arch-titus>).
+
+ArchTitus is MIT licensed:
+
+> MIT License
+>
+> Copyright (c) 2021 Chris Titus
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to
+> deal in the Software without restriction, including without limitation the
+> rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+> sell copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in
+> all copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+> FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+> DEALINGS IN THE SOFTWARE.
+
+---
+
+## ArchMatic
+
+The original post-install package-cleanup script that this repo's package
+list traces back to is ArchMatic (<https://github.com/rickellis/ArchMatic>
+by rickellis / Rick Ellis).
+
+ArchMatic's repository does not carry a LICENSE file or other explicit
+license grant. It is credited here as the origin of the approach; no license
+terms are asserted on its behalf.

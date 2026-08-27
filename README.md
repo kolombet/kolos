@@ -2,7 +2,7 @@
 
 Personal Arch Linux system configuration. Two independent pieces live here:
 
-1. **Automated installer** (repo root) — partitions a disk, installs Arch + Hyprland. Based on ArchTitus/ArchMatic.
+1. **Automated installer** (repo root) — partitions a disk, installs Arch + Hyprland.
 2. **Hyprland dotfiles** (`hyprland/`) — a Wayland setup (Hyprland + waybar) that is installed automatically or can be laid on top of an existing Arch install.
 
 Config files are plain copies deployed into `~/.config` — there's no symlink manager. Changes are made in this repo and then copied over by hand (or via the `restore*.sh` scripts for a first-time deploy).
@@ -14,7 +14,7 @@ Config files are plain copies deployed into `~/.config` — there's no symlink m
 ```
 0-preinstall.sh       # disk partitioning (btrfs), base pacstrap, systemd-boot
 1-setup.sh            # base packages, locale/mirrors
-2-user.sh             # yay, zsh + powerlevel10k, deploys dotfiles/
+2-user.sh             # yay, deploys shell config + dotfiles/
 3-post-setup.sh       # enables services (cups, ntpd, bluetooth, NetworkManager)
 install.sh            # orchestrates the three scripts above via arch-chroot
 install.example.conf  # hostname/username/password template consumed mid-install
@@ -53,7 +53,19 @@ cd kolos
 
 This runs, in order: `0-preinstall.sh` (partition + pacstrap + bootloader) → `1-setup.sh` (packages) → `2-user.sh` (AUR helper, zsh, dotfiles) → `3-post-setup.sh` (enable services, sudoers cleanup).
 
-No Wi-Fi during install? `sudo wifi-menu`.
+**No Wi-Fi during install?** The Arch ISO's live environment uses `iwd` — connect with `iwctl` before running `install.sh` (no internet to look this up otherwise, so it's spelled out here):
+
+```
+iwctl
+[iwd]# device list
+[iwd]# station <device> scan
+[iwd]# station <device> get-networks
+[iwd]# station <device> connect "<SSID>"
+Passphrase: ...
+[iwd]# exit
+```
+
+Once installed, the system itself manages Wi-Fi via **NetworkManager** (installed by `1-setup.sh`, enabled by `3-post-setup.sh`) — use `nmtui` or `nmcli` post-install. (An `nm-applet` autostart line exists in `hyprland/dotfiles/hypr/autostart.conf` but is commented out by default.)
 
 ### Testing in a Virtual Machine
 
@@ -102,3 +114,5 @@ __[Arch Linux Installation Guide](https://github.com/rickellis/Arch-Linux-Instal
 
 - Original packages script was a post-install cleanup script called ArchMatic: <https://github.com/rickellis/ArchMatic>
 - Base installer structure adapted from ArchTitus (<https://www.christitus.com/arch-titus>) and its livestream series: <https://www.youtube.com/watch?v=IkMCtkDIhe8&list=PLc7fktTRMBowNaBTsDHlL6X3P3ViX3tYg>
+
+See [LICENSE](LICENSE) and [NOTICE](NOTICE) for this repo's license and the preserved upstream ArchTitus license text.

@@ -1,6 +1,6 @@
 # kolos
 
-Personal dotfiles / Arch install scripts (fork of ChrisTitusTech/ArchTitus), plus a bundled `editor/` app (Paperling, Tauri+Svelte).
+Personal dotfiles / Arch install scripts, plus a bundled `editor/` app (Paperling, Tauri+Svelte).
 
 See `docs/user-stories.md` for the product-intent reasoning behind terminal
 choice, window resize, and tile/float behavior — this file covers the "how",
@@ -164,11 +164,10 @@ the day.
 
 `hyprland/shell/zshrc` sets `PS1` to a macOS Terminal.app-style prompt
 (`hostname:path %`, red `#` for root) via plain zsh `PROMPT_SUBST` — no
-powerlevel10k or other framework. It's deployed to `~/.zshrc` by both
-`restore.sh` and `restore-safe.sh`, alongside `zshenv`/`zprofile`. This is
-separate from `2-user.sh` (the x86_64 disk-partitioning installer path),
-which still clones `ChrisTitusTech/zsh` + `powerlevel10k` — that's a
-different, heavier-weight product and out of scope here.
+powerlevel10k or other framework. It's deployed to `~/.zshrc` by
+`restore.sh`, `restore-safe.sh`, and `2-user.sh` (the x86_64
+disk-partitioning installer path) alike, alongside `zshenv`/`zprofile` —
+all three paths share the same shell setup now.
 
 ## Default terminal
 
