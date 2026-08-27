@@ -19,20 +19,8 @@ makepkg -si --noconfirm
 cd ~
 
 PKGS=(
-'autojump'
-'awesome-terminal-fonts'
-'dxvk-bin' # DXVK DirectX to Vulcan
-'lightly-git'
-'nerd-fonts-fira-code'
-'papirus-icon-theme'
-'ocs-url' # install packages from websites
-'ttf-droid'
-'ttf-hack'
-'ttf-meslo' # Nerdfont package
-'ttf-roboto'
-'snap-pac'
 'kickoff'
-'zen-browser-bin'
+'nwg-wrapper'
 )
 
 yay -Syu --noconfirm --needed "${PKGS[@]}"

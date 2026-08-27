@@ -16,7 +16,7 @@ PKGS=(
     foot
     fuzzel
     pcmanfm
-    yazi
+    firefox
     pipewire
     pipewire-audio
     pipewire-pulse
@@ -32,8 +32,8 @@ PKGS=(
 )
 $PRIV pacman -Syu --noconfirm --needed "${PKGS[@]}"
 
-echo "==> Installing kickoff and zen-browser from AUR"
-yay -S --noconfirm --needed kickoff zen-browser-bin
+echo "==> Installing kickoff and nwg-wrapper from AUR"
+yay -S --noconfirm --needed kickoff nwg-wrapper
 
 echo "==> Backing up existing configs to $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"
@@ -73,6 +73,6 @@ echo ""
 echo "==> Done! Backup of overwritten files is at: $BACKUP_DIR"
 echo ""
 echo "Next steps:"
-echo "  1. Review ~/.config/hypr/hyprland.conf — update the monitor= line for your display."
-echo "     For a real display: monitor=,preferred,auto,1"
+echo "  1. ~/.config/hypr/monitors.lua ships with a generic preferred/auto default;"
+echo "     edit it in place if this machine needs a specific mode/position/scale."
 echo "  2. Log out and start Hyprland, or run: Hyprland"

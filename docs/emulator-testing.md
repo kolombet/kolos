@@ -47,11 +47,11 @@ needed there beyond what's below for GPU/display).
 - Autologin on tty1 and the Hyprland autostart guard in `zprofile` are
   already wired up by `3-post-setup.sh` / `2-user.sh` — no manual login or
   `Hyprland` invocation needed.
-- Create `~/.config/hypr/monitors.conf` from
-  `hyprland/dotfiles/hypr/monitors.conf.example` (gitignored — see
-  `CLAUDE.md`, "Hyprland monitor config"). For a VM with no real display,
-  `monitor=,preferred,auto,1` is a safe default. A hardcoded custom
-  resolution (e.g. to match a specific host laptop panel) also works even
+- `~/.config/hypr/monitors.lua` already ships with a generic
+  `preferred`/`auto`/scale-1 default (see `CLAUDE.md`, "Hyprland monitor
+  config") — no per-machine setup step needed for a VM with no real
+  display. A hardcoded custom resolution (e.g. to match a specific host
+  laptop panel) also works even
   if the virtual GPU doesn't advertise it in `hyprctl monitors`'
   `availableModes` — Hyprland's headless/virtio-gpu backend accepts
   arbitrary custom modes regardless. If it doesn't take effect on first

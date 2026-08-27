@@ -32,7 +32,7 @@ PKGS=(
     # Launchers / file manager
     fuzzel
     pcmanfm
-    yazi
+    firefox
 
     # Audio (PipeWire stack)
     pipewire
@@ -61,8 +61,8 @@ $PRIV pacman -Syu --noconfirm --needed "${PKGS[@]}"
 echo "==> Enabling seatd"
 $PRIV systemctl enable --now seatd.service
 
-# AUR helper check (kickoff, zen-browser are AUR-only)
-AUR_PKGS=(kickoff zen-browser-bin)
+# AUR helper check (kickoff, nwg-wrapper are AUR-only)
+AUR_PKGS=(kickoff nwg-wrapper)
 if command -v yay &>/dev/null; then
     yay -S --noconfirm --needed "${AUR_PKGS[@]}"
 elif command -v paru &>/dev/null; then
@@ -70,7 +70,7 @@ elif command -v paru &>/dev/null; then
 else
     echo "Warning: no AUR helper (yay/paru) found."
     echo "Install kickoff manually: https://github.com/j0ru/kickoff"
-    echo "Install zen-browser manually: https://aur.archlinux.org/packages/zen-browser-bin"
+    echo "Install nwg-wrapper manually: https://aur.archlinux.org/packages/nwg-wrapper"
 fi
 
 echo "==> Deploying dotfiles to $USER_HOME/.config"
@@ -132,7 +132,7 @@ echo ""
 echo "==> Done!"
 echo ""
 echo "Next steps:"
-echo "  1. Review ~/.config/hypr/hyprland.conf — update the monitor= line for your display."
-echo "     For a real laptop: monitor=,preferred,auto,1"
-echo "     For a UTM/QEMU VM: monitor=,3024x1964@60,0x0,2  (adjust to host resolution)"
+echo "  1. ~/.config/hypr/monitors.lua ships with a generic preferred/auto default;"
+echo "     edit it in place if this machine needs a specific mode/position/scale"
+echo "     (e.g. a UTM/QEMU VM's virtual output, or a multi-monitor layout)."
 echo "  2. Reboot or log out and log back in to start Hyprland via ~/.zprofile."

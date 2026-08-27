@@ -6,13 +6,13 @@ STATEFILE="/tmp/hypr_float_ws_$WORKSPACE"
 hyprctl clients -j | jq -c ".[] | select(.workspace.id == $WORKSPACE) | {address, x: .at[0], y: .at[1], w: .size[0], h: .size[1]}" > "$STATEFILE"
 
 # Tile all floating windows
-BATCH=""
+LUA=""
 while read -r win; do
     addr=$(echo "$win" | jq -r '.address')
     floating=$(hyprctl clients -j | jq -r ".[] | select(.address == \"$addr\") | .floating")
     if [ "$floating" = "true" ]; then
-        BATCH+="dispatch togglefloating address:$addr;"
+        LUA+="hl.dispatch(hl.dsp.window.float({ action = 'toggle', window = 'address:$addr' }));"
     fi
 done < "$STATEFILE"
 
-[ -n "$BATCH" ] && hyprctl --batch "$BATCH"
+[ -n "$LUA" ] && hyprctl repl "$LUA return 'ok'"

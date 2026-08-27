@@ -7,6 +7,8 @@ Personal Arch Linux system configuration. Two independent pieces live here:
 
 Config files are plain copies deployed into `~/.config` — there's no symlink manager. Changes are made in this repo and then copied over by hand (or via the `restore*.sh` scripts for a first-time deploy).
 
+Minimal, keyboard-oriented, Lua-scripted, and meant to be maintained as much by an agent as by hand — see [`docs/philosophy.md`](docs/philosophy.md) for the full thesis.
+
 ---
 
 ## Repo layout
@@ -29,7 +31,7 @@ dotfiles/              # editor/terminal configs, deployed to ~/.config by 2-use
 hyprland/               # standalone Hyprland desktop setup (see below)
   restore.sh            # fresh-install path: installs packages, deploys dotfiles, sets up zsh/autologin
   restore-safe.sh       # same, but backs up any existing ~/.config first instead of overwriting
-  dotfiles/hypr/        # hyprland.conf, window-mode scripts, wallpapers
+  dotfiles/hypr/        # hyprland.lua config (Lua, not the old .conf), window-mode scripts, wallpapers
   dotfiles/waybar/      # waybar config + style.css
   dotfiles/kickoff/     # kickoff (app launcher) config
   shell/                # zprofile (autostarts Hyprland on tty1), zshenv, zshrc (prompt)
@@ -65,7 +67,7 @@ Passphrase: ...
 [iwd]# exit
 ```
 
-Once installed, the system itself manages Wi-Fi via **NetworkManager** (installed by `1-setup.sh`, enabled by `3-post-setup.sh`) — use `nmtui` or `nmcli` post-install. (An `nm-applet` autostart line exists in `hyprland/dotfiles/hypr/autostart.conf` but is commented out by default.)
+Once installed, the system itself manages Wi-Fi via **NetworkManager** (installed by `1-setup.sh`, enabled by `3-post-setup.sh`) — use `nmtui` or `nmcli` post-install. (An `nm-applet` autostart line exists in `hyprland/dotfiles/hypr/autostart.lua` but is commented out by default.)
 
 ### Testing in a Virtual Machine
 
@@ -97,7 +99,7 @@ cd hyprland
 Either script installs the required packages (`hyprland`, `waybar`, `swaybg`, `foot`, `kickoff`, PipeWire audio stack, fonts, `seatd`), copies `dotfiles/{hypr,waybar,kickoff}` into `~/.config`, installs the `zprofile`/`zshenv`/`zshrc` shell files, sets `zsh` as the login shell, and optionally wires up tty1 autologin. After that, logging into tty1 starts Hyprland automatically via `zprofile`. `zshrc` sets a macOS Terminal.app-style prompt (`hostname:path %`) — no external prompt framework (e.g. powerlevel10k) required.
 
 **Notable behavior:**
-- `Super+F` / `Super+T` run `float.sh` / `tile.sh` to float or tile all windows on the current workspace; `Super+V` toggles floating on the active window. New windows float by default (see the `windowrule` block in `hyprland.conf`).
+- `Super+F` / `Super+T` run `float.sh` / `tile.sh` to float or tile all windows on the current workspace; `Super+V` toggles floating on the active window. New windows float by default (see the `float-by-default` window rule in `windows.lua`).
 - `Super+R` enters a resize submap (`H`/`J`/`K`/`L` to resize, `Return`/`Escape` to exit).
 - On login, `randomwallpaper.sh` picks a random image from `hypr/wallpapers/` per monitor and sets it with `swaybg`.
 - waybar shows CPU/temperature/memory/battery/clock and an EN/RU keyboard-layout indicator, styled with a Nerd Font.
