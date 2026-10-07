@@ -31,7 +31,10 @@ PKGS=(
     # Launchers / file manager
     fuzzel
     cosmic-files
-    firefox
+    chromium
+    # File-chooser portal without GTK/Qt, for Chromium (see dotfiles/xdg-desktop-portal)
+    xdg-desktop-portal
+    xdg-desktop-portal-cosmic
 
     # Audio (PipeWire stack)
     pipewire
@@ -76,6 +79,7 @@ mkdir -p "$USER_HOME/.config"
 
 cp -r "$SCRIPT_DIR/dotfiles/hypr"    "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/dotfiles/kickoff" "$USER_HOME/.config/"
+cp -r "$SCRIPT_DIR/dotfiles/xdg-desktop-portal" "$USER_HOME/.config/"
 
 echo "==> Shell configs"
 cp "$SCRIPT_DIR/shell/zshenv"   "$USER_HOME/.zshenv"
