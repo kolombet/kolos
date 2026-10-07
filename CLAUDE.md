@@ -118,7 +118,8 @@ via its systemd user unit `ssh-agent.socket` (socket at
 
 Trade-off: gcr could store the passphrase in the GNOME login keyring and
 never ask again; with this setup it is asked once after each login.
-`gnome-keyring` itself stays installed for other secrets.
+`gnome-keyring`, `gcr`/`gcr-4` and `seahorse` were then removed entirely
+(nothing used the keyring; `gh` keeps its token in `~/.config/gh/hosts.yml`).
 
 ## Hyprland config layout
 
