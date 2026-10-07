@@ -15,7 +15,7 @@ PKGS=(
     waybar
     foot
     fuzzel
-    pcmanfm
+    cosmic-files
     firefox
     pipewire
     pipewire-audio
@@ -32,8 +32,8 @@ PKGS=(
 )
 $PRIV pacman -Syu --noconfirm --needed "${PKGS[@]}"
 
-echo "==> Installing kickoff and nwg-wrapper from AUR"
-yay -S --noconfirm --needed kickoff nwg-wrapper
+echo "==> Installing kickoff from AUR"
+yay -S --noconfirm --needed kickoff
 
 echo "==> Backing up existing configs to $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"
@@ -64,6 +64,10 @@ if grep -q "^Path askpass" /etc/sudo.conf 2>/dev/null; then
 else
     echo "Path askpass /usr/local/bin/kolos-askpass" | $PRIV tee -a /etc/sudo.conf >/dev/null
 fi
+
+echo "==> Building keys/ (kolos-keys keybinding cheat sheet, toggled with Mod+\`)"
+cargo build --release --manifest-path "$SCRIPT_DIR/../keys/Cargo.toml"
+install -Dm755 "$SCRIPT_DIR/../keys/target/release/kolos-keys" "$USER_HOME/.local/bin/kolos-keys"
 
 echo "==> SSH agent (OpenSSH ssh-agent + kolos-askpass instead of gcr-ssh-agent)"
 if [[ "$(id -u)" != "0" ]]; then

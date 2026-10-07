@@ -124,7 +124,7 @@ PKGS=(
 'waybar'
 'foot'
 'fuzzel'
-'pcmanfm'
+'cosmic-files'
 'firefox'
 'pipewire'
 'pipewire-audio'

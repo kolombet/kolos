@@ -1,0 +1,11 @@
+[package]
+name = "kolos-keys"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bytemuck = "1.25.2"
+fontconfig = "0.11.0"
+fontdue = "0.9.4"
+smithay-client-toolkit = "0.21"
+wayland-client = "0.31"

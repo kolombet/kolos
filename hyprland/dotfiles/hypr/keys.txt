@@ -1,0 +1,31 @@
+Mod = Win / Cmd
+
+# apps
+terminal      Mod+Enter
+browser       Mod+B
+editor        Mod+E
+zed           Mod+Z
+nvim          Mod+N
+menu          Mod+D
+
+# windows
+close         Mod+Backspace
+float         Mod+V
+float all     Mod+F
+tile all      Mod+T
+pseudo        Mod+S
+split         Mod+X
+cycle         Mod+Tab / Mod+Shift+Tab
+resize        Mod+R  then H/J/K/L, Esc
+move          Mod+M  then H/J/K/L, Esc
+drag          Mod+LMB / Mod+RMB
+
+# workspaces
+switch        Mod+1..0
+move window   Mod+Shift+1..0
+
+# focus
+move          Mod+Arrows  (or U/I/P, H/J/K/L)
+
+# this sheet
+toggle        Mod+`

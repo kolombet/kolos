@@ -31,7 +31,7 @@ PKGS=(
 
     # Launchers / file manager
     fuzzel
-    pcmanfm
+    cosmic-files
     firefox
 
     # Audio (PipeWire stack)
@@ -61,8 +61,8 @@ $PRIV pacman -Syu --noconfirm --needed "${PKGS[@]}"
 echo "==> Enabling seatd"
 $PRIV systemctl enable --now seatd.service
 
-# AUR helper check (kickoff, nwg-wrapper are AUR-only)
-AUR_PKGS=(kickoff nwg-wrapper)
+# AUR helper check (kickoff is AUR-only)
+AUR_PKGS=(kickoff)
 if command -v yay &>/dev/null; then
     yay -S --noconfirm --needed "${AUR_PKGS[@]}"
 elif command -v paru &>/dev/null; then
@@ -70,7 +70,6 @@ elif command -v paru &>/dev/null; then
 else
     echo "Warning: no AUR helper (yay/paru) found."
     echo "Install kickoff manually: https://github.com/j0ru/kickoff"
-    echo "Install nwg-wrapper manually: https://aur.archlinux.org/packages/nwg-wrapper"
 fi
 
 echo "==> Deploying dotfiles to $USER_HOME/.config"
@@ -96,6 +95,10 @@ if grep -q "^Path askpass" /etc/sudo.conf 2>/dev/null; then
 else
     echo "Path askpass /usr/local/bin/kolos-askpass" | $PRIV tee -a /etc/sudo.conf >/dev/null
 fi
+
+echo "==> Building keys/ (kolos-keys keybinding cheat sheet, toggled with Mod+\`)"
+cargo build --release --manifest-path "$SCRIPT_DIR/../keys/Cargo.toml"
+install -Dm755 "$SCRIPT_DIR/../keys/target/release/kolos-keys" "$USER_HOME/.local/bin/kolos-keys"
 
 echo "==> SSH agent (OpenSSH ssh-agent + kolos-askpass instead of gcr-ssh-agent)"
 if [[ "$(id -u)" != "0" ]]; then

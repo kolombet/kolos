@@ -3,7 +3,7 @@
 -- globals, the same role $terminal/$fm/$menu/$apps/$browser/$editor/
 -- $chrome played in the old hyprlang syntax.
 terminal = "foot"
-fm = "pcmanfm"
+fm = "cosmic-files"
 menu = "kickoff"
 apps = "fuzzel"
 browser = "firefox"

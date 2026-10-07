@@ -12,7 +12,7 @@ hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + S", hl.dsp.window.pseudo()) -- dwindle
 hl.bind(mainMod .. " + X", hl.dsp.layout("togglesplit")) -- dwindle only
-hl.bind(mainMod .. " + grave", hl.dsp.exec_cmd("pkill -12 nwg-wrapper")) -- toggle cheatsheet
+hl.bind(mainMod .. " + grave", hl.dsp.exec_cmd("pkill -x kolos-keys || kolos-keys")) -- toggle cheatsheet (keys/)
 
 hl.bind(mainMod .. " + Tab", hl.dsp.window.cycle_next())
 hl.bind(mainMod .. " + Tab", hl.dsp.window.alter_zorder({ mode = "top" }))

@@ -20,7 +20,6 @@ cd ~
 
 PKGS=(
 'kickoff'
-'nwg-wrapper'
 )
 
 yay -Syu --noconfirm --needed "${PKGS[@]}"

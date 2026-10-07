@@ -32,6 +32,12 @@ impl Font {
             .or_insert_with(|| self.inner.rasterize(c, self.size))
     }
 
+    /// Advance width of `text` in pixels, without drawing it.
+    #[allow(dead_code)] // only used by keys/ (kolos-keys), which shares this file
+    pub fn measure(&mut self, text: &str) -> u32 {
+        text.chars().map(|c| self.glyph(c).0.advance_width).sum::<f32>().round() as u32
+    }
+
     /// Blends `text` into `canvas` with top-left origin at (x, y). Returns the advanced
     /// width in pixels.
     pub fn render(&mut self, text: &str, color: (u8, u8, u8), canvas: Canvas, x: u32, y: u32) -> u32 {

@@ -125,16 +125,21 @@ never ask again; with this setup it is asked once after each login.
 
 kolos is GTK-only: nothing it installs may pull in Qt (`qt5-base`,
 `qt6-base`, KDE Frameworks), directly or as a dependency. GTK3 can't be
-avoided (Firefox, Waybar, nwg-wrapper and spice-vdagent all hard-depend on
-it), so supporting two toolkits just doubles the disk usage, theming work
-and update churn for no benefit. Removed for this reason: `telegram-desktop`
+avoided yet (Firefox and Waybar hard-depend on it), so supporting two
+toolkits just doubles the disk usage, theming work and update churn for no
+benefit. The longer-term direction is GTK only where unavoidable: GTK apps
+are being replaced by toolkit-free ones (COSMIC's iced-based apps, or small
+Rust layer-shell tools like `askpass/` and `keys/`). Removed for this reason: `telegram-desktop`
 (use web.telegram.org), `polkit-kde-agent`, `qt5ct`/`qt6ct`.
 
 Before adding a package to any `PKGS` list, check its full dependency tree,
 e.g. `pacman -Sp --print-format %n <pkg> | grep -E '^(qt|kf)'` (prints
 nothing if Qt-free; run on a Qt-free system so nothing is hidden as already
-installed). Prefer GTK or toolkit-free alternatives, e.g. `pcmanfm` not
-`pcmanfm-qt`, Firefox not qutebrowser/Falkon. Many packages list Qt only
+installed). Prefer toolkit-free, then GTK alternatives, e.g.
+`cosmic-files` (not `pcmanfm-qt`), Firefox not qutebrowser/Falkon. Not all
+of COSMIC qualifies: `cosmic-settings-daemon` hard-depends on `qt6ct`
+(Qt6) and `cosmic-settings` on `nm-connection-editor` (GTK3), so install
+individual COSMIC apps, never the `cosmic` group. Many packages list Qt only
 as an *optional* dependency (e.g. `cmake` for `cmake-gui`); that's fine,
 don't install the optional part. Never set `QT_QPA_PLATFORMTHEME` or other
 `QT_*` env vars.
@@ -142,6 +147,31 @@ don't install the optional part. Never set `QT_QPA_PLATFORMTHEME` or other
 `restore.sh`/`restore-safe.sh` end with a check that prints a warning, plus
 the packages that required it, if `qt5-base` or `qt6-base` ended up
 installed anyway.
+
+## Keybinding cheat sheet
+
+`keys/` (`kolos-keys`) replaced `nwg-wrapper` (GTK3, AUR-only, and pinned
+to output `HDMI-A-1`, so it never showed on a VM's `Virtual-1`). Same
+toolkit-free approach as `askpass/`: an `Overlay` layer-shell surface,
+anchored top-right, sized to its content, with an empty input region so
+clicks fall through, and no output given so it lands on the focused one.
+It reuses askpass's text rendering via `#[path = "../../askpass/src/font.rs"]`
+rather than a copy, so a font change there applies to both.
+
+It is not a daemon: `Mod+grave` runs `pkill -x kolos-keys || kolos-keys`,
+so pressing it starts the process (shown) or kills it (hidden). Keep the
+binary name at most 15 characters, since `pkill -x` matches the kernel's
+truncated process name. Content comes from `~/.config/hypr/keys.txt`
+(deployed with the rest of `dotfiles/hypr/`): `# title` lines are section
+headers, `label  keys` lines (split on the first 2+ spaces) are two-column
+entries, an empty line is a small gap. **Update `keys.txt` whenever
+`bindings.lua` changes**; the old nwg-wrapper sheet had drifted (it still
+listed `Mod+Q`/`Mod+W`, both host-captured and unbound).
+
+Built by `restore.sh`/`restore-safe.sh` as the invoking user and installed
+to `~/.local/bin/kolos-keys` (no root needed, and `~/.local/bin` is on
+Hyprland's `PATH` via `zshenv`). `2-user.sh` doesn't build it, so on that
+path `Mod+grave` does nothing until it's built by hand.
 
 ## Hyprland config layout
 
