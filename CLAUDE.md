@@ -158,9 +158,9 @@ clicks fall through, and no output given so it lands on the focused one.
 It reuses askpass's text rendering via `#[path = "../../askpass/src/font.rs"]`
 rather than a copy, so a font change there applies to both.
 
-It is not a daemon: `Mod+grave` (and `Mod+slash`, a fallback in case the
-host captures `Mod+grave`, as macOS does with Cmd+`) runs
-`pkill -x kolos-keys || kolos-keys`,
+It is not a daemon: `Mod+grave` (plus `Mod+slash` and `Mod+F1` as
+fallbacks in case the host captures `Mod+grave`, as macOS does with Cmd+`)
+runs `pkill -x kolos-keys || kolos-keys`,
 so pressing it starts the process (shown) or kills it (hidden). Keep the
 binary name at most 15 characters, since `pkill -x` matches the kernel's
 truncated process name. Content comes from `~/.config/hypr/keys.txt`
