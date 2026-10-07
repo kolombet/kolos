@@ -142,6 +142,13 @@ else
     echo "    sudo systemctl daemon-reload"
 fi
 
+echo "==> Checking for Qt (kolos is Qt-free, see CLAUDE.md \"No Qt\")"
+QT_PKGS=$(pacman -Qq 2>/dev/null | grep -xE 'qt[56]-base' || true)
+if [[ -n "$QT_PKGS" ]]; then
+    echo "  WARNING: Qt is installed ($(echo $QT_PKGS)). Required by:"
+    pacman -Qi $QT_PKGS | sed -n 's/^Required By *: /    /p'
+fi
+
 echo ""
 echo "==> Done!"
 echo ""

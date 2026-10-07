@@ -121,6 +121,28 @@ never ask again; with this setup it is asked once after each login.
 `gnome-keyring`, `gcr`/`gcr-4` and `seahorse` were then removed entirely
 (nothing used the keyring; `gh` keeps its token in `~/.config/gh/hosts.yml`).
 
+## No Qt
+
+kolos is GTK-only: nothing it installs may pull in Qt (`qt5-base`,
+`qt6-base`, KDE Frameworks), directly or as a dependency. GTK3 can't be
+avoided (Firefox, Waybar, nwg-wrapper and spice-vdagent all hard-depend on
+it), so supporting two toolkits just doubles the disk usage, theming work
+and update churn for no benefit. Removed for this reason: `telegram-desktop`
+(use web.telegram.org), `polkit-kde-agent`, `qt5ct`/`qt6ct`.
+
+Before adding a package to any `PKGS` list, check its full dependency tree,
+e.g. `pacman -Sp --print-format %n <pkg> | grep -E '^(qt|kf)'` (prints
+nothing if Qt-free; run on a Qt-free system so nothing is hidden as already
+installed). Prefer GTK or toolkit-free alternatives, e.g. `pcmanfm` not
+`pcmanfm-qt`, Firefox not qutebrowser/Falkon. Many packages list Qt only
+as an *optional* dependency (e.g. `cmake` for `cmake-gui`); that's fine,
+don't install the optional part. Never set `QT_QPA_PLATFORMTHEME` or other
+`QT_*` env vars.
+
+`restore.sh`/`restore-safe.sh` end with a check that prints a warning, plus
+the packages that required it, if `qt5-base` or `qt6-base` ended up
+installed anyway.
+
 ## Hyprland config layout
 
 As of Hyprland 0.55, the old hyprlang `.conf` syntax is deprecated in favor
