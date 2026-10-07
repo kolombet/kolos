@@ -2,7 +2,7 @@
 -- hyprland.start fires once per session (not on `hyprctl reload`), matching
 -- the old exec-once semantics.
 hl.on("hyprland.start", function()
-    hl.exec_cmd("waybar & ~/.config/hypr/randomwallpaper.sh & hyprctl setcursor Bibata-Modern-Classic 24")
+    hl.exec_cmd("kolos-bar & ~/.config/hypr/randomwallpaper.sh & hyprctl setcursor Bibata-Modern-Classic 24")
     -- Uncomment to autostart the NetworkManager tray applet:
     -- hl.exec_cmd("nm-applet &")
 

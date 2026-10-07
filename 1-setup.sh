@@ -121,7 +121,6 @@ PKGS=(
 'hyprsunset'
 'jq'
 'swaybg'
-'waybar'
 'foot'
 'fuzzel'
 'cosmic-files'

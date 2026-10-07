@@ -12,7 +12,6 @@ echo "==> Installing packages"
 PKGS=(
     hyprland
     swaybg
-    waybar
     foot
     fuzzel
     cosmic-files
@@ -37,7 +36,6 @@ yay -S --noconfirm --needed kickoff
 
 echo "==> Backing up existing configs to $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"
-[[ -d "$USER_HOME/.config/waybar" ]]  && cp -r "$USER_HOME/.config/waybar"  "$BACKUP_DIR/"
 [[ -f "$USER_HOME/.zshenv" ]]         && cp    "$USER_HOME/.zshenv"          "$BACKUP_DIR/"
 [[ -f "$USER_HOME/.zshrc" ]]          && cp    "$USER_HOME/.zshrc"           "$BACKUP_DIR/"
 [[ -f "$USER_HOME/.ssh/config" ]]     && cp    "$USER_HOME/.ssh/config"      "$BACKUP_DIR/ssh_config"
@@ -45,7 +43,6 @@ mkdir -p "$BACKUP_DIR"
 echo "==> Deploying dotfiles"
 mkdir -p "$USER_HOME/.config"
 cp -r "$SCRIPT_DIR/dotfiles/hypr"    "$USER_HOME/.config/"
-cp -r "$SCRIPT_DIR/dotfiles/waybar"  "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/dotfiles/kickoff" "$USER_HOME/.config/"
 
 echo "==> Shell configs"
@@ -68,6 +65,10 @@ fi
 echo "==> Building keys/ (kolos-keys keybinding cheat sheet, toggled with Mod+\`)"
 cargo build --release --manifest-path "$SCRIPT_DIR/../keys/Cargo.toml"
 install -Dm755 "$SCRIPT_DIR/../keys/target/release/kolos-keys" "$USER_HOME/.local/bin/kolos-keys"
+
+echo "==> Building bar/ (kolos-bar, the status bar)"
+cargo build --release --manifest-path "$SCRIPT_DIR/../bar/Cargo.toml"
+install -Dm755 "$SCRIPT_DIR/../bar/target/release/kolos-bar" "$USER_HOME/.local/bin/kolos-bar"
 
 echo "==> SSH agent (OpenSSH ssh-agent + kolos-askpass instead of gcr-ssh-agent)"
 if [[ "$(id -u)" != "0" ]]; then

@@ -23,7 +23,7 @@ needed there beyond what's below for GPU/display).
   for kernel/initramfs upgrades, unlike a hand-partitioned small `/boot`
   (200M+ can fill up over time on aarch64 unless you exclude
   `boot/dtbs/*`/`boot/Image.gz` from pacman extraction).
-- **RAM/CPU**: no special requirements — Hyprland + waybar is light. A
+- **RAM/CPU**: no special requirements — Hyprland + kolos-bar is light. A
   couple of cores and a few GB of RAM is enough to install and run
   comfortably.
 

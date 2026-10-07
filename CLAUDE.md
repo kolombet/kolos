@@ -125,7 +125,7 @@ never ask again; with this setup it is asked once after each login.
 
 kolos is GTK-only: nothing it installs may pull in Qt (`qt5-base`,
 `qt6-base`, KDE Frameworks), directly or as a dependency. GTK3 can't be
-avoided yet (Firefox and Waybar hard-depend on it), so supporting two
+avoided yet (Firefox hard-depends on it), so supporting two
 toolkits just doubles the disk usage, theming work and update churn for no
 benefit. The longer-term direction is GTK only where unavoidable: GTK apps
 are being replaced by toolkit-free ones (COSMIC's iced-based apps, or small
@@ -174,6 +174,46 @@ Built by `restore.sh`/`restore-safe.sh` as the invoking user and installed
 to `~/.local/bin/kolos-keys` (no root needed, and `~/.local/bin` is on
 Hyprland's `PATH` via `zshenv`). `2-user.sh` doesn't build it, so on that
 path `Mod+grave` does nothing until it's built by hand.
+
+## Status bar
+
+`bar/` (`kolos-bar`) replaced Waybar (GTK3 via gtkmm3). It's the same
+toolkit-free approach as `askpass/`/`keys/` and shares their `font.rs`: one
+`Top` layer-shell surface per output, anchored bottom/left/right, with an
+exclusive zone of its height, drawn into shm buffers at the output's integer
+scale (`set_buffer_scale`, so text stays sharp at scale 2). Measured: about
+6 MiB PSS, against ~43 MiB for Waybar.
+
+- `hypr.rs` talks to Hyprland's sockets directly (no `hyprctl` processes):
+  `j/monitors`, `j/workspaces`, `j/clients`, `j/activewindow`, `j/devices`
+  for state, `dispatch <lua>` for clicks (the same Lua dispatcher syntax as
+  `bindings.lua`), and the `.socket2.sock` event stream to know when to
+  re-query. Title events are ignored on purpose: some windows (a spinner in a
+  terminal title) retitle several times a second, and the bar doesn't show
+  titles.
+- `stats.rs` reads `/proc/stat`, `/proc/meminfo` and
+  `/sys/class/power_supply` every 2 s; the bar redraws only when something
+  it shows changed. Battery only appears when a `Battery` supply exists.
+- Left: workspaces 1-5 always (Waybar's `persistent-workspaces`), plus any
+  other workspace on that output; white + underline = active, gray =
+  has windows, dark = empty. Then one entry per window on that output, by
+  workspace, labeled by the last dot-segment of its class. Click focuses,
+  middle-click closes, wheel (notches only, not touchpad) moves to the
+  next/previous existing workspace.
+- Right: CPU, memory, keyboard layout (first three letters of
+  `active_keymap`: ENG, RUS), battery, two-line clock. Plain text, no
+  icons: the *Mono* Nerd Font scales icons to one cell, unreadably small.
+
+Not done yet, compared to Waybar: app icons in the taskbar (needs icon-theme
+lookup plus PNG/SVG decoding), the tray (StatusNotifierItem over D-Bus;
+nothing here uses it), volume (PipeWire isn't installed on this host) and the
+calendar tooltip on the clock. Look/feel constants (sizes, colors from the
+old `style.css`) are at the top of `bar/src/main.rs`; there's no config file.
+
+Built by `restore.sh`/`restore-safe.sh` like `keys/` (to
+`~/.local/bin/kolos-bar`), started from `autostart.lua`, blurred behind by
+the `bar_blur` layer rule in `looknfeel.lua`. To restart it after a rebuild:
+`pkill -x kolos-bar; kolos-bar &`.
 
 ## Hyprland config layout
 

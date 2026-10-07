@@ -1,4 +1,11 @@
-use std::collections::HashMap;
+// Shared by askpass/ (kolos-askpass), keys/ (kolos-keys) and bar/ (kolos-bar)
+// via `#[path]`, so a change here applies to all three.
+//
+// ab_glyph (ttf-parser underneath) reads glyph outlines lazily from the font
+// bytes. fontdue, used before, parsed every glyph up front, which for the
+// ~10k-glyph Nerd Font meant ~40 MiB of heap per process.
+
+use ab_glyph::{Font as _, FontVec, PxScale, ScaleFont};
 
 pub struct Canvas<'a> {
     pub pixels: &'a mut [u32],
@@ -7,87 +14,93 @@ pub struct Canvas<'a> {
 }
 
 pub struct Font {
-    inner: fontdue::Font,
+    inner: FontVec,
     size: f32,
-    glyph_cache: HashMap<char, (fontdue::Metrics, Vec<u8>)>,
 }
 
 impl Font {
+    #[allow(dead_code)] // bar/ always picks a style
     pub fn load(size: f32) -> Self {
+        Self::load_style(size, None)
+    }
+
+    /// `style` is a fontconfig style name such as "SemiBold"; `None` picks the default.
+    pub fn load_style(size: f32, style: Option<&str>) -> Self {
         let fc = fontconfig::Fontconfig::new().expect("unable to initialize fontconfig");
         let font = fc
-            .find("JetBrainsMono Nerd Font Mono", None)
+            .find("JetBrainsMono Nerd Font Mono", style)
             .expect("fontconfig found no matching font");
 
         let bytes = std::fs::read(&font.path).expect("failed to read font file");
-        let inner = fontdue::Font::from_bytes(bytes, fontdue::FontSettings::default())
-            .expect("failed to parse font file");
+        let inner = FontVec::try_from_vec(bytes).expect("failed to parse font file");
 
-        Self { inner, size, glyph_cache: HashMap::new() }
+        Self { inner, size }
     }
 
-    fn glyph(&mut self, c: char) -> &(fontdue::Metrics, Vec<u8>) {
-        self.glyph_cache
-            .entry(c)
-            .or_insert_with(|| self.inner.rasterize(c, self.size))
+    #[allow(dead_code)] // only used by bar/, which draws at several output scales
+    pub fn set_size(&mut self, size: f32) {
+        self.size = size;
+    }
+
+    /// ab_glyph's PxScale is the font's full ascent-to-descent height; `size` means
+    /// the em size (as fontdue and CSS use it), so convert.
+    fn px_scale(&self) -> PxScale {
+        let em = self.inner.units_per_em().unwrap_or(1000.0);
+        let height = self.inner.ascent_unscaled() - self.inner.descent_unscaled();
+        PxScale::from(self.size * height / em)
     }
 
     /// Advance width of `text` in pixels, without drawing it.
-    #[allow(dead_code)] // only used by keys/ (kolos-keys), which shares this file
-    pub fn measure(&mut self, text: &str) -> u32 {
-        text.chars().map(|c| self.glyph(c).0.advance_width).sum::<f32>().round() as u32
+    #[allow(dead_code)] // not used by askpass/
+    pub fn measure(&self, text: &str) -> u32 {
+        let scaled = self.inner.as_scaled(self.px_scale());
+        text.chars().map(|c| scaled.h_advance(scaled.glyph_id(c))).sum::<f32>().round() as u32
     }
 
     /// Blends `text` into `canvas` with top-left origin at (x, y). Returns the advanced
     /// width in pixels.
-    pub fn render(&mut self, text: &str, color: (u8, u8, u8), canvas: Canvas, x: u32, y: u32) -> u32 {
+    pub fn render(&self, text: &str, color: (u8, u8, u8), canvas: Canvas, x: u32, y: u32) -> u32 {
         let Canvas { pixels, width: canvas_width, height: canvas_height } = canvas;
-        let ascent = self.size as i32;
-        let mut pen_x = x as i32;
+        let scaled = self.inner.as_scaled(self.px_scale());
+        let baseline = y as f32 + scaled.ascent();
+        let mut pen_x = x as f32;
 
         for c in text.chars() {
-            let (metrics, bitmap) = self.glyph(c);
-            let (metrics, bitmap) = (*metrics, bitmap.clone());
-
-            let glyph_x = pen_x + metrics.xmin;
-            let glyph_y = y as i32 + ascent - metrics.height as i32 - metrics.ymin;
-
-            for row in 0..metrics.height {
-                for col in 0..metrics.width {
-                    let coverage = bitmap[row * metrics.width + col];
-                    if coverage == 0 {
-                        continue;
+            let id = scaled.glyph_id(c);
+            let glyph = id.with_scale_and_position(scaled.scale(), ab_glyph::point(pen_x, baseline));
+            if let Some(outlined) = self.inner.outline_glyph(glyph) {
+                let bounds = outlined.px_bounds();
+                outlined.draw(|gx, gy, coverage| {
+                    let px = bounds.min.x as i32 + gx as i32;
+                    let py = bounds.min.y as i32 + gy as i32;
+                    if px < 0 || py < 0 || px as u32 >= canvas_width || py as u32 >= canvas_height {
+                        return;
                     }
-                    let px = glyph_x + col as i32;
-                    let py = glyph_y + row as i32;
-                    if px < 0 || py < 0 || px as u32 >= canvas_width || py as u32 >= canvas_height
-                    {
-                        continue;
+                    let coverage = (coverage.clamp(0.0, 1.0) * 255.0) as u8;
+                    if coverage == 0 {
+                        return;
                     }
                     let idx = (py as u32 * canvas_width + px as u32) as usize;
                     pixels[idx] = blend(pixels[idx], color, coverage);
-                }
+                });
             }
-
-            pen_x += metrics.advance_width.round() as i32;
+            pen_x += scaled.h_advance(id);
         }
 
-        (pen_x - x as i32).max(0) as u32
+        (pen_x - x as f32).round().max(0.0) as u32
     }
 }
 
+/// Premultiplied-alpha "over": an opaque `color` at `coverage` on top of `dst`
+/// (wl_shm Argb8888 is premultiplied), so text on a translucent background stays
+/// translucent around the glyph edges instead of turning those pixels opaque.
 fn blend(dst: u32, color: (u8, u8, u8), coverage: u8) -> u32 {
-    let (r, g, b) = color;
     let a = coverage as u32;
     let inv_a = 255 - a;
+    let over = |src: u32, shift: u32| (src * a + ((dst >> shift) & 0xff) * inv_a) / 255;
 
-    let dst_r = (dst >> 16) & 0xff;
-    let dst_g = (dst >> 8) & 0xff;
-    let dst_b = dst & 0xff;
-
-    let out_r = (r as u32 * a + dst_r * inv_a) / 255;
-    let out_g = (g as u32 * a + dst_g * inv_a) / 255;
-    let out_b = (b as u32 * a + dst_b * inv_a) / 255;
-
-    0xff000000 | (out_r << 16) | (out_g << 8) | out_b
+    (over(255, 24) << 24)
+        | (over(color.0 as u32, 16) << 16)
+        | (over(color.1 as u32, 8) << 8)
+        | over(color.2 as u32, 0)
 }

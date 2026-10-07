@@ -3,7 +3,7 @@
 Personal Arch Linux system configuration. Two independent pieces live here:
 
 1. **Automated installer** (repo root) — partitions a disk, installs Arch + Hyprland.
-2. **Hyprland dotfiles** (`hyprland/`) — a Wayland setup (Hyprland + waybar) that is installed automatically or can be laid on top of an existing Arch install.
+2. **Hyprland dotfiles** (`hyprland/`) — a Wayland setup (Hyprland + its own toolkit-free status bar, `bar/`) that is installed automatically or can be laid on top of an existing Arch install.
 
 Config files are plain copies deployed into `~/.config` — there's no symlink manager. Changes are made in this repo and then copied over by hand (or via the `restore*.sh` scripts for a first-time deploy).
 
@@ -32,7 +32,6 @@ hyprland/               # standalone Hyprland desktop setup (see below)
   restore.sh            # fresh-install path: installs packages, deploys dotfiles, sets up zsh/autologin
   restore-safe.sh       # same, but backs up any existing ~/.config first instead of overwriting
   dotfiles/hypr/        # hyprland.lua config (Lua, not the old .conf), window-mode scripts, wallpapers
-  dotfiles/waybar/      # waybar config + style.css
   dotfiles/kickoff/     # kickoff (app launcher) config
   shell/                # zprofile (autostarts Hyprland on tty1), zshenv, zshrc (prompt)
   system/               # getty-autologin.conf drop-in for tty1 autologin
@@ -87,24 +86,24 @@ Because the automated installer partitions and formats the disk, the safest way 
    - When the script prompts for a disk to format, type the name of your VM's virtual drive (e.g., `/dev/vda` for UTM/QEMU or `/dev/sda` for VirtualBox). You can look at the output of the `lsblk` command that the script prints to verify the exact name.
 ## Path 2: Hyprland desktop (this machine)
 
-A minimal Wayland setup: Hyprland + waybar + swaybg, laid on top of an already-installed Arch system.
+A minimal Wayland setup: Hyprland + kolos-bar + swaybg, laid on top of an already-installed Arch system.
 
 ```bash
 cd hyprland
-./restore.sh        # fresh machine — overwrites ~/.config/{hypr,waybar,kickoff}
+./restore.sh        # fresh machine — overwrites ~/.config/{hypr,kickoff}
 # or
 ./restore-safe.sh   # backs up any existing configs to ~/.config-backup-<timestamp> first
 ```
 
-Either script installs the required packages (`hyprland`, `waybar`, `swaybg`, `foot`, `kickoff`, PipeWire audio stack, fonts, `seatd`), copies `dotfiles/{hypr,waybar,kickoff}` into `~/.config`, installs the `zprofile`/`zshenv`/`zshrc` shell files, sets `zsh` as the login shell, and optionally wires up tty1 autologin. After that, logging into tty1 starts Hyprland automatically via `zprofile`. `zshrc` sets a macOS Terminal.app-style prompt (`hostname:path %`) — no external prompt framework (e.g. powerlevel10k) required.
+Either script installs the required packages (`hyprland`, `swaybg`, `foot`, `kickoff`, PipeWire audio stack, fonts, `seatd`), builds `askpass/`, `keys/` and `bar/`, copies `dotfiles/{hypr,kickoff}` into `~/.config`, installs the `zprofile`/`zshenv`/`zshrc` shell files, sets `zsh` as the login shell, and optionally wires up tty1 autologin. After that, logging into tty1 starts Hyprland automatically via `zprofile`. `zshrc` sets a macOS Terminal.app-style prompt (`hostname:path %`) — no external prompt framework (e.g. powerlevel10k) required.
 
 **Notable behavior:**
 - `Super+F` / `Super+T` run `float.sh` / `tile.sh` to float or tile all windows on the current workspace; `Super+V` toggles floating on the active window. New windows float by default (see the `float-by-default` window rule in `windows.lua`).
 - `Super+R` enters a resize submap (`H`/`J`/`K`/`L` to resize, `Return`/`Escape` to exit).
 - On login, `randomwallpaper.sh` picks a random image from `hypr/wallpapers/` per monitor and sets it with `swaybg`.
-- waybar shows CPU/temperature/memory/battery/clock and an EN/RU keyboard-layout indicator, styled with a Nerd Font.
+- `kolos-bar` (`bar/`) shows workspaces, the open windows, CPU/memory/battery/clock and an EN/RU keyboard-layout indicator. Click a workspace or window to focus it, middle-click a window to close it, scroll to change workspace.
 
-Applying a config change from this repo to a running system is currently manual — edit the file under `hyprland/dotfiles/` or `dotfiles/`, copy it to the matching path under `~/.config`, then `hyprctl reload` (for Hyprland) or restart the relevant process (e.g. `killall waybar && waybar &`, or re-run `randomwallpaper.sh` for swaybg).
+Applying a config change from this repo to a running system is currently manual — edit the file under `hyprland/dotfiles/` or `dotfiles/`, copy it to the matching path under `~/.config`, then `hyprctl reload` (for Hyprland) or restart the relevant process (e.g. `pkill -x kolos-bar; kolos-bar &`, or re-run `randomwallpaper.sh` for swaybg).
 
 ---
 

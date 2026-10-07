@@ -1,0 +1,13 @@
+[package]
+name = "kolos-bar"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ab_glyph = "0.2"
+bytemuck = "1.25.2"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+fontconfig = "0.11.0"
+serde_json = "1"
+smithay-client-toolkit = { version = "0.21", features = ["calloop", "calloop-wayland-source"] }
+wayland-client = "0.31"

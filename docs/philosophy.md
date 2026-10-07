@@ -13,7 +13,7 @@ and reshape than one that ships a feature for every possible need up front.
 ## Minimal
 
 No bells and whistles. One terminal (`foot`), one launcher (`kickoff`), one
-status bar (`waybar`), one browser. Every app, package, or config knob has
+status bar (`kolos-bar`), one browser. Every app, package, or config knob has
 to earn its place — see `CLAUDE.md`'s "Default terminal" section for what
 "only one of anything" looks like in practice (rio/kitty/alacritty removed
 once foot was the only one actually used). Fewer moving parts means fewer

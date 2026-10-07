@@ -5,10 +5,10 @@ hl.config({
     },
 })
 
--- Waybar blur
+-- Bar blur (kolos-bar, see bar/)
 hl.layer_rule({
-    name = "waybar_blur",
-    match = { namespace = "waybar" },
+    name = "bar_blur",
+    match = { namespace = "kolos-bar" },
     blur = true,
     blur_popups = true,
     ignore_alpha = 0.2,

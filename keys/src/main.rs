@@ -105,7 +105,7 @@ fn main() {
         .unwrap_or_else(|e| format!("cannot read {path}:\n{e}"));
     let lines = parse(&text);
 
-    let mut font = Font::load(FONT_SIZE);
+    let font = Font::load(FONT_SIZE);
     let label_width = lines
         .iter()
         .filter_map(|l| match l {
