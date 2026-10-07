@@ -156,7 +156,11 @@ toolkit-free approach as `askpass/`: an `Overlay` layer-shell surface,
 anchored top-right, sized to its content, with an empty input region so
 clicks fall through, and no output given so it lands on the focused one.
 It reuses askpass's text rendering via `#[path = "../../askpass/src/font.rs"]`
-rather than a copy, so a font change there applies to both.
+rather than a copy, so a font change there applies to both. It draws at the
+output's integer scale like `bar/`: it starts at scale 1 (the surface isn't
+on an output yet), then on `scale_factor_changed` recomputes its layout at
+that scale, calls `set_buffer_scale`, and resizes itself if rounding moved
+the logical size.
 
 It is not a daemon: `Mod+grave` (plus `Mod+slash`, `Mod+F1` and `Mod+G`
 as fallbacks in case the host captures `Mod+grave`, as macOS does with
