@@ -29,4 +29,4 @@ move window   Mod+Shift+1..0
 move          Mod+Arrows  (or U/I/P, H/J/K/L)
 
 # this sheet
-toggle        Mod+` / Mod+/ / Mod+F1
+toggle        Mod+G / Mod+` / Mod+/ / Mod+F1
