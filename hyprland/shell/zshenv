@@ -1,1 +1,6 @@
 export PATH="$HOME/.local/bin:$PATH"
+# OpenSSH's ssh-agent (systemd user ssh-agent.socket) instead of gcr-ssh-agent,
+# so key-passphrase prompts without a TTY go through kolos-askpass, not a GTK
+# gcr-prompter modal. See CLAUDE.md "SSH key passphrase prompt".
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+export SSH_ASKPASS="/usr/local/bin/kolos-askpass"

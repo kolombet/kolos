@@ -92,6 +92,34 @@ full-disk-installer path, out of scope otherwise — see "Deployment" above)
 needs none of this, since it sets `%wheel ALL=(ALL) NOPASSWD: ALL` and
 never prompts wheel members for a password at all.
 
+## SSH key passphrase prompt
+
+`kolos-askpass` also serves as `SSH_ASKPASS`. It follows the same protocol
+ssh expects (prompt in `argv[1]`, passphrase on stdout, nonzero exit on
+cancel), so no separate binary is needed.
+
+Previously `SSH_AUTH_SOCK` pointed at `gcr-ssh-agent`
+(`$XDG_RUNTIME_DIR/gcr/ssh`). That agent unlocks keys through
+`gcr-prompter`, a GTK modal with no askpass hook, so any git-over-SSH from a
+process without a TTY (an agent's shell tool, a keybind) popped up GTK
+instead of the repo's own prompt. Replaced with OpenSSH's own `ssh-agent`
+via its systemd user unit `ssh-agent.socket` (socket at
+`$XDG_RUNTIME_DIR/ssh-agent.socket`):
+
+- `shell/zshenv` exports `SSH_AUTH_SOCK` and
+  `SSH_ASKPASS=/usr/local/bin/kolos-askpass`. `SSH_ASKPASS_REQUIRE` is left
+  unset on purpose: ssh uses askpass only when there is no TTY (and
+  `DISPLAY`/`WAYLAND_DISPLAY` is set, as it is under Hyprland) and keeps
+  prompting in the terminal otherwise.
+- `restore.sh`/`restore-safe.sh` disable `gcr-ssh-agent.{socket,service}`,
+  enable `ssh-agent.socket` (user units, so only when not run as root), and
+  prepend `AddKeysToAgent yes` to `~/.ssh/config` if it is missing, so the
+  key is unlocked once per login session instead of on every push.
+
+Trade-off: gcr could store the passphrase in the GNOME login keyring and
+never ask again; with this setup it is asked once after each login.
+`gnome-keyring` itself stays installed for other secrets.
+
 ## Hyprland config layout
 
 As of Hyprland 0.55, the old hyprlang `.conf` syntax is deprecated in favor

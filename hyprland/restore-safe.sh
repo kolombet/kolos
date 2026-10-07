@@ -40,6 +40,7 @@ mkdir -p "$BACKUP_DIR"
 [[ -d "$USER_HOME/.config/waybar" ]]  && cp -r "$USER_HOME/.config/waybar"  "$BACKUP_DIR/"
 [[ -f "$USER_HOME/.zshenv" ]]         && cp    "$USER_HOME/.zshenv"          "$BACKUP_DIR/"
 [[ -f "$USER_HOME/.zshrc" ]]          && cp    "$USER_HOME/.zshrc"           "$BACKUP_DIR/"
+[[ -f "$USER_HOME/.ssh/config" ]]     && cp    "$USER_HOME/.ssh/config"      "$BACKUP_DIR/ssh_config"
 
 echo "==> Deploying dotfiles"
 mkdir -p "$USER_HOME/.config"
@@ -62,6 +63,20 @@ if grep -q "^Path askpass" /etc/sudo.conf 2>/dev/null; then
     $PRIV sed -i 's|^Path askpass .*|Path askpass /usr/local/bin/kolos-askpass|' /etc/sudo.conf
 else
     echo "Path askpass /usr/local/bin/kolos-askpass" | $PRIV tee -a /etc/sudo.conf >/dev/null
+fi
+
+echo "==> SSH agent (OpenSSH ssh-agent + kolos-askpass instead of gcr-ssh-agent)"
+if [[ "$(id -u)" != "0" ]]; then
+    systemctl --user disable --now gcr-ssh-agent.socket gcr-ssh-agent.service 2>/dev/null || true
+    systemctl --user enable --now ssh-agent.socket
+else
+    echo "  Skipped agent swap (user units; rerun as the desktop user)."
+fi
+mkdir -p "$USER_HOME/.ssh" && chmod 700 "$USER_HOME/.ssh"
+touch "$USER_HOME/.ssh/config" && chmod 600 "$USER_HOME/.ssh/config"
+if ! grep -q "^AddKeysToAgent" "$USER_HOME/.ssh/config"; then
+    { echo "AddKeysToAgent yes"; echo; cat "$USER_HOME/.ssh/config"; } > "$USER_HOME/.ssh/config.new"
+    mv "$USER_HOME/.ssh/config.new" "$USER_HOME/.ssh/config"
 fi
 
 echo "==> Pacman: enabling parallel downloads"

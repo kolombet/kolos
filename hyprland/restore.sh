@@ -97,6 +97,20 @@ else
     echo "Path askpass /usr/local/bin/kolos-askpass" | $PRIV tee -a /etc/sudo.conf >/dev/null
 fi
 
+echo "==> SSH agent (OpenSSH ssh-agent + kolos-askpass instead of gcr-ssh-agent)"
+if [[ "$(id -u)" != "0" ]]; then
+    systemctl --user disable --now gcr-ssh-agent.socket gcr-ssh-agent.service 2>/dev/null || true
+    systemctl --user enable --now ssh-agent.socket
+else
+    echo "  Skipped agent swap (user units; rerun as the desktop user)."
+fi
+mkdir -p "$USER_HOME/.ssh" && chmod 700 "$USER_HOME/.ssh"
+touch "$USER_HOME/.ssh/config" && chmod 600 "$USER_HOME/.ssh/config"
+if ! grep -q "^AddKeysToAgent" "$USER_HOME/.ssh/config"; then
+    { echo "AddKeysToAgent yes"; echo; cat "$USER_HOME/.ssh/config"; } > "$USER_HOME/.ssh/config.new"
+    mv "$USER_HOME/.ssh/config.new" "$USER_HOME/.ssh/config"
+fi
+
 echo "==> Pacman tweaks"
 # Enable parallel downloads if not already set
 if ! grep -q "^ParallelDownloads" /etc/pacman.conf; then
