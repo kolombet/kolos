@@ -1,6 +1,7 @@
 -- https://wiki.hypr.land/Configuring/Basics/Variables/
 hl.config({
     xwayland = {
+        enabled = false,
         force_zero_scaling = true,
     },
 })

@@ -175,6 +175,15 @@ the packages that required it, if `qt5-base`, `qt6-base`, `gtk3` or `gtk4`
 ended up installed anyway (`pacman -Qq` lists real package names, so
 `nogtk3` doesn't trip it).
 
+## Xwayland is off
+
+`looknfeel.lua` sets `xwayland = { enabled = false }`: everything here
+(foot, Chromium, cosmic-files, the `bar/`/`keys/`/`askpass/` tools) is
+native Wayland, and an idle Xwayland cost ~40 MiB. `xorg-xwayland` stays
+installed only because `hyprland` hard-depends on it. Any X11-only app will
+fail to start; re-enable it there rather than per-app. The setting only takes
+effect on Hyprland startup, not on `hyprctl reload`.
+
 ## Keybinding cheat sheet
 
 `keys/` (`kolos-keys`) replaced `nwg-wrapper` (GTK3, AUR-only, and pinned
