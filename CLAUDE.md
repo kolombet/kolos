@@ -265,8 +265,9 @@ with the keyboard can leave the active window buried behind others.
 - The dwindle pseudo-tile toggle is `Mod+S` (moved twice: `Mod+P` → `Mod+K`
   when `P` was claimed by right-focus, then `Mod+K` → `Mod+S` once `K`
   was also claimed, by up-focus in the `H/J/K/L` scheme).
-- `Mod+Y` (yazi, via `foot yazi`) was dropped — no yazi in this setup
-  anymore. The scratchpad workflow (`Mod+S`/`Shift+S`) was also dropped —
+- `Mod+Y` opens the file manager (`$fm`, currently `cosmic-files`). It
+  used to run yazi (`foot yazi`), dropped since there's no yazi in this
+  setup anymore; the key was then reused for files. The scratchpad workflow (`Mod+S`/`Shift+S`) was also dropped —
   freeing `Mod+S` up for the pseudo-tile toggle above.
   `Mod+B` launches `$browser`, which now points at plain `firefox` (dropped
   `zen-browser`, so `zen-browser-bin` is no longer in any package list).

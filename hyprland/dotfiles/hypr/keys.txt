@@ -6,6 +6,7 @@ browser       Mod+B
 editor        Mod+E
 zed           Mod+Z
 nvim          Mod+N
+files         Mod+Y
 menu          Mod+D
 
 # windows
