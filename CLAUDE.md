@@ -201,7 +201,10 @@ scale (`set_buffer_scale`, so text stays sharp at scale 2). Measured: about
 - Left: workspaces 1-5 always (Waybar's `persistent-workspaces`), plus any
   other workspace on that output; white + underline = active, gray =
   has windows, dark = empty. Then one entry per window on that output, by
-  workspace, labeled by the last dot-segment of its class. Click focuses,
+  workspace, then in the order the bar first saw them (`window_order`), not
+  Hyprland's `j/clients` order: that one is stacking order, and every focus
+  keybind raises the window, so following it made the focused window jump
+  to the end. Labeled by the last dot-segment of its class. Click focuses,
   middle-click closes, wheel (notches only, not touchpad) moves to the
   next/previous existing workspace.
 - Right: CPU, memory, keyboard layout (first three letters of

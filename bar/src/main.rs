@@ -53,7 +53,8 @@ use stats::{Sampler, Stats};
 const HEIGHT: u32 = 42;
 const FONT_SIZE: f32 = 13.0;
 const PERSISTENT_WORKSPACES: i64 = 5;
-const WS_WIDTH: u32 = 30;
+const WS_WIDTH: u32 = 20; // minimum; two-digit ids grow to fit
+const WS_PAD: u32 = 4;
 const TASK_PAD: u32 = 8;
 const TASK_MAX_CHARS: usize = 16;
 const UNDERLINE: u32 = 3;
@@ -100,6 +101,11 @@ struct App {
     font: Font,
     bars: Vec<Bar>,
     hypr: Snapshot,
+    /// Window addresses in the order the taskbar shows them: first seen first.
+    /// Hyprland's `j/clients` comes in stacking order, which changes whenever a
+    /// window is raised (every focus change does that, see bindings.lua), so the
+    /// taskbar can't follow it.
+    window_order: Vec<String>,
     stats: Stats,
     sampler: Sampler,
     exit: bool,
@@ -132,11 +138,13 @@ fn main() {
         pointer: None,
         font: Font::load_style(FONT_SIZE, Some("SemiBold")),
         bars: Vec::new(),
-        hypr: Snapshot::fetch(),
+        hypr: Snapshot::default(),
+        window_order: Vec::new(),
         stats,
         sampler,
         exit: false,
     };
+    app.hypr = app.ordered(Snapshot::fetch());
 
     let events = hypr::event_stream().expect("cannot connect to Hyprland's event socket");
     events.set_nonblocking(true).unwrap();
@@ -186,8 +194,22 @@ fn main() {
 }
 
 impl App {
+    /// Sorts the snapshot's windows by `window_order`, updating it: closed windows
+    /// drop out, new ones go to the end.
+    fn ordered(&mut self, mut snapshot: Snapshot) -> Snapshot {
+        self.window_order.retain(|a| snapshot.clients.iter().any(|c| &c.address == a));
+        for c in &snapshot.clients {
+            if !self.window_order.contains(&c.address) {
+                self.window_order.push(c.address.clone());
+            }
+        }
+        let order = &self.window_order;
+        snapshot.clients.sort_by_key(|c| order.iter().position(|a| *a == c.address));
+        snapshot
+    }
+
     fn refresh_hypr(&mut self) {
-        let snapshot = Snapshot::fetch();
+        let snapshot = self.ordered(Snapshot::fetch());
         if snapshot != self.hypr {
             self.hypr = snapshot;
             self.draw_all();
@@ -282,15 +304,17 @@ impl App {
             };
             let label = id.to_string();
             let tw = painter.measure(&label);
-            painter.text(&label, color, x + (WS_WIDTH - tw) / 2, text_y);
+            let w = WS_WIDTH.max(tw + 2 * WS_PAD);
+            painter.text(&label, color, x + (w - tw) / 2, text_y);
             if underline {
-                painter.rect(x, HEIGHT - UNDERLINE, WS_WIDTH, UNDERLINE, WHITE);
+                painter.rect(x, HEIGHT - UNDERLINE, w, UNDERLINE, WHITE);
             }
-            hits.push((x as f64, (x + WS_WIDTH) as f64, Hit::Workspace(id)));
-            x += WS_WIDTH;
+            hits.push((x as f64, (x + w) as f64, Hit::Workspace(id)));
+            x += w;
         }
 
-        // Taskbar: this output's windows, by workspace.
+        // Taskbar: this output's windows, by workspace, then in first-seen order
+        // (the sort is stable and `clients` is already in that order).
         x += SECTION_GAP;
         let mut clients: Vec<_> = self.hypr.clients.iter().filter(|c| c.monitor == bar.name).collect();
         clients.sort_by_key(|c| c.workspace);
