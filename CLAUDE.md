@@ -121,22 +121,40 @@ never ask again; with this setup it is asked once after each login.
 `gnome-keyring`, `gcr`/`gcr-4` and `seahorse` were then removed entirely
 (nothing used the keyring; `gh` keeps its token in `~/.config/gh/hosts.yml`).
 
-## No Qt
+## No Qt, no GTK
 
-kolos is GTK-only: nothing it installs may pull in Qt (`qt5-base`,
-`qt6-base`, KDE Frameworks), directly or as a dependency. GTK3 can't be
-avoided yet (Firefox hard-depends on it), so supporting two
-toolkits just doubles the disk usage, theming work and update churn for no
-benefit. The longer-term direction is GTK only where unavoidable: GTK apps
-are being replaced by toolkit-free ones (COSMIC's iced-based apps, or small
-Rust layer-shell tools like `askpass/` and `keys/`). Removed for this reason: `telegram-desktop`
-(use web.telegram.org), `polkit-kde-agent`, `qt5ct`/`qt6ct`.
+Nothing kolos installs may pull in Qt (`qt5-base`, `qt6-base`, KDE
+Frameworks) or GTK (`gtk3`, `gtk4`, `libadwaita`), directly or as a
+dependency. Apps are toolkit-free instead: COSMIC's iced-based apps
+(`cosmic-files`), or small Rust layer-shell tools in this repo (`askpass/`,
+`keys/`, `bar/`). It started as "No Qt" (one toolkit, GTK, because Firefox
+needed it); once Chromium turned out to run without GTK, GTK went too.
+Removed for this reason: `telegram-desktop` (use web.telegram.org),
+`polkit-kde-agent`, `qt5ct`/`qt6ct`, Waybar, nwg-wrapper, pcmanfm,
+spice-vdagent, zenity, gnome-keyring/seahorse, Firefox.
+
+Chromium is the one exception on paper: Arch's `chromium` package lists
+`gtk3` as a hard dependency, but the binary has no `libgtk` in its
+`NEEDED` entries. It dlopen()s libgtk-3/libgtk-4 only if present, and
+without them it runs normally (verified with the GTK libraries masked in a
+bubblewrap sandbox: native Wayland window, no GTK mapped in any process) and
+gets open/save dialogs from the file-chooser portal (below).
+`hyprland/nogtk3/PKGBUILD` builds `nogtk3`, an empty package that
+`provides`/`conflicts` the bare `gtk3` name, so pacman considers that
+dependency met and won't reinstall GTK3 on `-Syu`. It only fakes the
+unversioned name: a package depending on `gtk3>=...` or on the
+`libgtk-3.so` soname still fails to install, which is the intended safety
+net. `restore.sh`/`restore-safe.sh` build and install it (as the invoking
+user, since makepkg refuses root) *before* installing chromium, so GTK3 is
+never installed in the first place. `1-setup.sh` (x86_64 installer path)
+doesn't, so there chromium still pulls in gtk3.
 
 Before adding a package to any `PKGS` list, check its full dependency tree,
-e.g. `pacman -Sp --print-format %n <pkg> | grep -E '^(qt|kf)'` (prints
-nothing if Qt-free; run on a Qt-free system so nothing is hidden as already
-installed). Prefer toolkit-free, then GTK alternatives, e.g.
-`cosmic-files` (not `pcmanfm-qt`), Chromium not qutebrowser/Falkon. Not all
+e.g. `pacman -Sp --print-format %n <pkg> | grep -E '^(qt|kf|gtk|libadwaita)'`
+(prints nothing if clean; run it here, where neither toolkit is installed, so
+nothing is hidden as already installed). Prefer toolkit-free alternatives,
+e.g. `cosmic-files` (not `pcmanfm`/`pcmanfm-qt`), Chromium not
+Firefox/qutebrowser/Falkon. Not all
 of COSMIC qualifies: `cosmic-settings-daemon` hard-depends on `qt6ct`
 (Qt6) and `cosmic-settings` on `nm-connection-editor` (GTK3), so install
 individual COSMIC apps, never the `cosmic` group. Many packages list Qt only
@@ -153,8 +171,9 @@ screen-sharing portal (WebRTC screen share won't work) until a Qt-free one
 exists.
 
 `restore.sh`/`restore-safe.sh` end with a check that prints a warning, plus
-the packages that required it, if `qt5-base` or `qt6-base` ended up
-installed anyway.
+the packages that required it, if `qt5-base`, `qt6-base`, `gtk3` or `gtk4`
+ended up installed anyway (`pacman -Qq` lists real package names, so
+`nogtk3` doesn't trip it).
 
 ## Keybinding cheat sheet
 
@@ -328,7 +347,7 @@ with the keyboard can leave the active window buried behind others.
   freeing `Mod+S` up for the pseudo-tile toggle above.
   `Mod+B` launches `$browser`, which now points at `chromium` (before that
   plain `firefox`, and before that `zen-browser`; neither is in any package
-  list anymore). Chromium replaced Firefox to get rid of GTK, see "No Qt".
+  list anymore). Chromium replaced Firefox to get rid of GTK, see "No Qt, no GTK".
 - `Mod+T` runs `tile.sh` (tile all windows on the current workspace, saving
   their floating positions/sizes first) and `Mod+F` runs `float.sh` (float
   all windows on the current workspace, restoring saved positions/sizes if

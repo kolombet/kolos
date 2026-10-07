@@ -15,7 +15,6 @@ PKGS=(
     foot
     fuzzel
     cosmic-files
-    chromium
     # File-chooser portal without GTK/Qt, for Chromium (see dotfiles/xdg-desktop-portal)
     xdg-desktop-portal
     xdg-desktop-portal-cosmic
@@ -33,6 +32,20 @@ PKGS=(
     rust
 )
 $PRIV pacman -Syu --noconfirm --needed "${PKGS[@]}"
+
+echo "==> nogtk3 placeholder, then Chromium (see CLAUDE.md \"No Qt, no GTK\")"
+# chromium's package hard-depends on the gtk3 name; nogtk3 provides it so GTK3
+# itself never gets installed (and gets replaced if it already is).
+if [[ "$(id -u)" != "0" ]]; then
+    NOGTK3_BUILD=$(mktemp -d)
+    cp "$SCRIPT_DIR/nogtk3/PKGBUILD" "$NOGTK3_BUILD/"
+    (cd "$NOGTK3_BUILD" && makepkg --noconfirm)
+    # --ask 4: answer yes to "remove conflicting gtk3?"
+    $PRIV pacman -U --noconfirm --needed --ask 4 "$NOGTK3_BUILD"/nogtk3-*.pkg.tar.*
+else
+    echo "  WARNING: makepkg can't run as root; skipping nogtk3, so chromium will pull in gtk3."
+fi
+$PRIV pacman -S --noconfirm --needed chromium
 
 echo "==> Installing kickoff from AUR"
 yay -S --noconfirm --needed kickoff
@@ -93,11 +106,11 @@ if ! grep -q "^ParallelDownloads" /etc/pacman.conf; then
     $PRIV sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
 fi
 
-echo "==> Checking for Qt (kolos is Qt-free, see CLAUDE.md \"No Qt\")"
-QT_PKGS=$(pacman -Qq 2>/dev/null | grep -xE 'qt[56]-base' || true)
-if [[ -n "$QT_PKGS" ]]; then
-    echo "  WARNING: Qt is installed ($(echo $QT_PKGS)). Required by:"
-    pacman -Qi $QT_PKGS | sed -n 's/^Required By *: /    /p'
+echo "==> Checking for Qt/GTK (kolos has neither, see CLAUDE.md \"No Qt, no GTK\")"
+TOOLKIT_PKGS=$(pacman -Qq 2>/dev/null | grep -xE 'qt[56]-base|gtk[234]' || true)
+if [[ -n "$TOOLKIT_PKGS" ]]; then
+    echo "  WARNING: installed anyway: $(echo $TOOLKIT_PKGS). Required by:"
+    pacman -Qi $TOOLKIT_PKGS | sed -n 's/^Required By *: /    /p'
 fi
 
 echo ""
