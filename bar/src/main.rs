@@ -344,10 +344,14 @@ impl App {
 
         // Plain text, like the live Waybar: the Mono Nerd Font squeezes icons to one
         // cell, too small to read at this size.
-        let mut info = format!(
-            "{}%   {:.2}/{:.2}GiB   {}",
-            st.cpu_percent, st.mem_used_gib, st.mem_total_gib, self.hypr.layout
-        );
+        let cpu = match st.cpu_temp_c {
+            Some(c) => format!("CPU {}% {c}\u{b0}C", st.cpu_percent),
+            None => format!("CPU {}%", st.cpu_percent),
+        };
+        let mut parts = vec![cpu];
+        parts.push(format!("{:.2}/{:.2}GiB", st.mem_used_gib, st.mem_total_gib));
+        parts.push(self.hypr.layout.clone());
+        let mut info = parts.join("   ");
         if let Some((capacity, charging)) = st.battery {
             let plug = if charging { "+" } else { "" };
             info = format!("BAT {capacity}%{plug}   {info}");

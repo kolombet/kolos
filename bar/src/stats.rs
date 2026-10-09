@@ -10,6 +10,8 @@ pub struct Stats {
     pub mem_total_gib: f32,
     /// (capacity %, charging), or None on machines without a battery.
     pub battery: Option<(u32, bool)>,
+    /// CPU package temperature in °C, or None if no `x86_pkg_temp` zone exists.
+    pub cpu_temp_c: Option<u32>,
     pub time: String,
     pub date: String,
 }
@@ -29,6 +31,7 @@ impl Sampler {
             mem_used_gib,
             mem_total_gib,
             battery: battery(),
+            cpu_temp_c: cpu_temperature(),
             time: now.format("%H:%M").to_string(),
             date: now.format("%d.%m.%Y").to_string(),
         }
@@ -88,6 +91,21 @@ fn battery() -> Option<(u32, bool)> {
         let capacity = fs::read_to_string(path.join("capacity")).ok()?.trim().parse().ok()?;
         let status = fs::read_to_string(path.join("status")).unwrap_or_default();
         return Some((capacity, status.trim() == "Charging"));
+    }
+    None
+}
+
+/// CPU package temperature from the `x86_pkg_temp` thermal zone (not
+/// `thermal_zone0`, which varies by machine — on this one it's `BAT0`).
+fn cpu_temperature() -> Option<u32> {
+    let dir = fs::read_dir("/sys/class/thermal").ok()?;
+    for entry in dir.flatten() {
+        let path = entry.path();
+        if fs::read_to_string(path.join("type")).unwrap_or_default().trim() != "x86_pkg_temp" {
+            continue;
+        }
+        let milli: i64 = fs::read_to_string(path.join("temp")).ok()?.trim().parse().ok()?;
+        return Some((milli / 1000) as u32);
     }
     None
 }

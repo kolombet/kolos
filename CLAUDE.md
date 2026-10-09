@@ -257,9 +257,15 @@ scale (`set_buffer_scale`, so text stays sharp at scale 2). Measured: about
   re-query. Title events are ignored on purpose: some windows (a spinner in a
   terminal title) retitle several times a second, and the bar doesn't show
   titles.
-- `stats.rs` reads `/proc/stat`, `/proc/meminfo` and
-  `/sys/class/power_supply` every 2 s; the bar redraws only when something
-  it shows changed. Battery only appears when a `Battery` supply exists.
+- `stats.rs` reads `/proc/stat`, `/proc/meminfo`,
+  `/sys/class/power_supply` and `/sys/class/thermal` every 2 s; the bar
+  redraws only when something it shows changed. Battery only appears when a
+  `Battery` supply exists. CPU temperature comes from the `x86_pkg_temp`
+  thermal zone specifically, not `thermal_zone0` — zone numbering isn't
+  stable across machines, and on this one zone0 is `BAT0` (a battery
+  sensor), which is why the old Waybar config (no explicit
+  `thermal-zone`/`hwmon-path`, so it used zone0) quietly displayed battery
+  temperature mislabeled as CPU temperature.
 - Left: workspaces 1-5 always (Waybar's `persistent-workspaces`), plus any
   other workspace on that output; white + underline = active, gray =
   has windows, dark = empty. Then one entry per window on that output, by
@@ -269,15 +275,19 @@ scale (`set_buffer_scale`, so text stays sharp at scale 2). Measured: about
   to the end. Labeled by the last dot-segment of its class. Click focuses,
   middle-click closes, wheel (notches only, not touchpad) moves to the
   next/previous existing workspace.
-- Right: CPU, memory, keyboard layout (first three letters of
-  `active_keymap`: ENG, RUS), battery, two-line clock. Plain text, no
-  icons: the *Mono* Nerd Font scales icons to one cell, unreadably small.
+- Right: `CPU <load>% <temp>°C`, memory, keyboard layout (first three
+  letters of `active_keymap`: ENG, RUS), battery (`BAT <capacity>%`, `+`
+  suffix while charging), two-line clock. Plain text, no icons: the *Mono*
+  Nerd Font scales icons to one cell, unreadably small.
 
 Not done yet, compared to Waybar: app icons in the taskbar (needs icon-theme
 lookup plus PNG/SVG decoding), the tray (StatusNotifierItem over D-Bus;
-nothing here uses it), volume (PipeWire isn't installed on this host) and the
-calendar tooltip on the clock. Look/feel constants (sizes, colors from the
-old `style.css`) are at the top of `bar/src/main.rs`; there's no config file.
+nothing here uses it), volume (PipeWire is installed, but there's no
+lightweight text protocol for it the way Hyprland's sockets give `hypr.rs` —
+would mean shelling out to `wpctl` or writing a native PipeWire protocol
+client) and the calendar tooltip on the clock. Look/feel constants (sizes,
+colors from the old `style.css`) are at the top of `bar/src/main.rs`; there's
+no config file.
 
 Built by `restore.sh`/`restore-safe.sh` like `keys/` (to
 `~/.local/bin/kolos-bar`), started from `autostart.lua`, blurred behind by
