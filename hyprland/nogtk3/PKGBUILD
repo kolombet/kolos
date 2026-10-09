@@ -1,7 +1,7 @@
 # Placeholder for the GTK3 package name. kolos is GTK-free (see CLAUDE.md
-# "No Qt, no GTK"), but Arch's chromium package lists `gtk3` as a hard
-# dependency even though Chromium only dlopen()s libgtk-3 if it is present and
-# runs fine without it. Without this, the next `pacman -Syu` would quietly
+# "No Qt, no GTK"), but the brave-origin-bin AUR package lists `gtk3` as a
+# hard dependency even though Brave (like Chromium) only dlopen()s libgtk-3 if
+# it is present and runs fine without it. Without this, the next `pacman -Syu` would quietly
 # reinstall GTK3. Only the bare name is provided: anything depending on a
 # versioned gtk3 or on the libgtk-3.so soname still fails to install, which is
 # the point.

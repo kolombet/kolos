@@ -124,7 +124,6 @@ PKGS=(
 'foot'
 'fuzzel'
 'cosmic-files'
-'chromium'
 'xdg-desktop-portal'
 'xdg-desktop-portal-cosmic'
 'pipewire'

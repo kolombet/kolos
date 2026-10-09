@@ -20,6 +20,7 @@ cd ~
 
 PKGS=(
 'kickoff'
+'brave-origin-bin'
 )
 
 yay -Syu --noconfirm --needed "${PKGS[@]}"

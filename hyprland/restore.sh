@@ -31,7 +31,7 @@ PKGS=(
     # Launchers / file manager
     fuzzel
     cosmic-files
-    # File-chooser portal without GTK/Qt, for Chromium (see dotfiles/xdg-desktop-portal)
+    # File-chooser portal without GTK/Qt, for Brave Origin (see dotfiles/xdg-desktop-portal)
     xdg-desktop-portal
     xdg-desktop-portal-cosmic
 
@@ -59,8 +59,8 @@ PKGS=(
 
 $PRIV pacman -Syu --noconfirm --needed "${PKGS[@]}"
 
-echo "==> nogtk3 placeholder, then Chromium (see CLAUDE.md \"No Qt, no GTK\")"
-# chromium's package hard-depends on the gtk3 name; nogtk3 provides it so GTK3
+echo "==> nogtk3 placeholder, then Brave Origin (see CLAUDE.md \"No Qt, no GTK\")"
+# brave-origin-bin hard-depends on the gtk3 name; nogtk3 provides it so GTK3
 # itself never gets installed (and gets replaced if it already is).
 if [[ "$(id -u)" != "0" ]]; then
     NOGTK3_BUILD=$(mktemp -d)
@@ -68,10 +68,22 @@ if [[ "$(id -u)" != "0" ]]; then
     (cd "$NOGTK3_BUILD" && makepkg --noconfirm)
     # --ask 4: answer yes to "remove conflicting gtk3?"
     $PRIV pacman -U --noconfirm --needed --ask 4 "$NOGTK3_BUILD"/nogtk3-*.pkg.tar.*
+
+    # AUR-only (packaged by Brave itself). Built with plain makepkg rather than
+    # yay/paru so it doesn't depend on an AUR helper. Its package declares only
+    # alsa-lib gtk3 libxss nss ttf-font (ttf-font: noto-fonts), but the binary
+    # also links libraries the real gtk3 would have pulled in, which nogtk3
+    # doesn't; install those explicitly so nothing treats them as orphans.
+    $PRIV pacman -S --noconfirm --needed alsa-lib libxss nss \
+        at-spi2-core cairo pango libcups libxcomposite libxdamage libxrandr \
+        libxkbcommon mesa
+    BRAVE_BUILD=$(mktemp -d)
+    git clone --depth 1 https://aur.archlinux.org/brave-origin-bin.git "$BRAVE_BUILD"
+    (cd "$BRAVE_BUILD" && makepkg --noconfirm)
+    $PRIV pacman -U --noconfirm --needed "$BRAVE_BUILD"/brave-origin-bin-*.pkg.tar.*
 else
-    echo "  WARNING: makepkg can't run as root; skipping nogtk3, so chromium will pull in gtk3."
+    echo "  WARNING: makepkg can't run as root; skipping nogtk3 and Brave Origin (no browser installed)."
 fi
-$PRIV pacman -S --noconfirm --needed chromium
 
 echo "==> Enabling seatd"
 $PRIV systemctl enable --now seatd.service

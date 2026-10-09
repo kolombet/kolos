@@ -133,28 +133,41 @@ Removed for this reason: `telegram-desktop` (use web.telegram.org),
 `polkit-kde-agent`, `qt5ct`/`qt6ct`, Waybar, nwg-wrapper, pcmanfm,
 spice-vdagent, zenity, gnome-keyring/seahorse, Firefox.
 
-Chromium is the one exception on paper: Arch's `chromium` package lists
-`gtk3` as a hard dependency, but the binary has no `libgtk` in its
-`NEEDED` entries. It dlopen()s libgtk-3/libgtk-4 only if present, and
-without them it runs normally (verified with the GTK libraries masked in a
-bubblewrap sandbox: native Wayland window, no GTK mapped in any process) and
-gets open/save dialogs from the file-chooser portal (below).
+The browser, Brave Origin (Brave's stripped-down build: no AI, crypto, VPN,
+Rewards or Tor; free on Linux), is the one exception on paper. Its package,
+`brave-origin-bin` (AUR-only, maintained by Brave), lists `gtk3` as a hard
+dependency, but the binary has no `libgtk` in its `NEEDED` entries. It
+dlopen()s libgtk-3/libgtk-4 only if present, and without them it runs normally
+(verified here: native Wayland window without `--ozone-platform` flags, no GTK
+or Qt mapped in any process) and gets open/save dialogs from the file-chooser
+portal (below). The bundled `libqt5_shim.so`/`libqt6_shim.so` link Qt but are
+only loaded if Qt is installed. The package declares only `alsa-lib gtk3
+libxss nss ttf-font`, yet the binary also links `at-spi2-core`, `cairo`,
+`pango`, `libcups`, `libxcomposite`/`libxdamage`/`libxrandr`, `libxkbcommon`
+and `mesa`, which the real `gtk3` would have pulled in and `nogtk3` doesn't. The
+restore scripts install those explicitly; never remove them as orphans. It replaced Chromium, which behaves the same
+way, for the stripped-down build; the cost is that it's AUR-only, so
+`pacman -Syu` doesn't update it: rebuild `brave-origin-bin` by hand (or with an
+AUR helper) to get browser security updates.
 `hyprland/nogtk3/PKGBUILD` builds `nogtk3`, an empty package that
 `provides`/`conflicts` the bare `gtk3` name, so pacman considers that
 dependency met and won't reinstall GTK3 on `-Syu`. It only fakes the
 unversioned name: a package depending on `gtk3>=...` or on the
 `libgtk-3.so` soname still fails to install, which is the intended safety
 net. `restore.sh`/`restore-safe.sh` build and install it (as the invoking
-user, since makepkg refuses root) *before* installing chromium, so GTK3 is
-never installed in the first place. `1-setup.sh` (x86_64 installer path)
-doesn't, so there chromium still pulls in gtk3.
+user, since makepkg refuses root) *before* building and installing
+`brave-origin-bin` the same way (plain `makepkg` from the AUR git repo, no
+AUR helper needed), so GTK3 is never installed in the first place. Run as
+root, they skip both and install no browser. `2-user.sh` (x86_64 installer
+path) installs it with yay and doesn't build `nogtk3`, so there it still
+pulls in gtk3.
 
 Before adding a package to any `PKGS` list, check its full dependency tree,
 e.g. `pacman -Sp --print-format %n <pkg> | grep -E '^(qt|kf|gtk|libadwaita)'`
 (prints nothing if clean; run it here, where neither toolkit is installed, so
 nothing is hidden as already installed). Prefer toolkit-free alternatives,
-e.g. `cosmic-files` (not `pcmanfm`/`pcmanfm-qt`), Chromium not
-Firefox/qutebrowser/Falkon. Not all
+e.g. `cosmic-files` (not `pcmanfm`/`pcmanfm-qt`), a Chromium-based browser
+not Firefox/qutebrowser/Falkon. Not all
 of COSMIC qualifies: `cosmic-settings-daemon` hard-depends on `qt6ct`
 (Qt6) and `cosmic-settings` on `nm-connection-editor` (GTK3), so install
 individual COSMIC apps, never the `cosmic` group. Many packages list Qt only
@@ -165,7 +178,7 @@ don't install the optional part. Never set `QT_QPA_PLATFORMTHEME` or other
 Desktop portals follow the same rule. `xdg-desktop-portal-hyprland` needs
 Qt6 (its screen-share picker) and `xdg-desktop-portal-gtk` needs GTK, so
 neither is installed; `dotfiles/xdg-desktop-portal/hyprland-portals.conf`
-routes only the file chooser to `xdg-desktop-portal-cosmic` (iced). Chromium
+routes only the file chooser to `xdg-desktop-portal-cosmic` (iced). Brave
 uses that portal for open/save dialogs once GTK is gone. Consequence: no
 screen-sharing portal (WebRTC screen share won't work) until a Qt-free one
 exists.
@@ -178,7 +191,7 @@ ended up installed anyway (`pacman -Qq` lists real package names, so
 ## Xwayland is off
 
 `looknfeel.lua` sets `xwayland = { enabled = false }`: everything here
-(foot, Chromium, cosmic-files, the `bar/`/`keys/`/`askpass/` tools) is
+(foot, Brave Origin, cosmic-files, the `bar/`/`keys/`/`askpass/` tools) is
 native Wayland, and an idle Xwayland cost ~40 MiB. `xorg-xwayland` stays
 installed only because `hyprland` hard-depends on it. Any X11-only app will
 fail to start; re-enable it there rather than per-app. The setting only takes
@@ -390,9 +403,10 @@ with the keyboard can leave the active window buried behind others.
   used to run yazi (`foot yazi`), dropped since there's no yazi in this
   setup anymore; the key was then reused for files. The scratchpad workflow (`Mod+S`/`Shift+S`) was also dropped —
   freeing `Mod+S` up for the pseudo-tile toggle above.
-  `Mod+B` launches `$browser`, which now points at `chromium` (before that
-  plain `firefox`, and before that `zen-browser`; neither is in any package
-  list anymore). Chromium replaced Firefox to get rid of GTK, see "No Qt, no GTK".
+  `Mod+B` launches `$browser`, which now points at `brave-origin` (before
+  that `chromium`, `firefox`, and `zen-browser`; none is in any package list
+  anymore). Chromium replaced Firefox to get rid of GTK, and Brave Origin
+  replaced Chromium, see "No Qt, no GTK".
 - `Mod+T` runs `tile.sh` (tile all windows on the current workspace, saving
   their floating positions/sizes first) and `Mod+F` runs `float.sh` (float
   all windows on the current workspace, restoring saved positions/sizes if
