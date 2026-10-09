@@ -68,6 +68,13 @@ hl.animation({ leaf = "border", enabled = true, speed = 2, bezier = "default" })
 -- stub) - dropped rather than guessed.
 hl.animation({ leaf = "fade", enabled = true, speed = 2, bezier = "default" })
 hl.animation({ leaf = "workspaces", enabled = true, speed = 2, bezier = "default" })
+-- Special workspaces (the Mod+A drop-down terminal, windows.lua) drop down
+-- from the top and go back up. The direction is where the incoming view
+-- slides in from: "top" brings the terminal down, and on exit "bottom" (the
+-- view behind it coming up from below) pushes the terminal up. Plain "slidevert" comes up from the bottom, and
+-- an `animation` on the workspace rule is ignored by the special toggle.
+hl.animation({ leaf = "specialWorkspaceIn", enabled = true, speed = 2, bezier = "default", style = "slidevert top" })
+hl.animation({ leaf = "specialWorkspaceOut", enabled = true, speed = 2, bezier = "default", style = "slidevert bottom" })
 
 -- See https://wiki.hypr.land/Configuring/Layouts/Dwindle-Layout/ for more
 hl.config({

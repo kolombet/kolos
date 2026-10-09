@@ -18,6 +18,9 @@ hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd("pkill -x kolos-keys || kolos-key
 hl.bind(mainMod .. " + F1", hl.dsp.exec_cmd("pkill -x kolos-keys || kolos-keys")) -- same, F1 = traditional help key
 hl.bind(mainMod .. " + G", hl.dsp.exec_cmd("pkill -x kolos-keys || kolos-keys")) -- same, G = guide
 
+hl.bind(mainMod .. " + A", hl.dsp.workspace.toggle_special("quake")) -- drop-down terminal, see windows.lua
+hl.bind(mainMod .. " + F12", hl.dsp.workspace.toggle_special("quake")) -- same, F12 = Guake/Yakuake key
+
 hl.bind(mainMod .. " + Tab", hl.dsp.window.cycle_next())
 hl.bind(mainMod .. " + Tab", hl.dsp.window.alter_zorder({ mode = "top" }))
 hl.bind(mainMod .. " + SHIFT + Tab", hl.dsp.window.cycle_next({ previous = true }))

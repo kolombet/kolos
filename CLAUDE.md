@@ -215,6 +215,32 @@ to `~/.local/bin/kolos-keys` (no root needed, and `~/.local/bin` is on
 Hyprland's `PATH` via `zshenv`). `2-user.sh` doesn't build it, so on that
 path `Mod+grave` does nothing until it's built by hand.
 
+## Drop-down terminal
+
+`Mod+A` (fallback `Mod+F12`) toggles a Quake-style terminal. It's pure
+Hyprland config, not a `bar/`-style Rust tool, since a terminal emulator
+(PTY, VT parsing, scrollback, selection) is far beyond those: the special
+workspace `special:quake` has `on_created_empty` launching
+`foot --app-id=quake`, and the `quake` window rule in `windows.lua` sizes it
+to 90% of the monitor width (5% padding each side), 45% height, flush with
+the top edge. Hyprland can't round individual corners, so for square top
+corners the window starts 12px above the screen (`rounding` 10 + `border_size`
+2 from `looknfeel.lua`; update both if those change) and is 12px taller, and
+foot gets `-o pad=8x16` so its first line isn't hidden up there too. On a
+monitor with another one directly above, those 12px would show on that one. Toggling only hides or
+shows the workspace, so the shell keeps its state; closing the shell makes
+the next toggle start a fresh one. Don't add `center = false` to that rule:
+setting it re-centers the window instead of overriding `float-by-default`'s
+`center = true`. The drop-down motion is the `specialWorkspaceIn`/`specialWorkspaceOut`
+animation leaves in `looknfeel.lua`, styles `slidevert top` and `slidevert
+bottom`. The direction is where the incoming view slides in from, on exit too:
+`bottom` on Out means the view behind comes up from below, pushing the
+terminal up.
+Special workspaces otherwise inherit the horizontal `workspaces` slide,
+plain `slidevert` comes up from the bottom, and an `animation` on the workspace rule has no effect
+on the special toggle. `kolos-bar` ignores special workspaces (id <= 0), so it
+never appears in the taskbar.
+
 ## Status bar
 
 `bar/` (`kolos-bar`) replaced Waybar (GTK3 via gtkmm3). It's the same

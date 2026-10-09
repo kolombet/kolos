@@ -2,6 +2,7 @@ Mod = Win / Cmd
 
 # apps
 terminal      Mod+Enter
+drop-down     Mod+A / Mod+F12
 browser       Mod+B
 editor        Mod+E
 zed           Mod+Z
