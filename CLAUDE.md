@@ -470,3 +470,9 @@ Background transparency is set natively in `dotfiles/foot/foot.ini` via
 deprecated the old `[colors]` section name in favor of `[colors-dark]` /
 `[colors-light]`; `foot --check-config` warns if you use the old name.
 
+foot's config lives in the top-level `dotfiles/foot/` (not
+`hyprland/dotfiles/`): `restore.sh`/`restore-safe.sh` copy it to
+`~/.config/foot/` explicitly (`restore-safe.sh` backs up the old one
+first), and `2-user.sh` picks it up via `cp -r dotfiles/*`. Colors come
+from the included `foot-theme.ini`.
+
