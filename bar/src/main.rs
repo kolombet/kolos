@@ -70,6 +70,7 @@ const DIM_LINE: (u8, u8, u8, u8) = (255, 255, 255, 77); // rgba(255,255,255,.3)
 const TEXT: (u8, u8, u8) = (0xff, 0xff, 0xff);
 const TEXT_OCCUPIED: (u8, u8, u8) = (0xb0, 0xb0, 0xb0);
 const TEXT_EMPTY: (u8, u8, u8) = (0x60, 0x60, 0x60);
+const MODE: (u8, u8, u8) = (0xff, 0xcc, 0x00); // active submap (resize, move), e.g. amber
 
 
 #[derive(Clone)]
@@ -108,6 +109,10 @@ struct App {
     window_order: Vec<String>,
     stats: Stats,
     sampler: Sampler,
+    /// Active Hyprland submap name ("resize", "move"), empty when none.
+    /// Sourced only from the `submap>>NAME` event, not `hypr::Snapshot`:
+    /// there's no `j/submap` query to fall back on if an event is missed.
+    submap: String,
     exit: bool,
 }
 
@@ -142,6 +147,7 @@ fn main() {
         window_order: Vec::new(),
         stats,
         sampler,
+        submap: String::new(),
         exit: false,
     };
     app.hypr = app.ordered(Snapshot::fetch());
@@ -153,6 +159,7 @@ fn main() {
         .insert_source(Generic::new(events, Interest::READ, Mode::Level), move |_, stream, app| {
             let mut buf = [0u8; 4096];
             let mut relevant = false;
+            let mut submap_changed = false;
             loop {
                 match (&**stream).read(&mut buf) {
                     Ok(0) => {
@@ -166,11 +173,21 @@ fn main() {
             }
             while let Some(end) = pending.find('\n') {
                 let line: String = pending.drain(..=end).collect();
-                let event = line.split(">>").next().unwrap_or_default();
+                let line = line.trim_end();
+                let mut split = line.splitn(2, ">>");
+                let event = split.next().unwrap_or_default();
+                let data = split.next().unwrap_or_default();
+                if event == "submap" && data != app.submap {
+                    app.submap = data.to_string();
+                    submap_changed = true;
+                }
                 relevant |= hypr::is_relevant(event);
             }
             if relevant {
                 app.refresh_hypr();
+            }
+            if submap_changed {
+                app.draw_all();
             }
             Ok(PostAction::Continue)
         })
@@ -357,7 +374,17 @@ impl App {
             info = format!("BAT {capacity}%{plug}   {info}");
         }
         let iw = painter.measure(&info);
-        painter.text(&info, TEXT, clock_x.saturating_sub(iw + SECTION_GAP), text_y);
+        let info_x = clock_x.saturating_sub(iw + SECTION_GAP);
+        painter.text(&info, TEXT, info_x, text_y);
+
+        // Active submap (resize, move), if any - e.g. bindings.lua's Mod+N/Mod+M.
+        // Own color and its own gap from `info`, so it reads as a distinct,
+        // transient mode rather than another sysinfo segment.
+        if !self.submap.is_empty() {
+            let label = self.submap.to_uppercase();
+            let lw = painter.measure(&label);
+            painter.text(&label, MODE, info_x.saturating_sub(lw + SECTION_GAP), text_y);
+        }
 
         let bar = &mut self.bars[index];
         bar.hits = hits;

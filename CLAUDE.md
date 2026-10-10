@@ -292,6 +292,14 @@ scale (`set_buffer_scale`, so text stays sharp at scale 2). Measured: about
   letters of `active_keymap`: ENG, RUS), battery (`BAT <capacity>%`, `+`
   suffix while charging), two-line clock. Plain text, no icons: the *Mono*
   Nerd Font scales icons to one cell, unreadably small.
+- Active Hyprland submap (`resize` on `Mod+N`, `move` on `Mod+M`), uppercased
+  in amber, immediately left of the sysinfo group when one is active —
+  otherwise nothing is drawn there. Sourced only from the event stream's
+  `submap>>NAME` line (empty `NAME` on exit), not `hypr::Snapshot`: there's
+  no `j/submap` query to fall back on if an event is dropped, so a missed
+  event would leave it stuck until the next change. Kept as a separate
+  `App::submap` field rather than folded into `Snapshot` for that reason —
+  it's not part of the query-driven refresh path at all.
 
 Not done yet, compared to Waybar: app icons in the taskbar (needs icon-theme
 lookup plus PNG/SVG decoding), the tray (StatusNotifierItem over D-Bus;
@@ -375,9 +383,12 @@ with the keyboard can leave the active window buried behind others.
   true })`, `Return`/`Escape` to exit) — defined at the bottom of
   `bindings.lua`. `Mod+M` previously launched `firefox` redundantly with
   `Mod+B` → `$browser`; that duplicate bind was removed to free up the key.
-  There used to be a matching `resize` submap on `Mod+R`, with the same
-  shape; it was dropped when `Mod+R` was repurposed for `float.sh` (see
-  below) and mouse-drag resize (`Mod+RMB`) was judged enough on its own.
+- `Mod+N` enters the `resize` submap, same shape as `move` above but with
+  `window.resize` — moved here from `Mod+R` when that key was repurposed for
+  `float.sh` (see below), then from `Mod+V` to `Mod+N` once `Mod+N` was
+  freed by dropping its `nvim` launcher bind. `kolos-bar` shows
+  `RESIZE`/`MOVE` in amber in the bottom-right whenever either submap is
+  active — see "Status bar".
 - `Mod+Q`, `Mod+W`, `Mod+O` are confirmed host-captured and never bound to
   anything, with no fallback — see "Host-captured shortcuts don't get
   relied on alone" in `docs/user-stories.md`. Closing the focused window is
@@ -410,13 +421,14 @@ with the keyboard can leave the active window buried behind others.
   available). Both scripts live in `hyprland/dotfiles/hypr/` and need `jq`.
   Don't rebind `Mod+T`/`Mod+R` to app launchers (terminal/file manager) —
   that was the old behavior before these workspace-wide tile/float toggles
-  were added. `Mod+R` is bound to nothing else (no app launcher, no resize
-  submap — see the `Mod+M` bullet above); it previously double-bound to
-  launching `$apps`, which silently won over the old resize submap, so the
-  same care applies to whatever lands on `Mod+R` going forward.
+  were added. `Mod+R` is bound to nothing else; it previously double-bound
+  to launching `$apps`, which silently won over the resize submap that used
+  to live there (see the `Mod+N` bullet above), so the same care applies to
+  whatever lands on `Mod+R` going forward.
 - `Mod+F` (built-in `togglefloating`) toggles a single focused window,
   independent of the workspace-wide `Mod+T`/`Mod+R` scripts above — moved
-  here from `Mod+V`, which is now unbound.
+  here from `Mod+V`. `Mod+V` is now unbound (the resize submap that briefly
+  sat there moved on to `Mod+N`, see above).
 - `Mod+RETURN` opens a new terminal in the same directory as the
   currently-focused terminal (macOS Terminal.app behavior), via
   `$terminal --working-directory="$(~/.config/hypr/terminal-cwd.sh)"`.

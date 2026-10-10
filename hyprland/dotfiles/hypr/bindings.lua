@@ -4,7 +4,6 @@ hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal .. " --working-director
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(editor))
 hl.bind(mainMod .. " + Z", hl.dsp.exec_cmd("zed"))
-hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("nvim"))
 hl.bind(mainMod .. " + Y", hl.dsp.exec_cmd(fm))
 hl.bind(mainMod .. " + BackSpace", hl.dsp.window.close())
 hl.bind(mainMod .. " + F", hl.dsp.window.float({ action = "toggle" }))
@@ -70,6 +69,18 @@ end
 -- hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
 
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("~/.config/hypr/float.sh"))
+
+-- N was freed when the nvim launcher bind was dropped.
+hl.bind(mainMod .. " + N", hl.dsp.submap("resize"))
+
+hl.define_submap("resize", function()
+    hl.bind("H", hl.dsp.window.resize({ x = -50, y = 0, relative = true }))
+    hl.bind("L", hl.dsp.window.resize({ x = 50, y = 0, relative = true }))
+    hl.bind("K", hl.dsp.window.resize({ x = 0, y = -50, relative = true }))
+    hl.bind("J", hl.dsp.window.resize({ x = 0, y = 50, relative = true }))
+    hl.bind("Return", hl.dsp.submap("reset"))
+    hl.bind("Escape", hl.dsp.submap("reset"))
+end)
 
 hl.bind(mainMod .. " + M", hl.dsp.submap("move"))
 
