@@ -7,9 +7,8 @@ hl.bind(mainMod .. " + Z", hl.dsp.exec_cmd("zed"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("nvim"))
 hl.bind(mainMod .. " + Y", hl.dsp.exec_cmd(fm))
 hl.bind(mainMod .. " + BackSpace", hl.dsp.window.close())
-hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("~/.config/hypr/float.sh"))
+hl.bind(mainMod .. " + F", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("~/.config/hypr/tile.sh"))
-hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + S", hl.dsp.window.pseudo()) -- dwindle
 hl.bind(mainMod .. " + X", hl.dsp.layout("togglesplit")) -- dwindle only
@@ -70,16 +69,7 @@ end
 -- hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 -- hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
 
-hl.bind(mainMod .. " + R", hl.dsp.submap("resize"))
-
-hl.define_submap("resize", function()
-    hl.bind("H", hl.dsp.window.resize({ x = -50, y = 0, relative = true }))
-    hl.bind("L", hl.dsp.window.resize({ x = 50, y = 0, relative = true }))
-    hl.bind("K", hl.dsp.window.resize({ x = 0, y = -50, relative = true }))
-    hl.bind("J", hl.dsp.window.resize({ x = 0, y = 50, relative = true }))
-    hl.bind("Return", hl.dsp.submap("reset"))
-    hl.bind("Escape", hl.dsp.submap("reset"))
-end)
+hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("~/.config/hypr/float.sh"))
 
 hl.bind(mainMod .. " + M", hl.dsp.submap("move"))
 

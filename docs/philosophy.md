@@ -104,7 +104,7 @@ The intent: tiled by default on small laptop screens, where every pixel of
 horizontal space matters, and floating by default on desktop-sized
 monitors, where it doesn't. **Not yet how the config actually behaves** —
 `windows.lua`'s `float-by-default` rule currently applies everywhere
-regardless of screen size or machine type; `Mod+T`/`Mod+F` exist to toggle
+regardless of screen size or machine type; `Mod+T`/`Mod+R` exist to toggle
 a whole workspace between the two manually in the meantime. Making the
 default itself screen-size-aware is open work, not a solved acceptance
 criterion — don't describe it as already done.

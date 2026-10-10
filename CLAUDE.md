@@ -372,15 +372,12 @@ with the keyboard can leave the active window buried behind others.
 
 - `Mod+M` enters the `move` submap (`H`/`L`/`K`/`J` to move the focused
   floating window in 50px steps via `hl.dsp.window.move({ x, y, relative =
-  true })`, `Return`/`Escape` to exit) — same shape as the `resize` submap
-  below, just with `window.move` instead of `window.resize`. `Mod+M`
-  previously launched `firefox` redundantly with `Mod+B` → `$browser`; that
-  duplicate bind was removed to free up the key.
-- `Mod+R` enters the `resize` submap (`H`/`L`/`K`/`J` to resize, `Return`/
-  `Escape` to exit) — defined at the bottom of `bindings.lua`. Don't bind
-  `Mod+R` to anything else (e.g. an app launcher); it previously collided
-  with `$apps` and the app-launch bind silently won because it was declared
-  first.
+  true })`, `Return`/`Escape` to exit) — defined at the bottom of
+  `bindings.lua`. `Mod+M` previously launched `firefox` redundantly with
+  `Mod+B` → `$browser`; that duplicate bind was removed to free up the key.
+  There used to be a matching `resize` submap on `Mod+R`, with the same
+  shape; it was dropped when `Mod+R` was repurposed for `float.sh` (see
+  below) and mouse-drag resize (`Mod+RMB`) was judged enough on its own.
 - `Mod+Q`, `Mod+W`, `Mod+O` are confirmed host-captured and never bound to
   anything, with no fallback — see "Host-captured shortcuts don't get
   relied on alone" in `docs/user-stories.md`. Closing the focused window is
@@ -408,12 +405,18 @@ with the keyboard can leave the active window buried behind others.
   anymore). Chromium replaced Firefox to get rid of GTK, and Brave Origin
   replaced Chromium, see "No Qt, no GTK".
 - `Mod+T` runs `tile.sh` (tile all windows on the current workspace, saving
-  their floating positions/sizes first) and `Mod+F` runs `float.sh` (float
+  their floating positions/sizes first) and `Mod+R` runs `float.sh` (float
   all windows on the current workspace, restoring saved positions/sizes if
   available). Both scripts live in `hyprland/dotfiles/hypr/` and need `jq`.
-  Don't rebind `Mod+T`/`Mod+F` to app launchers (terminal/file manager) —
+  Don't rebind `Mod+T`/`Mod+R` to app launchers (terminal/file manager) —
   that was the old behavior before these workspace-wide tile/float toggles
-  were added.
+  were added. `Mod+R` is bound to nothing else (no app launcher, no resize
+  submap — see the `Mod+M` bullet above); it previously double-bound to
+  launching `$apps`, which silently won over the old resize submap, so the
+  same care applies to whatever lands on `Mod+R` going forward.
+- `Mod+F` (built-in `togglefloating`) toggles a single focused window,
+  independent of the workspace-wide `Mod+T`/`Mod+R` scripts above — moved
+  here from `Mod+V`, which is now unbound.
 - `Mod+RETURN` opens a new terminal in the same directory as the
   currently-focused terminal (macOS Terminal.app behavior), via
   `$terminal --working-directory="$(~/.config/hypr/terminal-cwd.sh)"`.

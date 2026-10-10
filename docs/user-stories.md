@@ -135,19 +135,6 @@ Acceptance criteria:
   rather than assuming a single key will reliably reach Hyprland on every
   host.
 
-## Window resize
-
-**As** a user, **I want** a dedicated, keyboard-only way to resize the
-focused window, **so that** I don't need the mouse for fine window
-adjustments.
-
-Acceptance criteria:
-- `Mod+R` enters a `resize` submap.
-- Inside the submap: `H`/`L`/`K`/`J` resize left/right/up/down; `Return` or
-  `Escape` exits back to normal binds.
-- `Mod+R` is bound to nothing else. (It previously double-bound to launching
-  `$apps`, which silently won over the resize submap — see `CLAUDE.md`.)
-
 ## Keyboard-only window move
 
 **As** a user, **I want** a dedicated, keyboard-only way to move the
@@ -155,12 +142,10 @@ focused floating window, **so that** I don't need the mouse when it's
 unavailable (or just don't want to reach for it).
 
 Acceptance criteria:
-- `Mod+M` enters a `move` submap, mirroring the existing `Mod+R` resize
-  submap.
+- `Mod+M` enters a `move` submap.
 - Inside the submap: `H`/`L`/`K`/`J` move the window left/right/up/down in
-  50px steps via `hl.dsp.window.move({ x, y, relative = true })` (parallel
-  to `window.resize` in the `Mod+R` submap); `Return` or `Escape` exits back
-  to normal binds.
+  50px steps via `hl.dsp.window.move({ x, y, relative = true })`; `Return`
+  or `Escape` exits back to normal binds.
 - Freed up `Mod+M` by removing a duplicate bind (`Mod+M` → `firefox`), which
   was redundant with `Mod+B` → `$browser`.
 
@@ -174,13 +159,16 @@ strict tiling.
 Acceptance criteria:
 - New windows open floating (not tiled), at a 960x540 centered starting
   size — the default state is floating, not tiled.
-- `Mod+F` floats every window on the current workspace, restoring each
+- `Mod+R` floats every window on the current workspace, restoring each
   window's previously saved position/size if one was captured by a prior
-  `Mod+T`.
+  `Mod+T`. (Reuses the key freed up when the keyboard-only resize submap was
+  dropped — `Mod+R` is bound to nothing else, the same constraint that
+  applied to the old resize submap: it previously double-bound to launching
+  `$apps`, which silently won — see `CLAUDE.md`.)
 - `Mod+T` tiles every window on the current workspace, saving each window's
-  current floating position/size first so `Mod+F` can restore it later.
-- `Mod+V` (built-in `togglefloating`) toggles a single focused window
-  independent of the workspace-wide `Mod+T`/`Mod+F` scripts, for one-off
+  current floating position/size first so `Mod+R` can restore it later.
+- `Mod+F` (built-in `togglefloating`) toggles a single focused window
+  independent of the workspace-wide `Mod+T`/`Mod+R` scripts, for one-off
   exceptions.
 
 ## Portable, self-contained restore
