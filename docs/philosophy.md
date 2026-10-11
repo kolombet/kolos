@@ -20,6 +20,56 @@ once foot was the only one actually used). Fewer moving parts means fewer
 things that can break, and less to read before you understand the whole
 system.
 
+## No Qt, no GTK
+
+Nothing kolos installs may pull in Qt or GTK, directly or as a dependency.
+These are the two big desktop widget toolkits, and each one brings a whole
+stack with it: its own theming engine, settings daemons, config tools
+(`qt5ct`/`qt6ct`, GTK theme files), and dozens of libraries, for apps that
+here need to draw a password box or a line of text. That stack goes against
+almost every other principle on this page:
+
+- **Minimal.** One GTK dialog (zenity, for the sudo password prompt) meant
+  installing all of GTK3. Two toolkits means two theming systems to keep
+  consistent, so the answer is zero, not one.
+- **Fast and light.** Waybar (GTK3) used ~43 MiB; its replacement
+  `kolos-bar` uses ~6 MiB. Small tools start instantly and draw only what
+  they show.
+- **Legible.** Toolkit apps fail noisily and opaquely: zenity printed GTK
+  theme-parser errors and a Vulkan-detection warning on every run. A few
+  hundred lines of Rust in this repo is something an agent can read whole
+  and fix; a toolkit isn't.
+- **Under our control.** Toolkits bring their own behavior. `gcr-prompter`
+  (GTK) popped up its own modal for SSH passphrases and bypassed the repo's
+  askpass; `nwg-wrapper` (GTK3) was pinned to one output name and never
+  showed on a VM. Our own tools do exactly what this setup needs.
+
+What we use instead:
+
+- **Small Rust layer-shell tools in this repo** for the desktop pieces:
+  `kolos-bar` (status bar, replaced Waybar), `kolos-keys` (keybinding cheat
+  sheet, replaced nwg-wrapper), `kolos-askpass` (sudo and SSH password
+  prompt, replaced zenity and gcr). They draw directly on Wayland with
+  `smithay-client-toolkit` and `fontdue`, and share one font renderer.
+- **Native Wayland apps without a widget toolkit:** `foot` (terminal),
+  `kickoff` (launcher), Hyprland's own config for the drop-down terminal.
+- **COSMIC's iced-based apps** where a real GUI app is needed:
+  `cosmic-files` (file manager, replaced pcmanfm) and
+  `xdg-desktop-portal-cosmic` (open/save dialogs). Individual apps only,
+  never the `cosmic` group, since some of it depends on Qt or GTK.
+- **A Chromium-based browser** (Brave Origin), which runs without GTK and
+  gets its file dialogs from the portal. It's the one exception on paper:
+  its package declares `gtk3`, which the empty `nogtk3` package satisfies.
+- **Web apps** for things that only ship as toolkit apps (Telegram via
+  web.telegram.org).
+
+Cost, accepted on purpose: some things don't exist yet without a toolkit,
+such as a screen-sharing portal (the Hyprland one needs Qt), so WebRTC screen
+share doesn't work. Following "Grow on demand", the answer is to build a
+small tool when one is needed, not to bring a toolkit back. The rules and
+the dependency check to run before adding a package are in `CLAUDE.md`'s
+"No Qt, no GTK" section.
+
 ## Modern
 
 Wayland and Hyprland, not X11 and a stacking WM from 2005. Compositing,

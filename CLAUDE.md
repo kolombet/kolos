@@ -132,6 +132,8 @@ needed it); once Chromium turned out to run without GTK, GTK went too.
 Removed for this reason: `telegram-desktop` (use web.telegram.org),
 `polkit-kde-agent`, `qt5ct`/`qt6ct`, Waybar, nwg-wrapper, pcmanfm,
 spice-vdagent, zenity, gnome-keyring/seahorse, Firefox.
+Why (weight, noise, behavior we don't control) and the full list of what
+replaces each toolkit app: see "No Qt, no GTK" in `docs/philosophy.md`.
 
 The browser, Brave Origin (Brave's stripped-down build: no AI, crypto, VPN,
 Rewards or Tor; free on Linux), is the one exception on paper. Its package,
