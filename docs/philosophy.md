@@ -60,6 +60,9 @@ What we use instead:
 - **A Chromium-based browser** (Brave Origin), which runs without GTK and
   gets its file dialogs from the portal. It's the one exception on paper:
   its package declares `gtk3`, which the empty `nogtk3` package satisfies.
+- **Steam**, the same kind of exception: its package declares `zenity`
+  (GTK) for a few launcher dialogs, and the empty `nozenity` package
+  satisfies that so Steam installs without it.
 - **Web apps** for things that only ship as toolkit apps (Telegram via
   web.telegram.org).
 

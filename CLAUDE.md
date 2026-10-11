@@ -164,6 +164,14 @@ root, they skip both and install no browser. `2-user.sh` (x86_64 installer
 path) installs it with yay and doesn't build `nogtk3`, so there it still
 pulls in gtk3.
 
+Steam is the second exception of the same kind: the `steam` package
+hard-depends on `zenity` (GTK4/libadwaita), which it only shells out to for
+a few launcher dialogs. `hyprland/nozenity/PKGBUILD` builds `nozenity`, the
+same kind of empty package as `nogtk3` (`provides`/`conflicts` the bare
+`zenity` name). Build and install it with `makepkg` as the invoking user
+*before* installing `steam`. The restore scripts don't install Steam, so they
+don't build it either.
+
 Before adding a package to any `PKGS` list, check its full dependency tree,
 e.g. `pacman -Sp --print-format %n <pkg> | grep -E '^(qt|kf|gtk|libadwaita)'`
 (prints nothing if clean; run it here, where neither toolkit is installed, so

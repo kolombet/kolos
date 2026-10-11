@@ -1,0 +1,19 @@
+# Placeholder for the zenity package name. kolos is GTK-free (see CLAUDE.md
+# "No Qt, no GTK"), but the steam package lists `zenity` (GTK4/libadwaita) as
+# a hard dependency even though Steam only shells out to it for a few launcher
+# dialogs and runs without it. Without this, installing Steam, or the next
+# `pacman -Syu` after it, would pull in zenity and GTK with it. Only the bare
+# name is provided: anything depending on a versioned zenity still fails to
+# install, which is the point.
+pkgname=nozenity
+pkgver=1
+pkgrel=1
+pkgdesc="kolos: satisfies dependencies on the zenity package name without installing zenity"
+arch=('any')
+license=('0BSD')
+provides=('zenity')
+conflicts=('zenity')
+
+package() {
+    :
+}
