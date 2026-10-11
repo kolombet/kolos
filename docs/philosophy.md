@@ -58,11 +58,13 @@ What we use instead:
   `xdg-desktop-portal-cosmic` (open/save dialogs). Individual apps only,
   never the `cosmic` group, since some of it depends on Qt or GTK.
 - **A Chromium-based browser** (Brave Origin), which runs without GTK and
-  gets its file dialogs from the portal. It's the one exception on paper:
-  its package declares `gtk3`, which the empty `nogtk3` package satisfies.
-- **Steam**, the same kind of exception: its package declares `zenity`
-  (GTK) for a few launcher dialogs, and the empty `nozenity` package
-  satisfies that so Steam installs without it.
+  gets its file dialogs from the portal.
+- **Placeholder packages for unused dependencies.** Some apps declare a
+  toolkit package as a hard dependency but never use it: Brave Origin
+  declares `gtk3`, Steam declares `zenity` (GTK). Both run fine without
+  them. The empty `nogtk3` and `nozenity` packages in this repo claim those
+  names, so pacman considers the dependency met and never installs the
+  toolkit.
 - **Web apps** for things that only ship as toolkit apps (Telegram via
   web.telegram.org).
 

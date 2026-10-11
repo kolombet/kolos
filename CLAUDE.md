@@ -165,8 +165,8 @@ path) installs it with yay and doesn't build `nogtk3`, so there it still
 pulls in gtk3.
 
 Steam is the second exception of the same kind: the `steam` package
-hard-depends on `zenity` (GTK4/libadwaita), which it only shells out to for
-a few launcher dialogs. `hyprland/nozenity/PKGBUILD` builds `nozenity`, the
+hard-depends on `zenity` (GTK4/libadwaita) but doesn't use it, and runs
+fine without it. `hyprland/nozenity/PKGBUILD` builds `nozenity`, the
 same kind of empty package as `nogtk3` (`provides`/`conflicts` the bare
 `zenity` name). Build and install it with `makepkg` as the invoking user
 *before* installing `steam`. The restore scripts don't install Steam, so they
