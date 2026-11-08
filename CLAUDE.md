@@ -21,6 +21,12 @@ multi-monitor desktop, HiDPI scaling). There's no example/gitignore
 indirection anymore — see the commented-out `hl.monitor({...})` /
 `hl.workspace_rule({...})` examples at the bottom of the file.
 
+On ARM boards whose display driver has no working cursor plane (seen on the
+Retroid Pocket 6's SM8550: the pointer moves but is never drawn), add
+`hl.config({ cursor = { no_hardware_cursors = 1 } })` to that machine's
+`monitors.lua`, so Hyprland draws the pointer in software. It lives there,
+not in `looknfeel.lua`, because other machines keep their hardware cursor.
+
 ## Suspend-on-idle is laptop-only
 
 `hypridle.conf`'s 10-minute idle listener runs `systemctl suspend` — correct
