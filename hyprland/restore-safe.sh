@@ -8,12 +8,13 @@ BACKUP_DIR="$USER_HOME/.config-backup-$(date +%Y%m%d_%H%M%S)"
 PRIV=""
 [[ "$(id -u)" != "0" ]] && PRIV="sudo"
 
+source "$SCRIPT_DIR/lib.sh"
+
 echo "==> Installing packages"
 PKGS=(
     hyprland
     swaybg
     foot
-    fuzzel
     cosmic-files
     # File-chooser portal without GTK/Qt, for Brave Origin (see dotfiles/xdg-desktop-portal)
     xdg-desktop-portal
@@ -31,12 +32,14 @@ PKGS=(
     # Build toolchain for askpass/ (kolos-askpass GUI sudo password prompt)
     rust
 )
-$PRIV pacman -Syu --noconfirm --needed "${PKGS[@]}"
+install_packages "${PKGS[@]}" -- fuzzel
 
 echo "==> nogtk3 placeholder, then Brave Origin (see CLAUDE.md \"No Qt, no GTK\")"
 # brave-origin-bin hard-depends on the gtk3 name; nogtk3 provides it so GTK3
 # itself never gets installed (and gets replaced if it already is).
-if [[ "$(id -u)" != "0" ]]; then
+if is_pocknix; then
+    echo "  Skipped on Pocknix: its Waydroid needs the real gtk3, and Brave comes from Flathub there."
+elif [[ "$(id -u)" != "0" ]]; then
     NOGTK3_BUILD=$(mktemp -d)
     cp "$SCRIPT_DIR/nogtk3/PKGBUILD" "$NOGTK3_BUILD/"
     (cd "$NOGTK3_BUILD" && makepkg --noconfirm)
@@ -59,9 +62,6 @@ else
     echo "  WARNING: makepkg can't run as root; skipping nogtk3 and Brave Origin (no browser installed)."
 fi
 
-echo "==> Installing kickoff from AUR"
-yay -S --noconfirm --needed kickoff
-
 echo "==> Backing up existing configs to $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"
 [[ -f "$USER_HOME/.zshenv" ]]         && cp    "$USER_HOME/.zshenv"          "$BACKUP_DIR/"
@@ -71,7 +71,7 @@ mkdir -p "$BACKUP_DIR"
 
 echo "==> Deploying dotfiles"
 mkdir -p "$USER_HOME/.config"
-cp -r "$SCRIPT_DIR/dotfiles/hypr"    "$USER_HOME/.config/"
+deploy_hypr
 cp -r "$SCRIPT_DIR/dotfiles/kickoff" "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/dotfiles/xdg-desktop-portal" "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/../dotfiles/foot" "$USER_HOME/.config/"
@@ -84,22 +84,7 @@ cp "$SCRIPT_DIR/shell/zshrc"    "$USER_HOME/.zshrc"
 echo "==> Setting zsh as default shell"
 $PRIV chsh -s /usr/bin/zsh "$(whoami)"
 
-echo "==> Building askpass/ (kolos-askpass GUI sudo password prompt)"
-cargo build --release --manifest-path "$SCRIPT_DIR/../askpass/Cargo.toml"
-$PRIV install -Dm755 "$SCRIPT_DIR/../askpass/target/release/kolos-askpass" /usr/local/bin/kolos-askpass
-if grep -q "^Path askpass" /etc/sudo.conf 2>/dev/null; then
-    $PRIV sed -i 's|^Path askpass .*|Path askpass /usr/local/bin/kolos-askpass|' /etc/sudo.conf
-else
-    echo "Path askpass /usr/local/bin/kolos-askpass" | $PRIV tee -a /etc/sudo.conf >/dev/null
-fi
-
-echo "==> Building keys/ (kolos-keys keybinding cheat sheet, toggled with Mod+\`)"
-cargo build --release --manifest-path "$SCRIPT_DIR/../keys/Cargo.toml"
-install -Dm755 "$SCRIPT_DIR/../keys/target/release/kolos-keys" "$USER_HOME/.local/bin/kolos-keys"
-
-echo "==> Building bar/ (kolos-bar, the status bar)"
-cargo build --release --manifest-path "$SCRIPT_DIR/../bar/Cargo.toml"
-install -Dm755 "$SCRIPT_DIR/../bar/target/release/kolos-bar" "$USER_HOME/.local/bin/kolos-bar"
+install_tools
 
 echo "==> SSH agent (OpenSSH ssh-agent + kolos-askpass instead of gcr-ssh-agent)"
 if [[ "$(id -u)" != "0" ]]; then

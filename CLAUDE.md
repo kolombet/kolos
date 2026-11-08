@@ -81,7 +81,8 @@ Three approaches were tried, in order:
   output.
 
 Deployed by `restore.sh`/`restore-safe.sh`: install the `rust` package
-(for `cargo`/`rustc`, build-time only), run `cargo build --release
+(for `cargo`/`rustc`, build-time only; rustup into `~/.cargo` where no repo
+has it, see "Packages no repo carries"), run `cargo build --release
 --manifest-path askpass/Cargo.toml` as the invoking user (not `$PRIV` —
 don't build as root), `install -Dm755` the resulting binary to
 `/usr/local/bin/kolos-askpass`, then point `/etc/sudo.conf`'s `Path
@@ -225,7 +226,8 @@ listed `Mod+Q`/`Mod+W`, both host-captured and unbound).
 
 Built by `restore.sh`/`restore-safe.sh` as the invoking user and installed
 to `~/.local/bin/kolos-keys` (no root needed, and `~/.local/bin` is on
-Hyprland's `PATH` via `zshenv`). `2-user.sh` doesn't build it, so on that
+Hyprland's `PATH` via `zshenv`, and via `envs.lua` for sessions not started
+from a zsh login, like Pocknix's desktop picker). `2-user.sh` doesn't build it, so on that
 path `Mod+grave` does nothing until it's built by hand.
 
 ## Drop-down terminal
@@ -476,3 +478,29 @@ foot's config lives in the top-level `dotfiles/foot/` (not
 first), and `2-user.sh` picks it up via `cp -r dotfiles/*`. Colors come
 from the included `foot-theme.ini`.
 
+
+## Packages no repo carries (Pocknix)
+
+`hyprland/lib.sh`, sourced by both restore scripts, installs each package from
+the repos when one has it and builds it otherwise, so the same script runs on
+Arch, Manjaro and Pocknix OS (an Arch Linux ARM handheld distro whose locked
+repo snapshot lacks `foot`, `swaybg`, `zsh` and their libraries):
+
+- `hyprland/pkgbuilds/` holds trimmed PKGBUILDs for `tllist libutf8proc fcft
+  foot swaybg zsh`, built in that order only when neither installed nor in a
+  repo. They build Arch's upstream release without man pages (`scdoc`), foot's
+  PGO (LLVM + headless sway) or regenerated zsh docs (`yodl`). Bump `pkgver`
+  and the checksums together; git sources' sums come from `makepkg -g`.
+- `ttf-jetbrains-mono-nerd` falls back to the Nerd Fonts release tarball in
+  `~/.local/share/fonts` (its PKGBUILD builds every Nerd Font), `rust` to
+  rustup in `~/.cargo`, and kickoff always comes from crates.io (`cargo
+  install` into `~/.local`), so no AUR helper is needed anywhere.
+- `fuzzel` is optional (nothing binds `apps` since kickoff took `Mod+D`):
+  installed where a repo has it, skipped otherwise.
+- On Pocknix (`NAME="Pocknix OS"` in `/etc/os-release`) the scripts also skip
+  `pacman -Syu` (updates go through its snapshot flow), `nogtk3`/Brave Origin
+  (its Waydroid needs the real gtk3; Brave comes from Flathub), enabling
+  `seatd` (its gamescope game mode seats through logind) and tty1 autologin
+  (its session supervisor owns tty1; Hyprland is picked in its desktop picker).
+- A redeploy keeps an existing `~/.config/hypr/monitors.lua`
+  (`deploy_hypr`): it is hand-edited per machine, see above.

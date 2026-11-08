@@ -1,0 +1,20 @@
+# Trimmed from Arch's tllist PKGBUILD; see ../README.md.
+pkgname=tllist
+pkgver=1.1.0
+pkgrel=1
+pkgdesc='A C header file only implementation of a typed linked list'
+arch=(any)
+url=https://codeberg.org/dnkl/tllist
+license=(MIT)
+makedepends=(git meson)
+source=("git+$url.git#tag=$pkgver")
+sha256sums=('6f51dd1cf87b9d28cab03d341446776c25c01c7a17bc3d2f2564d08f2250f7a9')
+
+build() {
+  meson setup build tllist --prefix=/usr --buildtype=plain
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname/" tllist/LICENSE
+}

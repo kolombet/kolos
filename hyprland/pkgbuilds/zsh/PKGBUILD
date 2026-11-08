@@ -1,0 +1,32 @@
+# Trimmed from Arch's zsh PKGBUILD (release tarball's prebuilt docs, no yodl); see ../README.md.
+pkgname=zsh
+pkgver=5.9.2
+pkgrel=1
+pkgdesc='A very advanced and programmable command interpreter (shell) for UNIX'
+arch=(x86_64 aarch64)
+url=https://www.zsh.org/
+license=('MIT-Modern-Variant')
+depends=(pcre2 libcap gdbm ncurses)
+backup=(etc/zsh/zprofile)
+install=zsh.install
+source=("https://www.zsh.org/pub/zsh-$pkgver.tar.xz")
+sha512sums=('40bb5eb2cf217e6bcff342fcc9314f082a5d8975abcb56897e86eba5839ddf0ec1ac3feed1e797d4c68cea22228197342916f14bb87309bbcc026a87622bc015')
+
+build() {
+  cd "zsh-$pkgver"
+  ./configure --prefix=/usr --enable-etcdir=/etc/zsh --enable-zshenv=/etc/zsh/zshenv \
+    --enable-zlogin=/etc/zsh/zlogin --enable-zlogout=/etc/zsh/zlogout \
+    --enable-zprofile=/etc/zsh/zprofile --enable-zshrc=/etc/zsh/zshrc \
+    --enable-maildir-support --with-term-lib=ncursesw --enable-multibyte \
+    --enable-function-subdirs --enable-fndir=/usr/share/zsh/functions \
+    --enable-scriptdir=/usr/share/zsh/scripts --with-tcsetpgrp --enable-pcre \
+    --enable-gdbm --enable-cap --enable-zsh-secure-free
+  make
+}
+
+package() {
+  cd "zsh-$pkgver"
+  make DESTDIR="$pkgdir" install.bin install.modules install.fns install.man
+  install -Dm644 /dev/stdin "$pkgdir/etc/zsh/zprofile" <<<"emulate sh -c 'source /etc/profile'"
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname/" LICENCE
+}

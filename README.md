@@ -95,12 +95,12 @@ cd hyprland
 ./restore-safe.sh   # backs up any existing configs to ~/.config-backup-<timestamp> first
 ```
 
-Either script installs the required packages (`hyprland`, `swaybg`, `foot`, `kickoff`, PipeWire audio stack, fonts, `seatd`), builds `askpass/`, `keys/` and `bar/`, copies `dotfiles/{hypr,kickoff}` into `~/.config`, installs the `zprofile`/`zshenv`/`zshrc` shell files, sets `zsh` as the login shell, and optionally wires up tty1 autologin. After that, logging into tty1 starts Hyprland automatically via `zprofile`. `zshrc` sets a macOS Terminal.app-style prompt (`hostname:path %`) — no external prompt framework (e.g. powerlevel10k) required.
+Either script installs the required packages (`hyprland`, `swaybg`, `foot`, PipeWire audio stack, fonts, `seatd`) from the repos, building any a repo lacks from `hyprland/pkgbuilds/` (Pocknix OS on ARM handhelds; see CLAUDE.md), installs `kickoff` from crates.io, builds `askpass/`, `keys/` and `bar/`, copies `dotfiles/{hypr,kickoff}` into `~/.config`, installs the `zprofile`/`zshenv`/`zshrc` shell files, sets `zsh` as the login shell, and optionally wires up tty1 autologin. After that, logging into tty1 starts Hyprland automatically via `zprofile`. `zshrc` sets a macOS Terminal.app-style prompt (`hostname:path %`) — no external prompt framework (e.g. powerlevel10k) required.
 
 **Notable behavior:**
 - `Super+F` / `Super+T` run `float.sh` / `tile.sh` to float or tile all windows on the current workspace; `Super+V` toggles floating on the active window. New windows float by default (see the `float-by-default` window rule in `windows.lua`).
 - `Super+R` enters a resize submap (`H`/`J`/`K`/`L` to resize, `Return`/`Escape` to exit).
-- On login, `randomwallpaper.sh` picks a random image from `hypr/wallpapers/` per monitor and sets it with `swaybg`.
+- On login, `randomwallpaper.sh` picks a random image from `hypr/wallpapers/` per monitor and sets it with `swaybg`; `wallpaper-hotplug.py` re-runs it when a monitor is plugged in or out.
 - `kolos-bar` (`bar/`) shows workspaces, the open windows, CPU/memory/battery/clock and an EN/RU keyboard-layout indicator. Click a workspace or window to focus it, middle-click a window to close it, scroll to change workspace.
 
 Applying a config change from this repo to a running system is currently manual — edit the file under `hyprland/dotfiles/` or `dotfiles/`, copy it to the matching path under `~/.config`, then `hyprctl reload` (for Hyprland) or restart the relevant process (e.g. `pkill -x kolos-bar; kolos-bar &`, or re-run `randomwallpaper.sh` for swaybg).

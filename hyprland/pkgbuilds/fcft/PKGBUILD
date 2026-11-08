@@ -1,0 +1,24 @@
+# Trimmed from Arch's fcft PKGBUILD; see ../README.md.
+pkgname=fcft
+pkgver=3.3.3
+pkgrel=1
+pkgdesc='Simple library for font loading and glyph rasterization using FontConfig, FreeType and pixman'
+arch=(x86_64 aarch64)
+url=https://codeberg.org/dnkl/fcft
+license=(MIT)
+depends=(fontconfig freetype2 harfbuzz libutf8proc pixman)
+makedepends=(git meson tllist)
+provides=(libfcft.so)
+source=("git+$url.git#tag=$pkgver")
+sha256sums=('ad689dbf6033f875c3dd9f626e3675bbd499f094e446ce814bfa63048196e0d8')
+
+build() {
+  meson setup build fcft --prefix=/usr --buildtype=plain -Ddocs=disabled \
+    -Dgrapheme-shaping=enabled -Drun-shaping=enabled
+  meson compile -C build
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname/" fcft/LICENSE
+}

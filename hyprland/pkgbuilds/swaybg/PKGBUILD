@@ -1,0 +1,22 @@
+# Trimmed from Arch's swaybg PKGBUILD; see ../README.md.
+pkgname=swaybg
+pkgver=1.2.2
+pkgrel=1
+pkgdesc='Wallpaper tool for Wayland compositors'
+arch=(x86_64 aarch64)
+url=https://github.com/swaywm/swaybg
+license=(MIT)
+depends=(wayland cairo gdk-pixbuf2)
+makedepends=(meson ninja wayland-protocols)
+source=("$url/releases/download/v$pkgver/swaybg-$pkgver.tar.gz")
+b2sums=('670d4a232458109d839dc269d0c67013d98180b64bdc04aafec91001b4f875928987aad0d27bec15a947daa05a0a8e5fbfdf3cf2f86f95aa4c4817e9150bc144')
+
+build() {
+  meson setup build "swaybg-$pkgver" --prefix=/usr --buildtype=plain -Dman-pages=disabled
+  meson compile -C build
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname/" "swaybg-$pkgver/LICENSE"
+}

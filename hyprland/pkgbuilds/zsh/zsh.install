@@ -1,0 +1,4 @@
+# chsh refuses a shell that isn't listed here.
+post_install() { grep -qx /usr/bin/zsh etc/shells || echo /usr/bin/zsh >> etc/shells; }
+post_upgrade() { post_install; }
+pre_remove() { sed -i '\|^/usr/bin/zsh$|d' etc/shells; }

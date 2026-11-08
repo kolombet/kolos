@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Hyprland restore script
-# Works on Arch Linux (x86_64 and aarch64).
+# Works on Arch Linux and Manjaro (x86_64 and aarch64) and on Pocknix OS (ARM64 handhelds):
+# what no repo carries is built from pkgbuilds/ or rustup (lib.sh).
 # Run from a minimal Arch install (after network is up).
 # Can be run as root or as a regular user with sudo.
 
@@ -18,7 +19,9 @@ else
     echo "Running as non-root; will use sudo for system commands."
 fi
 
-echo "==> Architecture: $ARCH"
+source "$SCRIPT_DIR/lib.sh"
+
+echo "==> Architecture: $ARCH$(is_pocknix && echo ', Pocknix OS')"
 echo "==> Installing packages"
 
 PKGS=(
@@ -28,8 +31,7 @@ PKGS=(
     # Terminal
     foot
 
-    # Launchers / file manager
-    fuzzel
+    # File manager (fuzzel, unbound since kickoff took Mod+D, is optional below)
     cosmic-files
     # File-chooser portal without GTK/Qt, for Brave Origin (see dotfiles/xdg-desktop-portal)
     xdg-desktop-portal
@@ -57,12 +59,14 @@ PKGS=(
     rust
 )
 
-$PRIV pacman -Syu --noconfirm --needed "${PKGS[@]}"
+install_packages "${PKGS[@]}" -- fuzzel
 
 echo "==> nogtk3 placeholder, then Brave Origin (see CLAUDE.md \"No Qt, no GTK\")"
 # brave-origin-bin hard-depends on the gtk3 name; nogtk3 provides it so GTK3
 # itself never gets installed (and gets replaced if it already is).
-if [[ "$(id -u)" != "0" ]]; then
+if is_pocknix; then
+    echo "  Skipped on Pocknix: its Waydroid needs the real gtk3, and Brave comes from Flathub there."
+elif [[ "$(id -u)" != "0" ]]; then
     NOGTK3_BUILD=$(mktemp -d)
     cp "$SCRIPT_DIR/nogtk3/PKGBUILD" "$NOGTK3_BUILD/"
     (cd "$NOGTK3_BUILD" && makepkg --noconfirm)
@@ -85,24 +89,18 @@ else
     echo "  WARNING: makepkg can't run as root; skipping nogtk3 and Brave Origin (no browser installed)."
 fi
 
-echo "==> Enabling seatd"
-$PRIV systemctl enable --now seatd.service
-
-# AUR helper check (kickoff is AUR-only)
-AUR_PKGS=(kickoff)
-if command -v yay &>/dev/null; then
-    yay -S --noconfirm --needed "${AUR_PKGS[@]}"
-elif command -v paru &>/dev/null; then
-    paru -S --noconfirm --needed "${AUR_PKGS[@]}"
+# Pocknix seats through logind: a running seatd can win libseat's pick in its gamescope game mode.
+if is_pocknix; then
+    echo "==> seatd: skipped on Pocknix (logind)"
 else
-    echo "Warning: no AUR helper (yay/paru) found."
-    echo "Install kickoff manually: https://github.com/j0ru/kickoff"
+    echo "==> Enabling seatd"
+    $PRIV systemctl enable --now seatd.service
 fi
 
 echo "==> Deploying dotfiles to $USER_HOME/.config"
 mkdir -p "$USER_HOME/.config"
 
-cp -r "$SCRIPT_DIR/dotfiles/hypr"    "$USER_HOME/.config/"
+deploy_hypr
 cp -r "$SCRIPT_DIR/dotfiles/kickoff" "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/dotfiles/xdg-desktop-portal" "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/../dotfiles/foot" "$USER_HOME/.config/"
@@ -115,22 +113,7 @@ cp "$SCRIPT_DIR/shell/zshrc"    "$USER_HOME/.zshrc"
 echo "==> Setting zsh as default shell for $(whoami)"
 $PRIV chsh -s /usr/bin/zsh "$(whoami)"
 
-echo "==> Building askpass/ (kolos-askpass GUI sudo password prompt)"
-cargo build --release --manifest-path "$SCRIPT_DIR/../askpass/Cargo.toml"
-$PRIV install -Dm755 "$SCRIPT_DIR/../askpass/target/release/kolos-askpass" /usr/local/bin/kolos-askpass
-if grep -q "^Path askpass" /etc/sudo.conf 2>/dev/null; then
-    $PRIV sed -i 's|^Path askpass .*|Path askpass /usr/local/bin/kolos-askpass|' /etc/sudo.conf
-else
-    echo "Path askpass /usr/local/bin/kolos-askpass" | $PRIV tee -a /etc/sudo.conf >/dev/null
-fi
-
-echo "==> Building keys/ (kolos-keys keybinding cheat sheet, toggled with Mod+\`)"
-cargo build --release --manifest-path "$SCRIPT_DIR/../keys/Cargo.toml"
-install -Dm755 "$SCRIPT_DIR/../keys/target/release/kolos-keys" "$USER_HOME/.local/bin/kolos-keys"
-
-echo "==> Building bar/ (kolos-bar, the status bar)"
-cargo build --release --manifest-path "$SCRIPT_DIR/../bar/Cargo.toml"
-install -Dm755 "$SCRIPT_DIR/../bar/target/release/kolos-bar" "$USER_HOME/.local/bin/kolos-bar"
+install_tools
 
 echo "==> SSH agent (OpenSSH ssh-agent + kolos-askpass instead of gcr-ssh-agent)"
 if [[ "$(id -u)" != "0" ]]; then
@@ -160,7 +143,9 @@ if grep -q "^DownloadUser" /etc/pacman.conf; then
 fi
 
 echo "==> Autologin on tty1"
-if [[ "$(id -u)" == "0" ]]; then
+if is_pocknix; then
+    echo "  Skipped on Pocknix: its session supervisor owns tty1; pick Hyprland in its desktop picker."
+elif [[ "$(id -u)" == "0" ]]; then
     read -rp "  Set up root autologin on tty1? [y/N] " ans
     if [[ "${ans,,}" == "y" ]]; then
         $PRIV mkdir -p /etc/systemd/system/getty@tty1.service.d

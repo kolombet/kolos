@@ -1,0 +1,26 @@
+# Trimmed from Arch's foot PKGBUILD (no PGO, terminfo kept in this one package); see ../README.md.
+pkgname=foot
+pkgver=1.28.0
+pkgrel=1
+pkgdesc='Fast, lightweight, and minimalistic Wayland terminal emulator'
+arch=(x86_64 aarch64)
+url=https://codeberg.org/dnkl/foot
+license=(MIT)
+depends=(fcft fontconfig libutf8proc libxkbcommon ncurses pixman wayland)
+makedepends=(git meson ninja python tllist wayland-protocols)
+provides=(foot-terminfo)
+conflicts=(foot-terminfo)
+backup=(etc/xdg/foot/foot.ini)
+source=("git+$url.git#tag=$pkgver")
+sha256sums=('05a057b1145507625d9f548ae546705d58ba60cbb26a8958ce72f0b9c1bdee46')
+
+build() {
+  meson setup build foot --prefix=/usr --buildtype=release -Ddocs=disabled -Dtests=false \
+    -Dterminfo-base-name=foot-extra
+  meson compile -C build
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname/" foot/LICENSE
+}
