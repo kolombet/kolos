@@ -6,6 +6,7 @@ hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(editor))
 hl.bind(mainMod .. " + Z", hl.dsp.exec_cmd("zed"))
 hl.bind(mainMod .. " + Y", hl.dsp.exec_cmd(fm))
 hl.bind(mainMod .. " + BackSpace", hl.dsp.window.close())
+hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exit()) -- logout: end the Hyprland session
 hl.bind(mainMod .. " + F", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("~/.config/hypr/tile.sh"))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(menu))

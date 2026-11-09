@@ -35,5 +35,8 @@ kbd backlight F5/F6
 mute          F10
 volume        F11/F12
 
+# session
+logout        Mod+Shift+E
+
 # this sheet
 toggle        Mod+` / Mod+/ / Mod+F1
