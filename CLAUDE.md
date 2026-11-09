@@ -614,3 +614,36 @@ regardless of `fnmode`.
 `kolos-bar` can show which raw key was last pressed (`[F1]`, `[BR-DOWN]`,
 `[MUTE]`, ...) — see `mediakeys.rs` under "Status bar" below — which is how
 the `fnmode=1` vs `2`/`3` discrepancy above was actually confirmed: tap the
+## Xbox Wireless Adapter (xone) needs mt76x2u blacklisted
+
+The "Xbox Wireless Adapter for Windows" dongle (`045e:02e6`) has no
+mainline Linux driver; it's handled by `xone-dkms` +
+`xone-dongle-firmware` (AUR, the `dlundqvist/xone` fork), which installs
+`xone_dongle`/`xone_gip*` kernel modules via DKMS and pulls Microsoft's
+firmware blobs for the dongle.
+
+The dongle's radio is a MediaTek MT76 chip, and its USB ID matches the
+in-kernel `mt76x2u` Wi-Fi driver's device table — so on every cold
+enumeration, `mt76x2u` races `xone_dongle` to claim the interface.
+`mt76x2u`'s own probe always fails here (missing `mt7662_rom_patch.bin`
+firmware, since this isn't a real Wi-Fi card), but merely touching the
+chip before bailing leaves it wedged: subsequent `xone_dongle` register
+reads/writes fail with `-121` (`EREMOTEIO`), repeating roughly once a
+second indefinitely, and the dongle itself blinks without ever reaching
+the solid "ready to pair" state. A `rmmod`/`modprobe` cycle of
+`xone_dongle` does **not** clear this — the MT76 chip needs an actual
+power cycle (unplug/replug, or reboot) to reset, done *after* `mt76x2u`
+is out of the picture, or it just gets wedged again on the next
+enumeration.
+
+Fix: `/etc/modprobe.d/xone-blacklist.conf` with `blacklist mt76x2u`, then
+unplug/replug the dongle once with that in place. This machine has no
+real MT76-based Wi-Fi hardware — the onboard wifi is Broadcom (`wl`
+driver, PCI, see `linux66-broadcom-wl` in the package list), entirely
+separate from `mt76x2u` (USB-only) — so the blacklist has no effect on
+network connectivity. After the clean replug, `xone-dongle` binds with
+zero register-access errors and the dongle reaches steady blinking
+(waiting to pair) rather than erroring in a loop. A "MAC address ...
+looks suspicious. Counterfeit adapter?" line in `dmesg` on bind is just
+an `xone` heuristic warning, not an error — harmless on this hardware.
+
