@@ -92,6 +92,41 @@ full-disk-installer path, out of scope otherwise — see "Deployment" above)
 needs none of this, since it sets `%wheel ALL=(ALL) NOPASSWD: ALL` and
 never prompts wheel members for a password at all.
 
+### Driving kolos-askpass from Claude Code's Bash tool
+
+Despite `/etc/sudo.conf` setting `Path askpass` system-wide, plain `sudo`
+(no `-A`) invoked from Claude Code's Bash tool still fails with "a
+terminal is required to read the password" instead of silently falling
+back to the askpass helper — that automatic NOTTY fallback only kicks in
+for genuinely terminal-less contexts (e.g. a cron job), and this sandboxed
+shell apparently doesn't qualify. **Always pass `sudo -A` explicitly**
+when running privileged commands this way; that reliably pops the
+`kolos-askpass` overlay on the user's screen.
+
+Sudo's credential cache (the `-v` ticket) does not carry over between
+separate Bash tool calls — each call appears to run in its own session,
+so a `sudo -A -v` in one call doesn't avoid a password prompt in the
+next. Chain dependent privileged steps with `&&` inside a single Bash
+call if you want one authentication to cover more than one `sudo`.
+
+That ticket also doesn't reliably survive into subprocesses spawned by
+AUR helpers: `yay -S <pkg>` calls `sudo` internally *without* `-A` for its
+`pacman -U` steps, so it hits the same "terminal is required" failure
+even right after a successful `sudo -A -v` in the same command. Fix: put
+a one-line wrapper (`exec /usr/bin/sudo -A "$@"`) named `sudo` on a
+scratch directory prepended to `PATH` for that single command, e.g.
+`PATH="/path/to/wrapper-dir:$PATH" yay -S pkg`. Delete the wrapper
+afterward — it's a throwaway for that command, not something to leave on
+`PATH`.
+
+In the same vein, `sudo` doesn't forward `WAYLAND_DISPLAY` to the askpass
+helper unless the invoking shell happened to export it — true of an
+agent's non-interactive shell with no desktop session in its ancestry.
+`askpass/src/main.rs`'s `ensure_wayland_display()` works around this at
+startup: if `WAYLAND_DISPLAY` is unset, it scans `XDG_RUNTIME_DIR` (which
+*is* reliably present) for a `wayland-*` socket and sets the env var
+itself before connecting.
+
 ## SSH key passphrase prompt
 
 `kolos-askpass` also serves as `SSH_ASKPASS`. It follows the same protocol
@@ -579,4 +614,3 @@ regardless of `fnmode`.
 `kolos-bar` can show which raw key was last pressed (`[F1]`, `[BR-DOWN]`,
 `[MUTE]`, ...) — see `mediakeys.rs` under "Status bar" below — which is how
 the `fnmode=1` vs `2`/`3` discrepancy above was actually confirmed: tap the
-key, read the bar, no terminal needed.

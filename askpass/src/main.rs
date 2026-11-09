@@ -61,11 +61,48 @@ fn in_rounded_rect(lx: i64, ly: i64, w: i64, h: i64, r: i64) -> bool {
     dx * dx + dy * dy <= r * r
 }
 
+// sudo doesn't keep WAYLAND_DISPLAY in the env it hands to the askpass helper unless the invoking
+// shell happened to export it (e.g. a bare `sudo -A` from a shell with no desktop session in its
+// ancestry -- a cron job, an agent's non-interactive shell). XDG_RUNTIME_DIR is reliably present
+// even then, so fall back to finding the compositor's socket there ourselves.
+fn ensure_wayland_display() {
+    if std::env::var_os("WAYLAND_DISPLAY").is_some() {
+        return;
+    }
+
+    let Ok(runtime_dir) = std::env::var("XDG_RUNTIME_DIR") else {
+        return;
+    };
+    let Ok(entries) = std::fs::read_dir(&runtime_dir) else {
+        return;
+    };
+
+    use std::os::unix::fs::FileTypeExt;
+    let mut candidates: Vec<String> = entries
+        .filter_map(|entry| entry.ok())
+        .filter_map(|entry| {
+            let name = entry.file_name().into_string().ok()?;
+            if name.starts_with("wayland-") && entry.file_type().ok()?.is_socket() {
+                Some(name)
+            } else {
+                None
+            }
+        })
+        .collect();
+    candidates.sort();
+
+    if let Some(name) = candidates.into_iter().next() {
+        // Safe: called at the very top of main(), before any other threads exist.
+        unsafe { std::env::set_var("WAYLAND_DISPLAY", name) };
+    }
+}
+
 fn main() {
     env_logger::init();
 
     let prompt: String = std::env::args().nth(1).unwrap_or_else(|| "Password: ".to_string());
 
+    ensure_wayland_display();
     let conn = Connection::connect_to_env().expect("no wayland connection");
     let (globals, event_queue) = registry_queue_init(&conn).unwrap();
     let qh = event_queue.handle();
