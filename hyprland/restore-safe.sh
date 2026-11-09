@@ -13,6 +13,8 @@ PKGS=(
     hyprland
     swaybg
     foot
+    # Cursor theme (set via dotfiles/hypr/envs.lua XCURSOR_THEME)
+    bibata-cursor-theme
     fuzzel
     cosmic-files
     # File-chooser portal without GTK/Qt, for Brave Origin (see dotfiles/xdg-desktop-portal)
@@ -22,6 +24,9 @@ PKGS=(
     pipewire-audio
     pipewire-pulse
     wireplumber
+    # Screen/keyboard backlight control (bare F1/F2/F5/F6 media keys, see
+    # "Function keys as media keys (macOS-style)" in CLAUDE.md)
+    brightnessctl
     noto-fonts
     ttf-jetbrains-mono-nerd
     zsh

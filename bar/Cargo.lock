@@ -263,6 +263,7 @@ dependencies = [
  "bytemuck",
  "chrono",
  "fontconfig",
+ "libc",
  "serde_json",
  "smithay-client-toolkit",
  "wayland-client",

@@ -28,6 +28,9 @@ PKGS=(
     # Terminal
     foot
 
+    # Cursor theme (set via dotfiles/hypr/envs.lua XCURSOR_THEME)
+    bibata-cursor-theme
+
     # Launchers / file manager
     fuzzel
     cosmic-files
@@ -40,6 +43,10 @@ PKGS=(
     pipewire-audio
     pipewire-pulse
     wireplumber
+
+    # Screen/keyboard backlight control (bare F1/F2/F5/F6 media keys, see
+    # "Function keys as media keys (macOS-style)" in CLAUDE.md)
+    brightnessctl
 
     # Fonts
     noto-fonts

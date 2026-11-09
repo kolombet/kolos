@@ -11,6 +11,7 @@ menu          Mod+D
 
 # windows
 close         Mod+Backspace
+fullscreen    Mod+G
 float         Mod+F
 float all     Mod+R
 tile all      Mod+T
@@ -28,5 +29,11 @@ move window   Mod+Shift+1..0
 # focus
 move          Mod+Arrows  (or U/I/P, H/J/K/L)
 
+# media (bare, no Fn)
+brightness    F1/F2
+kbd backlight F5/F6
+mute          F10
+volume        F11/F12
+
 # this sheet
-toggle        Mod+G / Mod+` / Mod+/ / Mod+F1
+toggle        Mod+` / Mod+/ / Mod+F1

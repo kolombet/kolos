@@ -6,7 +6,10 @@
 
 #[path = "../../askpass/src/font.rs"]
 mod font;
+mod evdev;
+mod gamepad;
 mod hypr;
+mod mediakeys;
 mod stats;
 
 use std::io::Read;
@@ -59,7 +62,14 @@ const TASK_PAD: u32 = 8;
 const TASK_MAX_CHARS: usize = 16;
 const UNDERLINE: u32 = 3;
 const SECTION_GAP: u32 = 12;
-const TICK: Duration = Duration::from_secs(2);
+// Also the poll rate for gamepad/media-key/brightness/volume stats (see
+// stats::Sampler::sample_fast), so this doubles as their feedback latency
+// when a key is pressed - short enough to feel immediate, long enough that
+// the wpctl subprocess volume() spawns isn't wasteful.
+const TICK: Duration = Duration::from_millis(100);
+// Poll rate for cpu/memory/battery/clock (stats::Sampler::sample_slow): none
+// of those need sub-second freshness, so they don't ride the fast TICK above.
+const SLOW_TICK: Duration = Duration::from_secs(2);
 
 // Colors follow the old waybar/style.css.
 const BG: (u8, u8, u8, u8) = (25, 25, 25, 166); // rgba(25,25,25,.65)
@@ -194,14 +204,25 @@ fn main() {
         .unwrap();
 
     loop_handle
-        // First tick soon: CPU usage needs two samples, the first one was taken above.
-        .insert_source(Timer::from_duration(Duration::from_millis(500)), |_, _, app| {
-            let stats = app.sampler.sample();
+        .insert_source(Timer::from_duration(TICK), |_, _, app| {
+            let stats = app.sampler.sample_fast(&app.stats);
             if stats != app.stats {
                 app.stats = stats;
                 app.draw_all();
             }
             TimeoutAction::ToDuration(TICK)
+        })
+        .unwrap();
+
+    loop_handle
+        // First slow tick soon: CPU usage needs two samples, the first one was taken above.
+        .insert_source(Timer::from_duration(Duration::from_millis(500)), |_, _, app| {
+            let stats = app.sampler.sample_slow(&app.stats);
+            if stats != app.stats {
+                app.stats = stats;
+                app.draw_all();
+            }
+            TimeoutAction::ToDuration(SLOW_TICK)
         })
         .unwrap();
 
@@ -348,42 +369,71 @@ impl App {
             x += w + 4;
         }
 
-        // Right side, laid out from the right edge: clock (two lines), then sysinfo.
+        // Right side, laid out from the right edge, right to left: clock,
+        // screen/keyboard backlight, keyboard layout, memory, CPU,
+        // battery/volume, then whatever's left (last media key, last
+        // gamepad button, gamepad battery) as one inline run.
+        // Clock/backlight/memory/CPU/battery each draw as a two-line
+        // column, like Waybar never did but this bar's clock always has.
         let st = &self.stats;
-        let clock_w = painter.measure(&st.time).max(painter.measure(&st.date)) + 2 * TASK_PAD;
-        let clock_x = bar.width.saturating_sub(clock_w);
-        let line_h = FONT_SIZE as u32 + 2;
-        let top = (HEIGHT - 2 * line_h) / 2;
-        let tw = painter.measure(&st.time);
-        painter.text(&st.time, TEXT, clock_x + (clock_w - tw) / 2, top);
-        let dw = painter.measure(&st.date);
-        painter.text(&st.date, TEXT, clock_x + (clock_w - dw) / 2, top + line_h);
+        let mut edge = bar.width;
 
-        // Plain text, like the live Waybar: the Mono Nerd Font squeezes icons to one
-        // cell, too small to read at this size.
-        let cpu = match st.cpu_temp_c {
-            Some(c) => format!("CPU {}% {c}\u{b0}C", st.cpu_percent),
-            None => format!("CPU {}%", st.cpu_percent),
-        };
-        let mut parts = vec![cpu];
-        parts.push(format!("{:.2}/{:.2}GiB", st.mem_used_gib, st.mem_total_gib));
-        parts.push(self.hypr.layout.clone());
-        let mut info = parts.join("   ");
-        if let Some((capacity, charging)) = st.battery {
-            let plug = if charging { "+" } else { "" };
-            info = format!("BAT {capacity}%{plug}   {info}");
+        let clock_w = painter.column(edge, Some(&st.time), Some(&st.date));
+        edge = edge.saturating_sub(clock_w + SECTION_GAP);
+
+        let br = st.screen_brightness.map(|p| format!("BR {p:02}%"));
+        let kbd = st.kbd_backlight.map(|p| format!("KBD {p:02}%"));
+        let br_kbd_w = painter.column(edge, br.as_deref(), kbd.as_deref());
+        if br_kbd_w > 0 {
+            edge = edge.saturating_sub(br_kbd_w + SECTION_GAP);
         }
-        let iw = painter.measure(&info);
-        let info_x = clock_x.saturating_sub(iw + SECTION_GAP);
-        painter.text(&info, TEXT, info_x, text_y);
+
+        let left_b_w = painter.inline(edge, &self.hypr.layout, text_y);
+        edge = edge.saturating_sub(left_b_w + SECTION_GAP);
+
+        let mem_w = painter.column(
+            edge,
+            Some(&format!("{:.2}GiB", st.mem_used_gib)),
+            Some(&format!("/{:.2}GiB", st.mem_total_gib)),
+        );
+        edge = edge.saturating_sub(mem_w + SECTION_GAP);
+
+        let cpu_temp = st.cpu_temp_c.map(|c| format!("{c}\u{b0}C"));
+        let cpu_w = painter.column(edge, Some(&format!("CPU {:02}%", st.cpu_percent)), cpu_temp.as_deref());
+        edge = edge.saturating_sub(cpu_w + SECTION_GAP);
+
+        let bat = st.battery.map(|(capacity, charging)| {
+            let plug = if charging { "+" } else { "" };
+            format!("BAT {capacity:02}%{plug}")
+        });
+        let vol = st.volume.map(|(p, muted)| if muted { format!("VOL {p:02}% MUTE") } else { format!("VOL {p:02}%") });
+        let bat_vol_w = painter.column(edge, bat.as_deref(), vol.as_deref());
+        if bat_vol_w > 0 {
+            edge = edge.saturating_sub(bat_vol_w + SECTION_GAP);
+        }
+
+        let mut left_a_parts: Vec<String> = Vec::new();
+        if let Some((level, charging)) = &st.gamepad_battery {
+            let plug = if *charging { "+" } else { "" };
+            left_a_parts.push(format!("GP {level}{plug}"));
+        }
+        if let Some(button) = &st.gamepad_button {
+            left_a_parts.insert(0, format!("[{button}]"));
+        }
+        if let Some(key) = &st.last_key {
+            left_a_parts.insert(0, format!("[{key}]"));
+        }
+        let left_a = left_a_parts.join("   ");
+        let left_a_w = painter.inline(edge, &left_a, text_y);
+        let left_edge = edge.saturating_sub(left_a_w);
 
         // Active submap (resize, move), if any - e.g. bindings.lua's Mod+N/Mod+M.
-        // Own color and its own gap from `info`, so it reads as a distinct,
-        // transient mode rather than another sysinfo segment.
+        // Own color and its own gap from the sysinfo stuff above, so it reads
+        // as a distinct, transient mode rather than another sysinfo segment.
         if !self.submap.is_empty() {
             let label = self.submap.to_uppercase();
             let lw = painter.measure(&label);
-            painter.text(&label, MODE, info_x.saturating_sub(lw + SECTION_GAP), text_y);
+            painter.text(&label, MODE, left_edge.saturating_sub(lw + SECTION_GAP), text_y);
         }
 
         let bar = &mut self.bars[index];
@@ -452,6 +502,55 @@ impl Painter<'_> {
     }
 
     /// Premultiplied "over" fill.
+    /// Draws up to two lines right-aligned to end at `right_edge`, centered
+    /// in a box sized to the wider line plus `TASK_PAD` padding on each
+    /// side - the same shape as the clock. `bottom: None` draws a single
+    /// vertically-centered line instead of a stacked pair; `top: None` with
+    /// `bottom: Some` still draws one line (using `bottom`'s text). Both
+    /// `None` draws nothing. Returns the box's width, including padding, so
+    /// the caller can lay out the next item to its left (0 when nothing was
+    /// drawn, so the caller can skip the gap too).
+    fn column(&mut self, right_edge: u32, top: Option<&str>, bottom: Option<&str>) -> u32 {
+        let (top, bottom) = match (top, bottom) {
+            (Some(t), b) => (t, b),
+            (None, Some(b)) => (b, None),
+            (None, None) => return 0,
+        };
+        let w = match bottom {
+            Some(b) => self.measure(top).max(self.measure(b)),
+            None => self.measure(top),
+        } + 2 * TASK_PAD;
+        let x = right_edge.saturating_sub(w);
+        match bottom {
+            Some(b) => {
+                let line_h = FONT_SIZE as u32 + 2;
+                let top_y = (HEIGHT - 2 * line_h) / 2;
+                let tw = self.measure(top);
+                self.text(top, TEXT, x + (w - tw) / 2, top_y);
+                let bw = self.measure(b);
+                self.text(b, TEXT, x + (w - bw) / 2, top_y + line_h);
+            }
+            None => {
+                let text_y = (HEIGHT - FONT_SIZE as u32) / 2 - 1;
+                let tw = self.measure(top);
+                self.text(top, TEXT, x + (w - tw) / 2, text_y);
+            }
+        }
+        w
+    }
+
+    /// Draws a single line right-aligned to end at `right_edge`. Returns its
+    /// width (0, and draws nothing, for an empty string) so the caller can
+    /// lay out the next item to its left.
+    fn inline(&mut self, right_edge: u32, text: &str, text_y: u32) -> u32 {
+        if text.is_empty() {
+            return 0;
+        }
+        let w = self.measure(text);
+        self.text(text, TEXT, right_edge.saturating_sub(w), text_y);
+        w
+    }
+
     fn rect(&mut self, x: u32, y: u32, w: u32, h: u32, color: (u8, u8, u8, u8)) {
         let src = premul(color);
         let inv = 255 - color.3 as u32;

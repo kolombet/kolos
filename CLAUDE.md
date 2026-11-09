@@ -289,9 +289,37 @@ scale (`set_buffer_scale`, so text stays sharp at scale 2). Measured: about
   middle-click closes, wheel (notches only, not touchpad) moves to the
   next/previous existing workspace.
 - Right: `CPU <load>% <temp>°C`, memory, keyboard layout (first three
-  letters of `active_keymap`: ENG, RUS), battery (`BAT <capacity>%`, `+`
-  suffix while charging), two-line clock. Plain text, no icons: the *Mono*
-  Nerd Font scales icons to one cell, unreadably small.
+  letters of `active_keymap`: ENG, RUS), screen backlight (`BR <percent>%`,
+  from `/sys/class/backlight`), keyboard backlight (`KBD <percent>%`, from
+  the `/sys/class/leds` entry whose name contains "kbd_backlight" -
+  `smc::kbd_backlight` on this machine), volume (`VOL <percent>%`, ` MUTE`
+  appended when muted), battery (`BAT <capacity>%`, `+` suffix while
+  charging), two-line clock. Plain text, no icons: the *Mono* Nerd Font
+  scales icons to one cell, unreadably small. Volume is the one stat in
+  `stats.rs` that shells out (`wpctl get-volume @DEFAULT_AUDIO_SINK@`):
+  PipeWire's software volume has no sysfs equivalent the way the backlight
+  numbers do.
+- When an Xbox controller is connected, a `[A]`/`[LT]`/`[ARROW]`/... tag
+  shows the last button pressed, immediately left of the `GP` battery tag
+  (`gamepad.rs`). Found via its name in `/proc/bus/input/devices` (matches
+  either xone's native `gip` device or its `xpad`-compatible virtual twin —
+  both expose the same evdev codes), then read directly off the event node
+  as raw `struct input_event`s — no joystick/libinput/udev dependency, same
+  spirit as `hypr.rs` talking to Hyprland's sockets directly. Covers
+  A/B/X/Y, LB/RB, LT/RT (analog, 0..=1023 on this controller — crossing the
+  midpoint counts as a press) and the d-pad (any direction shows as
+  `ARROW`, not which one). Sampled once per `TICK` like the rest of
+  `stats.rs`, draining all pending events each time so a quick press
+  between ticks isn't lost. Disappears again once the controller
+  disconnects.
+- Similarly, `[F1]`/`[BR-DOWN]`/`[MUTE]`/... shows the last top-row
+  function/media key pressed on the internal keyboard (`mediakeys.rs`),
+  immediately left of the gamepad tag — see "Function keys as media keys
+  (macOS-style)" above for why this exists. Restricted to the F1-F12/
+  brightness/keyboard-backlight/volume/media-transport codes, not every key,
+  so normal typing doesn't show up here. `gamepad.rs` and `mediakeys.rs`
+  share their device-node lookup and raw `struct input_event` reading
+  through `evdev.rs`.
 - Active Hyprland submap (`resize` on `Mod+N`, `move` on `Mod+M`), uppercased
   in amber, immediately left of the sysinfo group when one is active —
   otherwise nothing is drawn there. Sourced only from the event stream's
@@ -491,3 +519,64 @@ foot's config lives in the top-level `dotfiles/foot/` (not
 first), and `2-user.sh` picks it up via `cp -r dotfiles/*`. Colors come
 from the included `foot-theme.ini`.
 
+## Function keys as media keys (macOS-style)
+
+By default the internal keyboard's bare F1-F12 send literal function-key
+codes, and brightness/keyboard-backlight/volume only work Fn+Fx — the
+opposite of macOS's out-of-the-box behavior (bare Fx = media, Fn+Fx =
+literal function key). This is controlled by the `hid_apple` kernel
+driver's `fnmode` module parameter (`0` = disabled, `1` = fkeyslast, `2` =
+fkeysfirst, `3` = auto — the compiled-in default). Despite the parameter
+names suggesting `2` ("fkeysfirst") is the mode that puts the special
+function first, it measured identically to `3`/auto on this hardware (bare
+Fx still sent literal F1-F12, confirmed with a raw evdev capture against
+`/dev/input/event15`, the "Apple Inc. Apple Internal Keyboard / Trackpad"
+node) — only `fnmode=1` actually produces the macOS-style behavior here.
+Don't trust the parameter description name over an actual evdev capture.
+
+Two things are needed for a change to `fnmode` to take effect, and both
+matter: `hid_apple` only reads the parameter at device-probe time, so
+writing `/sys/module/hid_apple/parameters/fnmode` live does nothing for an
+already-attached keyboard — the module must be reloaded
+(`modprobe -r hid_apple && modprobe hid_apple fnmode=1`, which briefly
+drops the internal keyboard *and* trackpad, both handled by the same
+driver, then reattaches instantly) for it to apply now, and
+`/etc/modprobe.d/hid_apple.conf` (`options hid_apple fnmode=1`) is what
+makes it stick across reboots.
+
+With `fnmode=1`, the bare keys send the standard XF86 keysyms
+(`XF86MonBrightnessDown/Up`, `XF86KbdBrightnessDown/Up`, `XF86AudioMute`,
+`XF86AudioLowerVolume`/`RaiseVolume`) rather than literal F1-F12 — Hyprland
+resolves these through the default xkb `evdev` keycode set with no extra
+keymap configuration, so `bindings.lua` just binds the keysym names
+directly to `brightnessctl`/`wpctl` calls (see there), each with
+`{ repeating = true }` except mute (a toggle, which shouldn't fire
+repeatedly while held). `brightnessctl` needs no root/setuid: both
+`/sys/class/backlight/acpi_video0` and `/sys/class/leds/smc::kbd_backlight`
+(the actual device names on this hardware — `brightnessctl --list` to
+confirm on another machine) are group-writable by `video`, which the
+install scripts' user is already in. Volume goes through `wpctl` (already
+installed, part of the `wireplumber` package) with `-l 1.0` so
+`XF86AudioRaiseVolume` can't push the sink above 100%.
+
+Side effect: this breaks any existing bind on a bare top-row key, since the
+keysym Hyprland sees is no longer "F1"/"F12" regardless of modifiers held.
+`bindings.lua`'s `SUPER + F1` (kolos-keys fallback) and `SUPER + F12`
+(drop-down terminal fallback) had to become `SUPER + XF86MonBrightnessDown`
+and `SUPER + XF86AudioRaiseVolume` respectively for that reason — Super
+held while tapping the physical F1/F12 key now arrives as Super+that
+keysym, not Super+F1. `keys.txt` still lists them as "F1"/"F12" since
+that's the physical key the user presses; only the Lua bind string needed
+to change.
+
+Unlike `xone-blacklist.conf` (see below), `hid_apple.conf` isn't wired into
+`restore.sh`/`restore-safe.sh`/`1-setup.sh` — same reasoning (a manual,
+verified-on-this-hardware fix, documented here rather than scripted) even
+though this one is more broadly Apple-hardware-applicable. `brightnessctl`
+itself *is* in the package lists, since it's an unconditionally useful tool
+regardless of `fnmode`.
+
+`kolos-bar` can show which raw key was last pressed (`[F1]`, `[BR-DOWN]`,
+`[MUTE]`, ...) — see `mediakeys.rs` under "Status bar" below — which is how
+the `fnmode=1` vs `2`/`3` discrepancy above was actually confirmed: tap the
+key, read the bar, no terminal needed.
