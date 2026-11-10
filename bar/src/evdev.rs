@@ -24,11 +24,18 @@ pub struct InputEvent {
 /// joystick-capable node, or "kbd" to pick a keyboard node over a
 /// mouse/trackpad node sharing the same product name.
 pub fn find_device(name: &str, handler_prefix: &str) -> Option<PathBuf> {
-    let content = fs::read_to_string("/proc/bus/input/devices").ok()?;
-    let name = name.to_lowercase();
+    find_devices(&[name], handler_prefix).into_iter().next()
+}
+
+/// Like `find_device`, but returns every device whose name contains any of
+/// `names` (given in lowercase).
+pub fn find_devices(names: &[&str], handler_prefix: &str) -> Vec<PathBuf> {
+    let Ok(content) = fs::read_to_string("/proc/bus/input/devices") else { return Vec::new() };
+    let mut found = Vec::new();
     for block in content.split("\n\n") {
         let Some(n) = block.lines().find_map(|l| l.strip_prefix("N: Name=\"")) else { continue };
-        if !n.to_lowercase().contains(&name) {
+        let n = n.to_lowercase();
+        if !names.iter().any(|name| n.contains(&name.to_lowercase())) {
             continue;
         }
         let Some(handlers) = block.lines().find_map(|l| l.strip_prefix("H: Handlers=")) else { continue };
@@ -36,7 +43,7 @@ pub fn find_device(name: &str, handler_prefix: &str) -> Option<PathBuf> {
             continue;
         }
         let Some(event) = handlers.split_whitespace().find(|h| h.starts_with("event")) else { continue };
-        return Some(PathBuf::from(format!("/dev/input/{event}")));
+        found.push(PathBuf::from(format!("/dev/input/{event}")));
     }
-    None
+    found
 }

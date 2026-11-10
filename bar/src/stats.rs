@@ -19,8 +19,8 @@ pub struct Stats {
     /// "<n>%" if the device reports a number, otherwise the word from
     /// `capacity_level` ("Low", "Normal", ...).
     pub gamepad_battery: Option<(String, bool)>,
-    /// Last button pressed on a connected Xbox controller ("A", "LT",
-    /// "ARROW", ...), or None if none is connected or nothing has been
+    /// Last button pressed on a connected gamepad, external or a handheld's
+    /// built-in one ("A", "LT", "ARROW", ...), or None if none is connected or nothing has been
     /// pressed yet. See `gamepad.rs`.
     pub gamepad_button: Option<String>,
     /// Last top-row function/media key pressed on the internal keyboard

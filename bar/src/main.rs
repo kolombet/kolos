@@ -127,6 +127,12 @@ struct App {
 }
 
 fn main() {
+    // Before any Wayland setup, so it prints and exits instead of starting another bar.
+    if matches!(std::env::args().nth(1).as_deref(), Some("--version" | "-V")) {
+        println!("kolos-bar {} ({})", env!("CARGO_PKG_VERSION"), env!("KOLOS_BAR_COMMIT"));
+        return;
+    }
+
     let conn = Connection::connect_to_env().expect("no wayland connection");
     let (globals, event_queue) = registry_queue_init(&conn).unwrap();
     let qh = event_queue.handle();

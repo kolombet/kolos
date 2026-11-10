@@ -334,19 +334,24 @@ scale (`set_buffer_scale`, so text stays sharp at scale 2). Measured: about
   `stats.rs` that shells out (`wpctl get-volume @DEFAULT_AUDIO_SINK@`):
   PipeWire's software volume has no sysfs equivalent the way the backlight
   numbers do.
-- When an Xbox controller is connected, a `[A]`/`[LT]`/`[ARROW]`/... tag
+- When a gamepad is connected, a `[A]`/`[LT]`/`[ARROW]`/... tag
   shows the last button pressed, immediately left of the `GP` battery tag
   (`gamepad.rs`). Found via its name in `/proc/bus/input/devices` (matches
-  either xone's native `gip` device or its `xpad`-compatible virtual twin —
-  both expose the same evdev codes), then read directly off the event node
-  as raw `struct input_event`s — no joystick/libinput/udev dependency, same
-  spirit as `hypr.rs` talking to Hyprland's sockets directly. Covers
-  A/B/X/Y, LB/RB, LT/RT (analog, 0..=1023 on this controller — crossing the
-  midpoint counts as a press) and the d-pad (any direction shows as
-  `ARROW`, not which one). Sampled once per `TICK` like the rest of
-  `stats.rs`, draining all pending events each time so a quick press
-  between ticks isn't lost. Disappears again once the controller
-  disconnects.
+  xone's native `gip` device, its `xpad`-compatible virtual twin, and a
+  handheld's built-in controls, which InputPlumber exposes as `Microsoft
+  X-Box 360 pad` — all expose the same evdev codes), then read directly off
+  the event nodes as raw `struct input_event`s — no joystick/libinput/udev
+  dependency, same spirit as `hypr.rs` talking to Hyprland's sockets
+  directly. Every matching pad is watched at once. The Retroid Pocket 6's
+  built-in pad reports A and B reversed from its printed labels, so
+  `AB_SWAPPED_HANDHELDS` flips those two tags for it. Covers A/B/X/Y, LB/RB,
+  Select/Start/Guide, L3/R3, the extra `P1`-`P4` buttons, LT/RT (analog,
+  range read per device with `EVIOCGABS`: 0..=1023 on Xbox controllers,
+  0..=255 on InputPlumber's pad — crossing the midpoint counts as a press)
+  and the d-pad (any direction shows as `ARROW`, not which one). Sampled
+  once per `TICK` like the rest of `stats.rs`, draining all pending events
+  each time so a quick press between ticks isn't lost. Disappears again
+  once the last pad disconnects.
 - Similarly, `[F1]`/`[BR-DOWN]`/`[MUTE]`/... shows the last top-row
   function/media key pressed on the internal keyboard (`mediakeys.rs`),
   immediately left of the gamepad tag — see "Function keys as media keys
