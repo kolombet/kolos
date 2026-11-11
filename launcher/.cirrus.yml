@@ -1,0 +1,8 @@
+task:
+  name: FreeBSD (shortest)
+  freebsd_instance:
+    matrix:
+      image_family: freebsd-15-0-amd64-ufs
+  install_script: pkg install -y fontconfig pkgconf rust libxkbcommon
+  script: |
+    cargo build --release

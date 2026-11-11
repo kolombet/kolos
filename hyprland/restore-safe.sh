@@ -64,9 +64,6 @@ else
     echo "  WARNING: makepkg can't run as root; skipping nogtk3 and Brave Origin (no browser installed)."
 fi
 
-echo "==> Installing kickoff from AUR"
-yay -S --noconfirm --needed kickoff
-
 echo "==> Backing up existing configs to $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"
 [[ -f "$USER_HOME/.zshenv" ]]         && cp    "$USER_HOME/.zshenv"          "$BACKUP_DIR/"
@@ -77,7 +74,7 @@ mkdir -p "$BACKUP_DIR"
 echo "==> Deploying dotfiles"
 mkdir -p "$USER_HOME/.config"
 cp -r "$SCRIPT_DIR/dotfiles/hypr"    "$USER_HOME/.config/"
-cp -r "$SCRIPT_DIR/dotfiles/kickoff" "$USER_HOME/.config/"
+cp -r "$SCRIPT_DIR/dotfiles/kolos-launcher" "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/dotfiles/xdg-desktop-portal" "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/../dotfiles/foot" "$USER_HOME/.config/"
 
@@ -101,6 +98,10 @@ fi
 echo "==> Building keys/ (kolos-keys keybinding cheat sheet, toggled with Mod+\`)"
 cargo build --release --manifest-path "$SCRIPT_DIR/../keys/Cargo.toml"
 install -Dm755 "$SCRIPT_DIR/../keys/target/release/kolos-keys" "$USER_HOME/.local/bin/kolos-keys"
+
+echo "==> Building launcher/ (kolos-launcher, the app launcher: a kickoff fork with a controller mode)"
+cargo build --release --manifest-path "$SCRIPT_DIR/../launcher/Cargo.toml"
+install -Dm755 "$SCRIPT_DIR/../launcher/target/release/kolos-launcher" "$USER_HOME/.local/bin/kolos-launcher"
 
 echo "==> Building bar/ (kolos-bar, the status bar)"
 cargo build --release --manifest-path "$SCRIPT_DIR/../bar/Cargo.toml"

@@ -68,7 +68,7 @@ Three approaches were tried, in order:
   standalone Rust binary that draws its own Wayland layer-shell surface
   (via `smithay-client-toolkit` + `fontdue`, no GTK/Qt at all) instead of
   shelling out to anything. It's deliberately not a fork of `kickoff`
-  (this repo's actual launcher) — kickoff's fuzzy search, clipboard,
+  (which `launcher/` is) — kickoff's fuzzy search, clipboard,
   history, and config-file system are all dead weight for a password
   box — but it reuses kickoff's proven techniques for the parts that
   matter: `Anchor::all()` + `set_exclusive_zone(-1)` on an `Overlay`-layer
@@ -382,6 +382,51 @@ Built by `restore.sh`/`restore-safe.sh` like `keys/` (to
 `~/.local/bin/kolos-bar`), started from `autostart.lua`, blurred behind by
 the `bar_blur` layer rule in `looknfeel.lua`. To restart it after a rebuild:
 `pkill -x kolos-bar; kolos-bar &`.
+
+## App launcher
+
+`launcher/` (`kolos-launcher`) is a fork of kickoff
+(<https://github.com/j0ru/kickoff>, GPL-3.0-or-later, so `launcher/` keeps
+kickoff's `LICENSE` and stays GPL; see `NOTICE`). It replaced the AUR
+`kickoff` package. `programs.lua`'s `menu` runs it (`Mod+D`); its config,
+history and pid file live under `kolos-launcher/` instead of `kickoff/` in the
+XDG dirs (same config format, `hyprland/dotfiles/kolos-launcher/config.toml`).
+Built by `restore.sh`/`restore-safe.sh`/`2-user.sh` to
+`~/.local/bin/kolos-launcher`.
+
+Keyboard mode is unchanged kickoff. Additions:
+
+- **Desktop entries** (`controller.rs`): visible `.desktop` files (not
+  `NoDisplay`/`Hidden`, `Type=Application`) are added to the list, so games,
+  Waydroid apps etc. that aren't PATH commands can be launched. An entry's
+  file stem is its element name, which is also how it's matched to an
+  existing PATH command and to history (`org.mozilla.firefox.desktop` ↔ the
+  flatpak's `org.mozilla.firefox` command), and its `Name=` is what's shown.
+  `Terminal=true` entries run under `foot -e`. Not added with `--from-stdin`
+  / `--from-file` (dmenu-style use).
+- **Controller mode** (`--controller`, optional `--tab <Fav|letter>`): a grid
+  of big tiles with a tab strip. `Fav` = pinned apps (in pin order, stored in
+  `$XDG_DATA_HOME/kolos-launcher/pinned`) then everything with launch history,
+  most-used first. Then one tab per first letter that has apps (only apps:
+  desktop entries plus anything launched or pinned, not every PATH binary),
+  most-used first, then alphabetical. History entries whose program no
+  longer exists (an uninstalled flatpak) are hidden.
+- **Gamepad** (`gamepad.rs`): read straight from the pad's evdev node, the
+  same way as `bar/src/gamepad.rs`, no key injection. D-pad/left stick move
+  (with repeat), A open, B/Start close, X pin/unpin, LB/RB previous/next tab,
+  Y toggles the keyboard list. Buttons pressed while Select is held are
+  ignored, because Select+button chords belong to the handheld's
+  `gamepad-shortcuts.py` (Select+A toggles the launcher with `pkill -x
+  kolos-launcher`, Select+B closes it); otherwise Select+A while it's open
+  would launch the selected app. `AB_SWAPPED_HANDHELDS` flips A/B on the AYN
+  Odin2 like the bar does. Found by name through `/sys/class/input/*/device/name`:
+  InputPlumber hides the real Odin2 node (mode 000), so it can't be opened to
+  read its name.
+- Printed X is evdev code `0x134` and printed Y is `0x133`. The kernel names
+  those `BTN_WEST`/`BTN_Y` and `BTN_NORTH`/`BTN_X` respectively, so going by the
+  constant names gets X and Y backwards. Confirmed with an evdev capture.
+
+Nothing to restart after a rebuild: it starts fresh each time it opens.
 
 ## Hyprland config layout
 

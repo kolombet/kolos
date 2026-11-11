@@ -19,13 +19,16 @@ makepkg -si --noconfirm
 cd ~
 
 PKGS=(
-'kickoff'
+'rust'
 'brave-origin-bin'
 )
 
 yay -Syu --noconfirm --needed "${PKGS[@]}"
 
 export PATH=$PATH:~/.local/bin
+# kolos-launcher (Mod+D) is built from this repo, not installed from the AUR.
+cargo build --release --manifest-path $HOME/$SCRIPTHOME/launcher/Cargo.toml
+install -Dm755 $HOME/$SCRIPTHOME/launcher/target/release/kolos-launcher $HOME/.local/bin/kolos-launcher
 cp -r $HOME/$SCRIPTHOME/dotfiles/* $HOME/.config/
 cp -r $HOME/$SCRIPTHOME/hyprland/dotfiles/* $HOME/.config/
 cp $HOME/$SCRIPTHOME/hyprland/shell/zshenv $HOME/.zshenv

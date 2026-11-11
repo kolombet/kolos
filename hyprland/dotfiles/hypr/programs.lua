@@ -4,7 +4,7 @@
 -- played in the old hyprlang syntax.
 terminal = "foot"
 fm = "cosmic-files"
-menu = "kickoff"
+menu = "kolos-launcher"
 apps = "fuzzel"
 browser = "brave-origin"
 editor = "subl"

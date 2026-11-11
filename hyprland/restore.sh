@@ -95,22 +95,11 @@ fi
 echo "==> Enabling seatd"
 $PRIV systemctl enable --now seatd.service
 
-# AUR helper check (kickoff is AUR-only)
-AUR_PKGS=(kickoff)
-if command -v yay &>/dev/null; then
-    yay -S --noconfirm --needed "${AUR_PKGS[@]}"
-elif command -v paru &>/dev/null; then
-    paru -S --noconfirm --needed "${AUR_PKGS[@]}"
-else
-    echo "Warning: no AUR helper (yay/paru) found."
-    echo "Install kickoff manually: https://github.com/j0ru/kickoff"
-fi
-
 echo "==> Deploying dotfiles to $USER_HOME/.config"
 mkdir -p "$USER_HOME/.config"
 
 cp -r "$SCRIPT_DIR/dotfiles/hypr"    "$USER_HOME/.config/"
-cp -r "$SCRIPT_DIR/dotfiles/kickoff" "$USER_HOME/.config/"
+cp -r "$SCRIPT_DIR/dotfiles/kolos-launcher" "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/dotfiles/xdg-desktop-portal" "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/../dotfiles/foot" "$USER_HOME/.config/"
 
@@ -134,6 +123,10 @@ fi
 echo "==> Building keys/ (kolos-keys keybinding cheat sheet, toggled with Mod+\`)"
 cargo build --release --manifest-path "$SCRIPT_DIR/../keys/Cargo.toml"
 install -Dm755 "$SCRIPT_DIR/../keys/target/release/kolos-keys" "$USER_HOME/.local/bin/kolos-keys"
+
+echo "==> Building launcher/ (kolos-launcher, the app launcher: a kickoff fork with a controller mode)"
+cargo build --release --manifest-path "$SCRIPT_DIR/../launcher/Cargo.toml"
+install -Dm755 "$SCRIPT_DIR/../launcher/target/release/kolos-launcher" "$USER_HOME/.local/bin/kolos-launcher"
 
 echo "==> Building bar/ (kolos-bar, the status bar)"
 cargo build --release --manifest-path "$SCRIPT_DIR/../bar/Cargo.toml"

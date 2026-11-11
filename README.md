@@ -32,7 +32,7 @@ hyprland/               # standalone Hyprland desktop setup (see below)
   restore.sh            # fresh-install path: installs packages, deploys dotfiles, sets up zsh/autologin
   restore-safe.sh       # same, but backs up any existing ~/.config first instead of overwriting
   dotfiles/hypr/        # hyprland.lua config (Lua, not the old .conf), window-mode scripts, wallpapers
-  dotfiles/kickoff/     # kickoff (app launcher) config
+  dotfiles/kolos-launcher/ # kolos-launcher (app launcher) config
   shell/                # zprofile (autostarts Hyprland on tty1), zshenv, zshrc (prompt)
   system/               # getty-autologin.conf drop-in for tty1 autologin
 ```
@@ -90,12 +90,12 @@ A minimal Wayland setup: Hyprland + kolos-bar + swaybg, laid on top of an alread
 
 ```bash
 cd hyprland
-./restore.sh        # fresh machine — overwrites ~/.config/{hypr,kickoff}
+./restore.sh        # fresh machine — overwrites ~/.config/{hypr,kolos-launcher}
 # or
 ./restore-safe.sh   # backs up any existing configs to ~/.config-backup-<timestamp> first
 ```
 
-Either script installs the required packages (`hyprland`, `swaybg`, `foot`, `kickoff`, PipeWire audio stack, fonts, `seatd`), builds `askpass/`, `keys/` and `bar/`, copies `dotfiles/{hypr,kickoff}` into `~/.config`, installs the `zprofile`/`zshenv`/`zshrc` shell files, sets `zsh` as the login shell, and optionally wires up tty1 autologin. After that, logging into tty1 starts Hyprland automatically via `zprofile`. `zshrc` sets a macOS Terminal.app-style prompt (`hostname:path %`) — no external prompt framework (e.g. powerlevel10k) required.
+Either script installs the required packages (`hyprland`, `swaybg`, `foot`, PipeWire audio stack, fonts, `seatd`), builds `askpass/`, `keys/`, `bar/` and `launcher/`, copies `dotfiles/{hypr,kolos-launcher}` into `~/.config`, installs the `zprofile`/`zshenv`/`zshrc` shell files, sets `zsh` as the login shell, and optionally wires up tty1 autologin. After that, logging into tty1 starts Hyprland automatically via `zprofile`. `zshrc` sets a macOS Terminal.app-style prompt (`hostname:path %`) — no external prompt framework (e.g. powerlevel10k) required.
 
 **Notable behavior:**
 - `Super+F` / `Super+T` run `float.sh` / `tile.sh` to float or tile all windows on the current workspace; `Super+V` toggles floating on the active window. New windows float by default (see the `float-by-default` window rule in `windows.lua`).
@@ -113,6 +113,7 @@ __[Arch Linux Installation Guide](https://github.com/rickellis/Arch-Linux-Instal
 
 ## Credits
 
+- `launcher/` (`kolos-launcher`) is a fork of kickoff by Folke Gleumes (<https://github.com/j0ru/kickoff>), GPL-3.0-or-later; see `launcher/LICENSE`.
 - Original packages script was a post-install cleanup script called ArchMatic: <https://github.com/rickellis/ArchMatic>
 - Base installer structure adapted from ArchTitus (<https://www.christitus.com/arch-titus>) and its livestream series: <https://www.youtube.com/watch?v=IkMCtkDIhe8&list=PLc7fktTRMBowNaBTsDHlL6X3P3ViX3tYg>
 

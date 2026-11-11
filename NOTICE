@@ -1,4 +1,4 @@
-This repository (kolos) builds on work from two upstream projects. This file
+This repository (kolos) builds on work from upstream projects. This file
 preserves their license terms / attribution as required or advisable when
 reusing their material. See also the "Credits" section in README.md.
 
@@ -46,3 +46,15 @@ by rickellis / Rick Ellis).
 ArchMatic's repository does not carry a LICENSE file or other explicit
 license grant. It is credited here as the origin of the approach; no license
 terms are asserted on its behalf.
+
+---
+
+## kickoff
+
+`launcher/` (`kolos-launcher`) is a fork of kickoff
+(<https://github.com/j0ru/kickoff>), Copyright (C) Folke Gleumes, licensed
+under the GNU General Public License v3.0 or later. The fork, including the
+controller mode added in `launcher/src/controller.rs` and
+`launcher/src/gamepad.rs`, is distributed under the same license; its full
+text is in `launcher/LICENSE`. The MIT license in the top-level `LICENSE`
+does not apply to `launcher/`.
