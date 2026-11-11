@@ -21,6 +21,23 @@ multi-monitor desktop, HiDPI scaling). There's no example/gitignore
 indirection anymore — see the commented-out `hl.monitor({...})` /
 `hl.workspace_rule({...})` examples at the bottom of the file.
 
+## Rotated touchscreens
+
+Hyprland doesn't rotate touch input along with a monitor's `transform`: a
+touchscreen on a rotated panel reports in the panel's native frame, so every
+tap lands rotated (most visibly in Waydroid, but it's every app). The fix is
+a per-device `transform` matching the monitor's, plus `output` so the
+touchscreen stays on its own panel when an external monitor is plugged in.
+`input.lua` carries this for the Retroid Pocket 6 (native 1080x1920 portrait
+DSI-1, shown landscape with `transform = 1`): `hl.device({ name =
+"generic-ft5x06-(8d)", transform = 1, output = "DSI-1" })`. Matched by device
+name, so it does nothing on other machines; a global
+`input.touchdevice.transform` would rotate every machine's touchscreen.
+Checked with a uinput clone of the panel (cloned devices get a `-1` name
+suffix, so give the rule that name while testing) and a GTK window logging
+touch coordinates: the panel's native top-left lands at the screen's
+top-right, matching how `transform = 1` draws the picture.
+
 ## Suspend-on-idle is laptop-only
 
 `hypridle.conf`'s 10-minute idle listener runs `systemctl suspend` — correct

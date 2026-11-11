@@ -42,3 +42,14 @@ hl.window_rule({
     match = { class = "foot" },
     scroll_touchpad = 1.5,
 })
+
+-- Retroid Pocket 6 (pocknix): the built-in panel is native 1080x1920 portrait shown landscape
+-- (that machine's monitors.lua: DSI-1, transform 1), and its ft5x06 touchscreen reports in that portrait frame.
+-- Hyprland doesn't rotate touch with the monitor, so every tap landed rotated; rotate it the same
+-- way and keep it on DSI-1 when an external monitor is plugged in. Matched by device name, so
+-- it's a no-op on any other machine.
+hl.device({
+    name = "generic-ft5x06-(8d)",
+    transform = 1,
+    output = "DSI-1",
+})
