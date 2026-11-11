@@ -6,6 +6,10 @@ hl.on("hyprland.start", function()
     -- Uncomment to autostart the NetworkManager tray applet:
     -- hl.exec_cmd("nm-applet &")
 
+    -- Hand the RP6's Plasma Mobile env (envs.lua) to D-Bus/systemd-activated KDE apps too.
+    if kde_mobile then
+        hl.exec_cmd("dbus-update-activation-environment --systemd " .. table.concat(kde_mobile_env, " "))
+    end
     hl.exec_cmd("hypridle")
     hl.exec_cmd("hyprsunset")
 end)

@@ -38,6 +38,20 @@ suffix, so give the rule that name while testing) and a GTK window logging
 touch coordinates: the panel's native top-left lands at the screen's
 top-right, matching how `transform = 1` draws the picture.
 
+## KDE apps in touch mode on the RP6
+
+On the Retroid Pocket 6, KDE/Kirigami apps (Discover, System Settings,
+Angelfish, ...) should flick-scroll by touch like under Plasma Mobile. Plasma
+Mobile does that with nothing compositor-side: `startplasmamobile` exports
+`QT_QUICK_CONTROLS_STYLE=org.kde.breeze`, `QT_QUICK_CONTROLS_MOBILE=true`,
+`PLASMA_PLATFORM=phone:handset` and friends, and KWin reports tablet mode over
+D-Bus. `envs.lua` sets the same vars plus `KDE_KIRIGAMI_TABLET_MODE=1` (there's
+no KWin to report it), only when `/sys/firmware/devicetree/base/model`
+contains "Retroid Pocket 6", so other machines keep the desktop layout.
+`autostart.lua` passes them on to D-Bus/systemd-activated apps through
+`dbus-update-activation-environment`. QtWidgets apps (Dolphin, Konsole, Kate)
+don't flick-scroll here, and don't under Plasma Mobile either.
+
 ## Suspend-on-idle is laptop-only
 
 `hypridle.conf`'s 10-minute idle listener runs `systemctl suspend` — correct
