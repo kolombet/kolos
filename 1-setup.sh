@@ -122,6 +122,7 @@ PKGS=(
 'jq'
 'swaybg'
 'foot'
+'konsole'
 'bibata-cursor-theme'
 'fuzzel'
 'cosmic-files'

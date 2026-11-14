@@ -1,6 +1,6 @@
 local mainMod = "SUPER"
 
-hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal .. " --working-directory=\"$(~/.config/hypr/terminal-cwd.sh)\""))
+hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("konsole --workdir \"$(~/.config/hypr/terminal-cwd.sh)\""))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(editor))
 hl.bind(mainMod .. " + Z", hl.dsp.exec_cmd("zed"))

@@ -1,0 +1,23 @@
+[Desktop Entry]
+DefaultProfile=Foot.profile
+
+[General]
+ConfigVersion=1
+
+[KonsoleWindow]
+ShowMenuBarByDefault=false
+
+[MainWindow]
+MenuBar=Disabled
+
+[Notification Messages]
+CloseAllTabs=true
+
+[TabBar]
+TabBarVisibility=AlwaysHideTabBar
+
+[TabBarSettings]
+TabBarVisibility=AlwaysHideTabBar
+
+[UiSettings]
+ColorScheme=

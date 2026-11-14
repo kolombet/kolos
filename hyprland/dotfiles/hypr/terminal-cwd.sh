@@ -4,7 +4,7 @@
 # Terminal.app behavior). Falls back to $HOME.
 
 pid=$(hyprctl clients -j 2>/dev/null | jq -r '
-    [.[] | select(.class == "foot")] | sort_by(.focusHistoryID) | .[0].pid // empty
+    [.[] | select(.class == "foot" or .class == "org.kde.konsole")] | sort_by(.focusHistoryID) | .[0].pid // empty
 ')
 
 if [ -z "$pid" ] || [ "$pid" = "null" ]; then

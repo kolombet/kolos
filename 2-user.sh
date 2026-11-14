@@ -31,6 +31,9 @@ cargo build --release --manifest-path $HOME/$SCRIPTHOME/launcher/Cargo.toml
 install -Dm755 $HOME/$SCRIPTHOME/launcher/target/release/kolos-launcher $HOME/.local/bin/kolos-launcher
 cp -r $HOME/$SCRIPTHOME/dotfiles/* $HOME/.config/
 cp -r $HOME/$SCRIPTHOME/hyprland/dotfiles/* $HOME/.config/
+mkdir -p $HOME/.local/share/konsole
+cp $HOME/$SCRIPTHOME/dotfiles/konsole/Foot.colorscheme $HOME/$SCRIPTHOME/dotfiles/konsole/Foot.profile $HOME/.local/share/konsole/
+cp $HOME/$SCRIPTHOME/dotfiles/konsole/konsolerc $HOME/.config/konsolerc
 cp $HOME/$SCRIPTHOME/hyprland/shell/zshenv $HOME/.zshenv
 cp $HOME/$SCRIPTHOME/hyprland/shell/zprofile $HOME/.zprofile
 cp $HOME/$SCRIPTHOME/hyprland/shell/zshrc $HOME/.zshrc

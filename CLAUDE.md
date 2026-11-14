@@ -575,8 +575,10 @@ with the keyboard can leave the active window buried behind others.
   sat there moved on to `Mod+N`, see above).
 - `Mod+RETURN` opens a new terminal in the same directory as the
   currently-focused terminal (macOS Terminal.app behavior), via
-  `$terminal --working-directory="$(~/.config/hypr/terminal-cwd.sh)"`.
-  `terminal-cwd.sh` finds the most-recently-focused `foot` window
+  `konsole --workdir "$(~/.config/hypr/terminal-cwd.sh)"` (Konsole, not
+  `$terminal`, see "Konsole" below).
+  `terminal-cwd.sh` finds the most-recently-focused `foot` or Konsole
+  (`org.kde.konsole`) window
   (`hyprctl clients -j`, sorted by `focusHistoryID`) and reads its direct
   shell child's `/proc/<pid>/cwd` — deliberately *not* a deeper recursive
   walk into whatever the shell is running, since that gets confused by
@@ -634,6 +636,29 @@ foot's config lives in the top-level `dotfiles/foot/` (not
 `~/.config/foot/` explicitly (`restore-safe.sh` backs up the old one
 first), and `2-user.sh` picks it up via `cp -r dotfiles/*`. Colors come
 from the included `foot-theme.ini`.
+
+## Konsole (Mod+Return terminal)
+
+`Mod+Return` opens Konsole, not foot, because Konsole has smooth
+(pixel) scrolling and foot doesn't. foot is still `terminal` in
+`programs.lua` and is used by the quake drop-down (`windows.lua`) and
+anything else that reads `$terminal`.
+
+Konsole is styled to look like foot, files in `dotfiles/konsole/`:
+`Foot.colorscheme` (foot's starlight palette, `Opacity=0.92` and
+`Blur=true` for the transparent background), `Foot.profile` (that scheme,
+monospace 10.4, scrollbar hidden), and `konsolerc` (default profile, menu
+bar and tab bar hidden). The profile and scheme go to
+`~/.local/share/konsole/`, `konsolerc` to `~/.config/konsolerc`, done by
+`restore.sh`, `restore-safe.sh` and `2-user.sh` (`2-user.sh`'s
+`cp -r dotfiles/*` also drops a stray `~/.config/konsole/`, harmless).
+
+The bar that looks like a titlebar is Konsole's own terminal header bar,
+not a window decoration: Hyprland draws no titlebars, and
+`QT_WAYLAND_DISABLE_WINDOWDECORATION` made no difference. It's hidden
+via Settings > Configure Konsole > Tab Bar > Show Header = never. Verify
+that `konsolerc` actually carries that setting (the header key wasn't
+confirmed when this was written).
 
 ## Function keys as media keys (macOS-style)
 

@@ -13,6 +13,7 @@ PKGS=(
     hyprland
     swaybg
     foot
+    konsole
     # Cursor theme (set via dotfiles/hypr/envs.lua XCURSOR_THEME)
     bibata-cursor-theme
     fuzzel
@@ -77,6 +78,9 @@ cp -r "$SCRIPT_DIR/dotfiles/hypr"    "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/dotfiles/kolos-launcher" "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/dotfiles/xdg-desktop-portal" "$USER_HOME/.config/"
 cp -r "$SCRIPT_DIR/../dotfiles/foot" "$USER_HOME/.config/"
+mkdir -p "$USER_HOME/.local/share/konsole"
+cp "$SCRIPT_DIR/../dotfiles/konsole/Foot.colorscheme" "$SCRIPT_DIR/../dotfiles/konsole/Foot.profile" "$USER_HOME/.local/share/konsole/"
+cp "$SCRIPT_DIR/../dotfiles/konsole/konsolerc" "$USER_HOME/.config/konsolerc"
 
 echo "==> Shell configs"
 cp "$SCRIPT_DIR/shell/zshenv"   "$USER_HOME/.zshenv"
